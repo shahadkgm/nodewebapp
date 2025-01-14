@@ -5,6 +5,10 @@ const fs =require("fs");
 const path=require("path");
 const sharp=require("sharp");
 const product = require("../../models/productSchema");
+const { render } = require("ejs");
+const { createHash } = require("crypto");
+const { log } = require("console");
+const { status } = require("init");
 
 
 
@@ -66,7 +70,7 @@ await newProduct.save();
 return res.redirect("/admin/addProducts");
 
         }else{
-           return res.status(400).json("Product already exist ,please try with anoth")
+           return res.status(400).json("Product already exist ,please try with another")
         }
     }
     
@@ -164,16 +168,112 @@ const blockProduct=async(req,res)=>{
         res.redirect("/pageerror")
     }
 };
-const unblockProduct=async(res,req)=>{
+const unblockProduct=async(req,res)=>{
     try {
         let id=req.query.id;
         await Product.updateOne({_id:id},{$set:{isBlocked:false}}); 
         res.redirect("/admin/products")
     } catch (error) {
-        res.redirect("/pageerror")
+        res.redirect("/admin/pageerror")
         
     }
 
+};
+const getEditProduct = async (req, res) => {
+    try {
+        const id = req.query.id;
+        // console.log("Product ID:", id);
+
+        // Fetch the product and related category
+        const product = await Product.findOne({ _id: id }).populate('category'); // Populate category details
+        if (!product) {
+            console.error("Product not found");
+            return res.redirect("/admin/pageerror");
+        }
+
+        const categories = await Category.find({ isListed: true });
+
+        res.render("product-edit", {
+            product: product,  // Pass the product object
+            cat: categories,   // Pass the categories
+        });
+    } catch (error) {
+        console.error("Error in getEditProduct:", error);
+        res.redirect("/admin/pageerror");
+    }
+};
+
+const editProduct = async (req, res) => {
+    try {
+        const id = req.params.id;
+        console.log("id in edit prdct",id)
+        const product = await Product.findOne({ _id: id });
+        console.log("product in edit product",product)
+
+        if (!product) {
+            return res.status(404).json({ error: "Product not found." });  // Return 404 if product doesn't exist
+        }
+
+        const data = req.body;
+        const existingProduct = await Product.findOne({
+            productName: data.productName,
+            _id: { $ne: id }
+        });
+
+        if (existingProduct) {
+            return res.status(400).json({ error: "Product with this name already exists. Please try with another name." });
+        }
+
+        const images = [];
+        if (req.files && req.files.length > 0) {
+            for (let i = 0; i < req.files.length; i++) {
+                images.push(req.files[i].filename);
+            }
+        }
+
+        const updateFields = {
+            productName: data.productName,
+            description: data.description,
+            category: product.category, // Ensure 'product' exists before accessing 'category'
+            regularPrice: data.regularPrice,
+            salePrice: data.salePrice,
+            size: data.size,
+            color: data.color
+        };
+
+        if (images.length > 0) {
+            updateFields.$push = { productImage: { $each: images } };
+        }
+
+        await Product.findByIdAndUpdate(id, updateFields, { new: true });
+        console.log("Product updated successfully");
+        res.redirect("/admin/products");
+
+    } catch (error) {
+        console.error("Error in editProduct:", error);
+        res.redirect("/admin/pageerror");
+    }
+};
+
+const deleteSingleImage=async (req,res)=>{
+    console.log("deletsngle")
+    try {
+        const{imageNameToServer,productIdToServer}=req.body;
+        const product= await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}});
+        const imagePath=path.join("public","uploads","product-images",imageNameToServer);
+        if(fs.existsSync(imagePath)){
+            await fs.unlinkSync(imagePath);
+            console.log(`imaage${imageNameToServer} deleted successfully`);
+        }else{
+            console.log(`Image${imageNameToServer}not found`);
+            res.send({status:true});
+        }
+    } catch (error) {
+        console.error("dlt sigle ",error)
+        res.redirect("/admin/pageerror")
+        
+        
+    }
 }
 
 
@@ -186,6 +286,9 @@ module.exports={
     removeProductOffer,
     blockProduct,
     unblockProduct,
+    getEditProduct,
+    editProduct,
+    deleteSingleImage,
 
 
 }

@@ -39,7 +39,7 @@ const orderSchema = new mongoose.Schema({
         default:0
     },
     address:{
-        type:Schema.Types.orderId,
+        type:Schema.Types.String,
         ref:'User',
         required:true
     },

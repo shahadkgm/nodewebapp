@@ -1,7 +1,11 @@
 const User=require("../../models/userschema");
 const nodemailer=require("nodemailer");
+const Category=require("../../models/categorySchema");
+const Product=require("../../models/productSchema")
 const env=require("dotenv").config();
-const bcrypt=require("bcrypt")
+const bcrypt=require("bcrypt");
+const product = require("../../models/productSchema");
+const Order=require("../../models/orderSchema")
 
 
 
@@ -19,6 +23,10 @@ const pageNoTFound = async (req, res) => {
 const loadHomepage = async (req, res) => {
     try {
         const user=req.session.user;
+//         const categories=await Category.find({isListed:true});
+//         const productData=await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}})
+// productData.sort((a,b)=>new Date(b.createOn)-new Date(a.createOn));
+// productData=productData.slice(0,4);
     if(user){
         const userData= await User.findOne({_id:user});
         res.render("home",{user:userData})
@@ -224,6 +232,19 @@ const logout=async(req,res)=>{
         res.redirect("/pageNotFound")
         
     }
+};
+const getUserProfile=async(req,res)=>{
+    try {
+        const userId = req.session.user; // Assuming userId is stored in session
+        const user = await User.findById(userId)   //.populate('User');  Assuming addresses is a ref
+        const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+
+        res.render('profile', { user, orders });
+    } catch (error) {
+        console.error('Error loading profile:', error);
+        res.redirect('/pageNotFound');
+    }
+
 }
 
 
@@ -238,7 +259,8 @@ module.exports = {
     resendOtp,
     loadlogin,
     login,
-    logout
+    logout,
+    getUserProfile
 
 
 }
