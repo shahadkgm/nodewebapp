@@ -4,14 +4,14 @@ const userAuth=(req,res,next)=>{
     if(req.session.user){
         User.findById(req.session.user)
         .then(data=>{
-            if(data&&!isBlocked){
+            if(data){
                 next();
             }else{
                 res.redirect("/login")
             }
         })
         .catch(error=>{
-            console.log("error in userAuth middleware");
+            console.error("error in userAuth middleware",error);
             res.status(500).send("Internal server error")
         })
     }else{
@@ -29,7 +29,7 @@ const adminAuth=(req,res,next)=>{
         }
     })
     .catch(error=>{
-        console.log("error in adminauth middleware ",error)
+        console.error("error in adminauth middleware ",error)
         res.status(500).send("Internal Server Error")
     })}else{
         res.redirect("/admin/login")

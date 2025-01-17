@@ -233,19 +233,21 @@ const logout=async(req,res)=>{
         
     }
 };
-const getUserProfile=async(req,res)=>{
-    try {
-        const userId = req.session.user; // Assuming userId is stored in session
-        const user = await User.findById(userId)   //.populate('User');  Assuming addresses is a ref
-        const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+// const getUserProfile=async(req,res)=>{
+//     try {
+//         const userId = req.session.user; // Assuming userId is stored in session
+//         const user = await User.findById(userId)   //.populate('User');  Assuming addresses is a ref
+//         const orders = await Order.find({ userId }).sort({ createdAt: -1 });
 
-        res.render('profile', { user, orders });
-    } catch (error) {
-        console.error('Error loading profile:', error);
-        res.redirect('/pageNotFound');
-    }
+//         res.render('profile', { user, orders });
+//     } catch (error) {
+//         console.error('Error loading profile:', error);
+//         res.redirect('/pageNotFound');
+//     }
 
-}
+// }
+
+
 
 
 
@@ -260,7 +262,8 @@ module.exports = {
     loadlogin,
     login,
     logout,
-    getUserProfile
+    
+    // getUserProfile
 
 
 }
