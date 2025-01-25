@@ -1,257 +1,338 @@
-
-		<!-- End Header/Navigation -->
-        <%- include('../../views/partials/user/header') %>
-
-		<!-- Start Hero Section -->
-			<div class="hero">
-				<div class="container">
-					<div class="row justify-content-between">
-						<div class="col-lg-5">
-							<div class="intro-excerpt">
-								<h1>Shop</h1>
-							</div>
-						</div>
-						<div class="col-lg-7">
-							
-						</div>
-					</div>
-				</div>
-			</div>
-		<!-- End Hero Section -->
-
-		
-
-		<div class="untree_co-section product-section before-footer-section">
-		    <div class="container">
-		      	<div class="row">
-
-		      		<!-- Start Column 1 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-3.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Nordic Chair</h3>
-							<strong class="product-price">$50.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div> 
-					<!-- End Column 1 -->
-						
-					<!-- Start Column 2 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-1.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Nordic Chair</h3>
-							<strong class="product-price">$50.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div> 
-					<!-- End Column 2 -->
-
-					<!-- Start Column 3 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-2.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Kruzo Aero Chair</h3>
-							<strong class="product-price">$78.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div>
-					<!-- End Column 3 -->
-
-					<!-- Start Column 4 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-3.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Ergonomic Chair</h3>
-							<strong class="product-price">$43.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div>
-					<!-- End Column 4 -->
+<%- include("../../views/partials/user/header") %>
+<style>
+ .main-container {
+   max-width: 1200px;
+   margin: 0 auto;
+   padding: 20px;
+ }
+ .shop-topbar {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 20px;
+ }
 
 
-					<!-- Start Column 1 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-3.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Nordic Chair</h3>
-							<strong class="product-price">$50.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div> 
-					<!-- End Column 1 -->
-						
-					<!-- Start Column 2 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-1.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Nordic Chair</h3>
-							<strong class="product-price">$50.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div> 
-					<!-- End Column 2 -->
-
-					<!-- Start Column 3 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-2.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Kruzo Aero Chair</h3>
-							<strong class="product-price">$78.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div>
-					<!-- End Column 3 -->
-
-					<!-- Start Column 4 -->
-					<div class="col-12 col-md-4 col-lg-3 mb-5">
-						<a class="product-item" href="#">
-							<img src="images/product-3.png" class="img-fluid product-thumbnail">
-							<h3 class="product-title">Ergonomic Chair</h3>
-							<strong class="product-price">$43.00</strong>
-
-							<span class="icon-cross">
-								<img src="images/cross.svg" class="img-fluid">
-							</span>
-						</a>
-					</div>
-					<!-- End Column 4 -->
-
-		      	</div>
-		    </div>
-		</div>
+ .search-form {
+   display: flex;
+   align-items: center;
+   background-color: #f1f1f1;
+   border-radius: 25px;
+   overflow: hidden;
+   max-width: 250px;
+   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+ }
 
 
-		<!-- Start Footer Section -->
-		<footer class="footer-section">
-			<div class="container relative">
-
-				<div class="sofa-img">
-					<img src="images/sofa.png" alt="Image" class="img-fluid">
-				</div>
-
-				<div class="row">
-					<div class="col-lg-8">
-						<div class="subscription-form">
-							<h3 class="d-flex align-items-center"><span class="me-1"><img src="images/envelope-outline.svg" alt="Image" class="img-fluid"></span><span>Subscribe to Newsletter</span></h3>
-
-							<form action="#" class="row g-3">
-								<div class="col-auto">
-									<input type="text" class="form-control" placeholder="Enter your name">
-								</div>
-								<div class="col-auto">
-									<input type="email" class="form-control" placeholder="Enter your email">
-								</div>
-								<div class="col-auto">
-									<button class="btn btn-primary">
-										<span class="fa fa-paper-plane"></span>
-									</button>
-								</div>
-							</form>
-
-						</div>
-					</div>
-				</div>
-
-				<div class="row g-5 mb-5">
-					<div class="col-lg-4">
-						<div class="mb-4 footer-logo-wrap"><a href="#" class="footer-logo">Furni<span>.</span></a></div>
-						<p class="mb-4">Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant</p>
-
-						<ul class="list-unstyled custom-social">
-							<li><a href="#"><span class="fa fa-brands fa-facebook-f"></span></a></li>
-							<li><a href="#"><span class="fa fa-brands fa-twitter"></span></a></li>
-							<li><a href="#"><span class="fa fa-brands fa-instagram"></span></a></li>
-							<li><a href="#"><span class="fa fa-brands fa-linkedin"></span></a></li>
-						</ul>
-					</div>
-
-					<div class="col-lg-8">
-						<div class="row links-wrap">
-							<div class="col-6 col-sm-6 col-md-3">
-								<ul class="list-unstyled">
-									<li><a href="#">About us</a></li>
-									<li><a href="#">Services</a></li>
-									<li><a href="#">Blog</a></li>
-									<li><a href="#">Contact us</a></li>
-								</ul>
-							</div>
-
-							<div class="col-6 col-sm-6 col-md-3">
-								<ul class="list-unstyled">
-									<li><a href="#">Support</a></li>
-									<li><a href="#">Knowledge base</a></li>
-									<li><a href="#">Live chat</a></li>
-								</ul>
-							</div>
-
-							<div class="col-6 col-sm-6 col-md-3">
-								<ul class="list-unstyled">
-									<li><a href="#">Jobs</a></li>
-									<li><a href="#">Our team</a></li>
-									<li><a href="#">Leadership</a></li>
-									<li><a href="#">Privacy Policy</a></li>
-								</ul>
-							</div>
-
-							<div class="col-6 col-sm-6 col-md-3">
-								<ul class="list-unstyled">
-									<li><a href="#">Nordic Chair</a></li>
-									<li><a href="#">Kruzo Aero</a></li>
-									<li><a href="#">Ergonomic Chair</a></li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-				</div>
-
-				<div class="border-top copyright">
-					<div class="row pt-4">
-						<div class="col-lg-6">
-							<p class="mb-2 text-center text-lg-start">Copyright &copy;<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash; Designed with love by <a href="https://untree.co">Untree.co</a>  Distributed By <a href="https://themewagon.com">ThemeWagon</a> <!-- License information: https://untree.co/license/ -->
-            </p>
-						</div>
-
-						<div class="col-lg-6 text-center text-lg-end">
-							<ul class="list-unstyled d-inline-flex ms-auto">
-								<li class="me-4"><a href="#">Terms &amp; Conditions</a></li>
-								<li><a href="#">Privacy Policy</a></li>
-							</ul>
-						</div>
-
-					</div>
-				</div>
-
-			</div>
-		</footer>
-		<!-- End Footer Section -->	
+ .search-input {
+   flex: 1;
+   padding: 8px 10px;
+   font-size: 14px;
+   border: none;
+   outline: none;
+   background-color: transparent;
+ }
 
 
-		<script src="js/bootstrap.bundle.min.js"></script>
-		<script src="js/tiny-slider.js"></script>
-		<script src="js/custom.js"></script>
-	</body>
+ .search-button {
+   padding: 8px 15px;
+   background-color: #1e918b;
+   color: #fff;
+   border: none;
+   cursor: pointer;
+   font-size: 14px;
+   border-radius: 15px;
+   margin-right: 5px;
+   transition: background-color 0.3s, transform 0.2s;
+ }
 
-</html>
+
+ .search-button:hover {
+   background-color: #0056b3;
+   transform: scale(1.05);
+ }
+ .sidebar {
+   padding: 20px;
+   border: 1px solid #ddd;
+   background-color: #f9f9f9;
+   border-radius: 8px;
+   margin-bottom: 20px;
+   width: 250px;
+   text-align: center;
+ }
+
+
+ .filter-section {
+   margin-bottom: 20px;
+ }
+
+
+ .filter-title {
+   font-weight: bold;
+   margin-bottom: 10px;
+   font-size: 16px;
+   color: #333;
+ }
+
+
+ .filter-item {
+   margin: 5px 0;
+ }
+
+
+ .filter-item a {
+   text-decoration: none;
+   color: #333;
+ }
+
+
+ .filter-item a:hover {
+   color: #007bff;
+ }
+
+
+ .product-list-container {
+   display: flex;
+   gap: 20px;
+ }
+
+
+ .product-grid {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 20px;
+   width: calc(100% - 270px);
+ }
+
+
+ .product-card {
+   width: calc(33.333% - 20px);
+   border: 1px solid #ddd;
+   padding: 15px;
+   border-radius: 8px;
+   text-align: center;
+   position: relative;
+ }
+
+
+ .product-card img {
+   max-width: 100%;
+   height: auto;
+   border-radius: 5px;
+ }
+
+
+ .wishlist-btn {
+   position: absolute;
+   top: 8px;
+   right: 8px;
+   background-color: rgba(237, 247, 247, 0.8);
+   color: #fff;
+   padding: 8px;
+   border-radius: 50%;
+   cursor: pointer;
+ }
+
+
+ .add-to-cart-btn {
+   background-color: #198754;
+   color: #fff;
+   padding: 10px;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   width: 100%;
+   margin-top: 10px;
+ }
+
+
+ .pagination {
+   display: flex;
+   justify-content: center;
+   gap: 10px;
+   margin: 20px 0;
+ }
+
+
+ .pagination a {
+   padding: 8px 12px;
+   background-color: #f0f0f0;
+   border: 1px solid #ddd;
+   color: #333;
+   text-decoration: none;
+ }
+
+
+ .pagination .active {
+   background-color: #007bff;
+   color: #fff;
+ }
+
+
+ .price-filter {
+   padding: 10px;
+   background-color: #f9f9f9;
+   border-radius: 8px;
+   margin-top: 20px;
+ }
+
+
+ .price-filter .price-options {
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+ }
+
+
+ .price-button {
+   padding: 12px 20px;
+   background-color: #f1f1f1;
+   color: #333;
+   border: 1px solid #ddd;
+   border-radius: 30px;
+   cursor: pointer;
+   transition: background-color 0.3s, transform 0.2s;
+   text-align: center;
+   font-size: 14px;
+ }
+
+
+ .price-button:hover {
+   background-color: #007bff;
+   color: white;
+   transform: scale(1.05);
+ }
+
+
+ .price-button:active {
+   transform: scale(0.95);
+ }
+
+
+ .category-brand-container {
+   text-align: center;
+ }
+</style>
+
+
+<div class="main-container">
+ <section class="shop-page container">
+  <div class="shop-topbar">
+    <div class="search-bar">
+      <form action="/shop" method="GET" class="search-form">
+        <input type="text" name="query" placeholder="Search items..." class="search-input" />
+        <button type="submit" class="search-button">Search</button>
+      </form>
+    </div>
+  
+    <div class="sort-bar">
+      <form action="/shop" method="GET" id="sort-form">
+        <label for="sort">Sort by:</label>
+        <select name="sort" id="sort" onchange="document.getElementById('sort-form').submit()">
+          <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Popularity</option>
+          <option value="priceLowHigh" <%= sort === 'priceLowHigh' ? 'selected' : '' %>>Price: Low to High</option>
+          <option value="priceHighLow" <%= sort === 'priceHighLow' ? 'selected' : '' %>>Price: High to Low</option>
+          <option value="avgRating" <%= sort === 'avgRating' ? 'selected' : '' %>>Average Ratings</option>
+          <option value="featured" <%= sort === 'featured' ? 'selected' : '' %>>Featured</option>
+          <option value="newArrivals" <%= sort === 'newArrivals' ? 'selected' : '' %>>New Arrivals</option>
+          <option value="aToZ" <%= sort === 'aToZ' ? 'selected' : '' %>>A-Z</option>
+          <option value="zToA" <%= sort === 'zToA' ? 'selected' : '' %>>Z-A</option>
+        </select>
+      </form>
+    </div>
+  </div>
+  
+  
+   <div class="product-list-container">
+     <aside class="sidebar">
+       <div class="filter-section">
+         <div class="filter-title">Categories</div>
+         <div class="category-brand-container">
+           <ul>
+			<% for (let i = 0; i < category.length; i++) { %>
+				<li class="filter-item">
+					<a href="/filter?category=<%= category[i]._id %>"><%= category[i].name %></a>
+				</li>
+			<% } %>
+			
+           </ul>
+         </div>
+       </div>
+
+
+      
+      
+
+
+      
+       <div class="price-filter">
+         <div class="filter-title">Filter by Price</div>
+         <form id="price-filter-form">
+			<div class="price-options">
+				<a href="/filterPrice?price=under500"><button type="button" class="price-button">Under ₹500</button></a>
+				<a href="/filterPrice?price=500-1000"><button type="button" class="price-button">₹500 - ₹1000</button></a>
+				<a href="/filterPrice?price=1000-1500"><button type="button" class="price-button">₹1000 - ₹1500</button></a>
+				<a href="/filterPrice?price=above1500"><button type="button" class="price-button">Above ₹1500</button></a>
+			  </div>
+         </form>
+       </div>
+     </aside>
+
+
+     <main class="product-grid">
+		<%for(let i=0;i<products.length;i++){ %>
+         <div class="product-card">
+           <span class="wishlist-btn" onclick="">❤️</span>
+		   <a href="/product-details/<%= products[i]._id %>">
+			<img src="/uploads/product-images/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
+             <h4><%=products[i].productName%></h4>
+             <p></p>
+			 <p>
+				Price: ₹
+				<%= typeof products[i].salePrice === 'number' ? products[i].salePrice.toLocaleString('en-IN') : 1000 %>
+				<span class="text-muted">
+				  <strike>
+					₹<%= typeof products[i].regularPrice === 'number' ? products[i].regularPrice.toLocaleString('en-IN') : 'N/A' %>
+				  </strike>
+				</span>
+			  </p>
+						 </a>
+						 <form action="/add" method="POST">
+							<input type="hidden" name="productId" value="<%= products[i]._id %>">
+							<input type="hidden" name="quantity" value="1"> <!-- Default quantity -->
+							<button type="submit" class="add-to-cart-btn" id="addToCart">Add to Cart</button>
+						  </form>
+						  
+         </div>
+		 <%}%>
+     </main>
+   </div>
+
+
+<!-- Pagination -->
+   <div class="pagination">
+	<% if (currentPage > 1) { %>
+	  <a class="btn" href="/shop?page=<%= currentPage - 1 %>">Prev</a>
+	<% } %>
+
+
+	<% for (let i = 1; i <= totalPages; i++) { %>
+	  <a class="btn <%= currentPage === i ? 'active' : '' %>" href="/shop?page=<%= i %>"><%= i %></a>
+	<% } %>
+
+
+	<% if (currentPage < totalPages) { %>
+	  <a class="btn" href="/shop?page=<%= currentPage + 1 %>">Next</a>
+	<% } %>
+  </div>
+
+
+  
+ </section>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+
+<%- include("../../views/partials/user/footer") %>
+
+
+

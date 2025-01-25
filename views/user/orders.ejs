@@ -1,0 +1,69 @@
+<%- include("../../views/partials/user/header") %>
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+		
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Your Orders</h2>
+    <div class="row">
+      <% orders.forEach(order => { %>
+        <div class="col-md-12 mb-3">
+          <div class="card">
+            <div class="card-header">
+              <strong>Order ID:</strong> <%= order.orderId %>
+              <span class="float-end"><strong>Status:</strong> <%= order.status %></span>
+            </div>
+            <div class="card-body">
+              <% order.orderedItems.forEach(item => { %>
+                <div class="d-flex justify-content-between mb-3">
+                  <div>
+                    <strong>Product:</strong> <%= item.product.productName %> <br>
+                    <strong>Price:</strong> ₹<%= item.price %> <br>
+                    <strong>Quantity:</strong> <%= item.quantity %>
+                  </div>
+                </div>
+              <% }) %>
+              <hr>
+              <div class="d-flex justify-content-between">
+                <strong>Total Price:</strong> ₹<%= order.totalPrice %>
+                <form action="/cancel-order/<%= order._id %>"  id="cancelOrderForm-<%= order._id %>"  method="POST" class="d-inline">
+                  <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+                    <button type="submit"  onclick="confirmCancel('<%= order._id %>')"  class="btn btn-danger btn-sm">Cancel Order</button>
+                  <% } else { %>
+                    <button type="button" class="btn btn-secondary btn-sm" disabled>Cannot Cancel</button>
+                  <% } %>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <script>
+
+function confirmCancel(orderId) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to undo this action!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, cancel it!",
+      cancelButtonText: "No, keep it",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Submit the form if confirmed
+        document.getElementById(`cancelOrderForm-${orderId}`).submit();
+      }
+    });
+  }
+
+
+
+  </script>

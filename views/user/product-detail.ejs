@@ -1,0 +1,294 @@
+<%- include("../../views/partials/user/header") %>
+<style>
+  /* Page Header */
+.page-header {
+  background-color: #f8f9fa;
+  padding: 20px 0;
+}
+
+.breadcrumb {
+  font-size: 14px;
+  padding: 10px 0;
+  margin: 0;
+  background: none;
+}
+
+.breadcrumb a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.breadcrumb span {
+  color: #6c757d;
+}
+
+/* Product Detail Slider */
+.product-detail .detail-gallery {
+  position: relative;
+}
+
+.product-detail .swiper-container {
+  width: 100%;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.product-detail .swiper-slide img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #333;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  color: #000;
+}
+
+/* Product Information */
+.detail-info {
+  padding-left: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.title-detail {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.product-price {
+  font-size: 24px;
+  color: #28a745;
+}
+
+.product-price .old-price {
+  color: #6c757d;
+  text-decoration: line-through;
+}
+
+.save-price {
+  color: #dc3545;
+}
+
+.short-desc p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.product-meta {
+  margin-top: 20px;
+}
+
+.product-meta li {
+  margin-bottom: 5px;
+}
+
+.product-meta .in-stock {
+  color: #28a745;
+}
+
+.product-detail-rating {
+  margin-bottom: 20px;
+}
+
+/* Make Images Responsive */
+.detail-gallery img {
+  max-width: 100%;
+}
+
+/* Related Products Section */
+.related-products ul {
+  padding: 0;
+  list-style: none;
+}
+
+.related-products ul li {
+  margin-bottom: 15px;
+}
+
+.related-products ul li img {
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+/* Add to Cart Button */
+.add-to-cart-btn {
+  background-color: #28a745;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+  background-color: #218838;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .detail-info {
+    padding-left: 0;
+    margin-top: 20px;
+  }
+
+  .title-detail {
+    font-size: 24px;
+  }
+
+  .product-price {
+    font-size: 20px;
+  }
+
+  .short-desc p {
+    font-size: 14px;
+  }
+}
+
+</style>
+
+<main class="main">
+  <!-- Breadcrumb Section -->
+  <div class="page-header breadcrumb-wrap">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="/" rel="nofollow">Home</a>
+        <span></span>
+        <span>Product Detail Page</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Detail Section -->
+  <section class="mt-50 mb-50">
+    <div class="container">
+      <div class="row">
+        <!-- Product Details -->
+        <div class="col-lg-9">
+          <div class="product-detail accordion-detail">
+            <div class="row mb-50">
+              <!-- Product Images -->
+              <div class="col-md-6 col-sm-12">
+                <div class="detail-gallery">
+                  <div class="swiper-container product-image-slider">
+                    <div class="swiper-wrapper">
+                      <% product.productImages.forEach((image) => { %>
+                        <div class="swiper-slide">
+                          <figure class="border-radius-10">
+                            <img
+                              src="/uploads/product-images/<%= image %>"
+                              alt="<%= product.name %>"
+                              style="width: 100%; object-fit: cover;"
+                            />
+                          </figure>
+                        </div>
+                      <% }); %>
+                    </div>
+                    <!-- Navigation buttons -->
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                  </div>
+                </div>
+              </div>
+              
+
+              <!-- Product Info -->
+              <div class="col-md-6 col-sm-12">
+                <div class="detail-info">
+                  <h2 class="title-detail"><%= product.name %></h2>
+                  <div class="product-detail-rating"></div>
+                  <div class="clearfix product-price-cover">
+                    <div class="product-price primary-color float-left">
+                      <ins><span class="text-brand">₹<%= product.salePrice.toLocaleString('en-IN') %></span></ins>
+                      <span class="old-price font-md ml-15">
+                        ₹<%= product.regularPrice.toLocaleString('en-IN') %>
+                      </span>
+                      <span class="save-price font-md color3 ml-15">
+                        Save ₹<%= (product.regularPrice - product.salePrice).toLocaleString('en-IN') %>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="short-desc mb-30">
+                    <p><%= product.description %></p>
+                  </div>
+                  <ul class="product-meta font-xs color-grey mt-50">
+                    <li>Availability:
+                      <span class="in-stock text-success ml-5">
+                        <%= product.stock %>
+                      </span>
+                    </li>
+                  </ul>
+                  <form action="/add" method="POST">
+                    <input type="hidden" name="productId" value="<%= product.id %>">
+                    <input type="hidden" name="quantity" value="1"> <!-- Default quantity -->
+                    <button type="submit" class="add-to-cart-btn btn btn-success">
+                      Add to Cart
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Related Products -->
+        <div class="col-lg-3">
+          <div class="related-products">
+            <h4>Related Products</h4>
+            <ul class="list-unstyled">
+              <% if (relatedProducts && relatedProducts.length > 0) { %>
+                <% relatedProducts.forEach((related) => { %>
+                  <li class="mb-2 d-flex align-items-center">
+                    <a href="/product/<%= related._id %>" class="text-decoration-none d-flex align-items-center">
+                      <img
+                        src="/uploads/product-images/<%= related.productImage[0] %>"
+                        alt="<%= related.productName %>"
+                        style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 5px;"
+                      />
+                      <span><%= related.productName %></span>
+                    </a>
+                    <p class="mb-0 text-muted small">
+                      ₹<%= related.salePrice.toLocaleString('en-IN') %>
+                    </p>
+                  </li>
+                <% }); %>
+              <% } else { %>
+                <li>No related products found.</li>
+              <% } %>
+            </ul>
+          </div>
+        </div>
+        <h5>Quality: We prioritize high-quality products and services.
+          Customer Focused: We go the extra mile to ensure customer satisfaction.
+          Innovation: We’re always looking for new ways to serve our customers better.
+          Sustainability: We are committed to environmentally-friendly practices and solutions.</h5>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+  const swiper = new Swiper('.product-image-slider', {
+    loop: true, // Infinite loop through the slides
+    slidesPerView: 1, // Display one image at a time
+    navigation: {
+      nextEl: '.swiper-button-next', // Next slide button
+      prevEl: '.swiper-button-prev', // Previous slide button
+    },
+    effect: 'slide', // Slide transition effect
+    spaceBetween: 0, // No space between slides
+  });
+</script>
+

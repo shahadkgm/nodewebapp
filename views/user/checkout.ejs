@@ -1,0 +1,94 @@
+<%- include("../../views/partials/user/header") %>
+
+<div class="container my-5">
+  <h1 class="text-center mb-4">Checkout</h1>
+
+  <!-- Order Summary Section -->
+  <div class="row mb-5">
+    <div class="col-md-12">
+      <h3>Order Summary</h3>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cart.forEach(item => { %>
+            <tr>
+              <td><%= item.productId.productName %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2" class="text-end">Grand Total:</th>
+            <th>₹<%= totalAmount.toLocaleString('en-IN') %></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Payment Method Section -->
+  <div class="row mb-5">
+    <div class="col-md-12">
+      <h3>Payment Method</h3>
+      <form action="/checkOut" method="post">
+        <!-- Payment Options -->
+        <div class="form-check">
+          <input type="radio" name="paymentMethod" id="cod" value="COD" class="form-check-input" checked>
+          <label for="cod" class="form-check-label">Cash on Delivery (COD)</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" name="paymentMethod" id="online" value="Online" class="form-check-input">
+          <label for="online" class="form-check-label">Online Payment</label>
+        </div>
+
+        <!-- Saved Addresses Section -->
+        <h3 class="mt-4">Saved Addresses</h3>
+        <% if (addresses.length > 0) { %>
+          <div class="mb-3">
+            <% addresses.forEach((address, index) => { %>
+              <div class="form-check">
+                <input 
+                  type="radio" 
+                  name="selectedAddress" 
+                  id="address<%= index %>" 
+                  value='<%= JSON.stringify(address) %>' 
+                  class="form-check-input" 
+                  <%= index === 0 ? "checked" : "" %>
+                >
+                <label for="address<%= index %>" class="form-check-label">
+                  <strong><%= address.addressType %></strong><br>
+                  <%= address.name %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %><br>
+                  Phone: <%= address.phone %> <%= address.altPhone ? `, Alt: ${address.altPhone}` : "" %>
+                </label>
+              </div>
+              
+
+            <% }); %>
+            <a href="/address">
+              <button type="button" class="btn btn-success">Add Address</button>
+            </a>
+          </div>
+        <!-- <% } else { %> -->
+          <p>No saved addresses found. Please add a new address.</p>
+          <a href="/address">
+            <button type="button" class="btn btn-success">Add Address</button>
+          </a>
+        <% } %>
+
+        <!-- Submit Button -->
+        <div class="text-end mt-5">
+          <button type="submit" class="btn btn-primary">Place Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

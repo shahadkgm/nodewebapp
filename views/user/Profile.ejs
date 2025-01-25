@@ -219,31 +219,54 @@
                       <h5 class="mb-0">Your Orders</h5>
                     </div>
                     <div class="card-body">
-                      <div class="table-responsive">
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th>Order</th>
-                              <th>Status</th>
-                              <th>Total</th>
-                              <th>Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td>
-                                <a href="#" class="btn-small d-block">View</a>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                      <% if (orders.length > 0) { %>
+                        <div class="table-responsive">
+                          <table class="table table-bordered">
+                            <thead>
+                              <tr>
+                                <th>Order ID</th>
+                                <th>Status</th>
+                                <th>Total Price</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% orders.forEach(order => { %>
+                                <tr>
+                                  <!-- Order ID -->
+                                  <td><%= order.orderId %></td>
+                                  
+                                  <!-- Status -->
+                                  <td><%= order.status %></td>
+                                  
+                                  <!-- Total Price -->
+                                  <td>₹<%= order.totalPrice %></td>
+                                  
+                                  <!-- Actions -->
+                                  <td>
+                                    <div class="d-flex align-items-center">
+                                      <a href="/view-order/<%= order._id %>" class="btn btn-primary btn-sm me-2">View</a>
+                                      <form action="/cancel-order/<%= order._id %>" method="POST" class="d-inline">
+                                        <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+                                          <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                        <% } else { %>
+                                          <button type="button" class="btn btn-secondary btn-sm" disabled>Cannot Cancel</button>
+                                        <% } %>
+                                      </form>
+                                    </div>
+                                  </td>
+                                </tr>
+                              <% }) %>
+                            </tbody>
+                          </table>
+                        </div>
+                      <% } else { %>
+                        <p>No orders available.</p>
+                      <% } %>
                     </div>
                   </div>
                 </div>
+                
 
                 <!-- Wallet Tab -->
                 <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="wallet-tab">

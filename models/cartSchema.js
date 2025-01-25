@@ -32,10 +32,10 @@ const cartSchema=new Schema({
         },
         cancellatioanReason:{
             type:String,
-            default:none
+            default:'none'
         }
 
     }]
 })
-const cart=mongoosse.model("cart",cartSchema);
+const cart=mongoose.model("cart",cartSchema);
 module.exports=cart;

@@ -1,56 +1,72 @@
-const mongoose=require("mongoose");
-const {Schema}=mongoose;
-const productSchema=new Schema({
-    productName:{
-        type:String,
-        required:true,
-    },
-    description:{
-        type:String,
-        required:true
-    },
-    
-    category:{
-        type:Schema.Types.ObjectId,
-        ref:"Category",
-        required:true,
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
+const productSchema = new Schema(
+  {
+    productName: {
+      type: String,
+      required: true,
     },
-    regularPrice:{
-        type:Number,
-        required:true
+    description: {
+      type: String,
+      required: true,
     },
-    saleprice:{
-        type:Number,
-        required:true
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
     },
-    productOffer:{
-        type:Number,
-        default:0,
+    regularPrice: {
+      type: Number,
+      required: true,
     },
-    quantity:{
-        type:Number,
-        default:true
+    salePrice: {
+      type: Number,
+      required: true,
     },
-    color:{
-        type:String,
-        required:true
+    productOffer: {
+      type: Number,
+      default: 0,
     },
-    productImage:{
-        type:["string"],
-        required:true
+    quantity: {
+      type: Number,
+      default: 1,
     },
-    isBlocked:{
-        type:Boolean,
-        default:false
+    color: {
+      type: String,
+      required: true,
     },
-    status:{
-        type:String,
-        enum:["Available","out of stock","Discountinued"],
-        required:true,
-        default:"Availabe"
+    productImage: {
+      type: ["string"],
+      required: true,
     },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: String,
+      enum: ["Available", "Out of Stock", "Discontinued"],
+      required: true,
+      default: "Available",
+    },
+    avgRating: {
+      type: Number,
+      default: 0, // Default average rating to prevent sorting errors
+      min: 0,
+      max: 5, // Assuming ratings are on a scale of 0 to 5
+    },
+    popularity: {
+      type: Number,
+      default: 0, // Default popularity score for sorting
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false, // Helps filter featured products
+    },
+  },
+  { timestamps: true }
+);
 
-},{timestamps:true});
-const product=mongoose.model("product",productSchema);
-module.exports=product;
+const Product = mongoose.model("Product", productSchema);
+module.exports = Product;

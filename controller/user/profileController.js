@@ -4,6 +4,9 @@ const bcrypt=require("bcrypt");
 const env=require("dotenv").config();
 const session=require("express-session");
 const Address =require("../../models/addressSchema.js")
+const Order=require('../../models/orderSchema')
+const Product = require('../../models/productSchema');
+
 // const { changeEmail } = require("./userController");
 
 function generateOtp(){
@@ -157,13 +160,18 @@ const postNewPassword=async(req,res)=>{
 const userProfile=async(req,res)=>{
     try {
         const userId=req.session.user;
+        const orders = await Order.find({ userId }).populate("orderedItems.product").exec();
+        const product=await Product.find({userId})
+        console.log("order from user profile",orders)
         const userAddress=await User.findById(userId);
         console.log("this is user router",userAddress)
         const address = await Address.findOne({userId:userAddress._id})
         console.log(address)
         res.render('profile',{
             userAddress:address,
-            user:userAddress
+            user:userAddress,
+            orders,
+            product,
         })
     } catch (error) {
         

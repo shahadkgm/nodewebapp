@@ -1,0 +1,113 @@
+<%- include("../../views/partials/user/header") %>
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+
+
+<div class="container my-5">
+  <h1 class="text-center mb-4">Your Shopping Cart</h1>
+
+  <% if (cart.length === 0) { %>
+    <div class="alert alert-warning text-center">
+      Your cart is empty! <a href="/shop">Continue Shopping</a>
+    </div>
+  <% } else { %>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th>Product</th>
+          <th>Image</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% cart.forEach(item => { %>
+          <tr>
+            <td><%= item.productId.productName %></td>
+            <td>
+              <img src="/uploads/product-images/<%= item.productId.productImage %>" alt="<%= item.productName %>" style="width: 50px; height: 50px;">
+            </td>
+            <td>₹<%= item.price.toLocaleString('en-IN') %></td>
+            <td>
+              <form action="/update" method="POST" class="d-inline">
+                <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                <div class="input-group input-group-sm" style="max-width: 150px;">
+                  <!-- Decrement Button -->
+                  <button type="button" class="btn btn-outline-secondary decrement-btn" data-product-id="<%= item.productId._id %>">-</button>
+                  
+                  <!-- Quantity Input -->
+                  <input 
+                    type="number" 
+                    name="quantity" 
+                    value="<%= item.quantity %>" 
+                    min="1" 
+                    max="10"
+                    class="form-control text-center quantity-input" 
+                    style="width: 50px;" 
+                    data-product-id="<%= item.productId._id %>"
+                  >
+                  
+                  <!-- Increment Button -->
+                  <button type="button" class="btn btn-outline-secondary increment-btn" data-product-id="<%= item.productId._id %>">+</button>
+                </div>
+                <!-- Update Button -->
+                <button type="submit" class="btn btn-sm btn-primary mt-2">Update</button>
+              </form>
+            </td>
+            
+            <td>₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
+            <td>
+              <form action="/remove" method="POST" class="d-inline">
+                <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <div class="text-end " style="height: 173px;">
+      <h3>Total: ₹<%= totalAmount.toLocaleString('en-IN') %></h3>
+      <a href="/checkOut" class="btn btn-success">Proceed to Checkout</a>
+    </div>
+  <% } %>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.querySelectorAll('.increment-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const productId = this.getAttribute('data-product-id');
+      const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+      if (parseInt(input.value) < 10) { 
+        input.value = parseInt(input.value) + 1;
+      }
+    });
+  });
+
+  document.querySelectorAll('.decrement-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const productId = this.getAttribute('data-product-id');
+      const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+      if (parseInt(input.value) > 1) { 
+        input.value = parseInt(input.value) - 1;
+      }
+    });
+  });
+
+
+
+
+
+
+
+</script>
+
+
+
+<%- include("../../views/partials/user/footer") %>
