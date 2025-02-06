@@ -5,8 +5,9 @@ const userController=require("../controller/user/userController");
 const profileController=require("../controller/user/profileController")
 const {adminAuth,userAuth}=require("../middlewares/auth");
 const cartController=require("../controller/user/cartController")
+
 // const User=require("../models/userschema");
-// const Order=require("../models/orderSchema")
+const orderController=require("../controller/user/orderController")
 
 router.get("/",userController.loadHomepage)
 router.get('/logout',userController.logout)
@@ -68,13 +69,16 @@ router.get('/product/:id', userAuth, userController.getProductDetail);
 
 router.get('/Cart',userAuth,cartController.loadCartPage);
 router.post('/add',userAuth,cartController.addToCart)
-router.post('/update',userAuth,cartController.updateCart);
+// router.post('/update',userAuth,cartController.updateCart);
 router.post('/remove',userAuth,cartController.removeItem)
 
-router.get('/checkOut',userAuth,cartController.loadCheckoutPage);
-router.post('/checkOut',userAuth,cartController.processOrder);
-router.get('/orders',userAuth,cartController.getOrders);
-router.post("/cancel-order/:id",userAuth,cartController.cancelOrder)
-router.get('/view-order/:id',userAuth,cartController.viewOrder)
-router.get('/thankyou',userAuth,cartController.getthankyou)
+//order page 
+router.get('/checkOut',userAuth,orderController.loadCheckoutPage);
+router.post('/checkOut',userAuth,orderController.processOrder);
+router.get('/orders',userAuth,orderController.getOrders);
+router.post("/cancel-order/:id",userAuth,orderController.cancelOrder);
+router.get('/view-order/:id',userAuth,orderController.viewOrder);
+router.get('/thankyou',userAuth,orderController.getthankyou);
+
+router.post('/update-cart',userAuth,cartController.updatingCart)
 module.exports=router;

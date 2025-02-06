@@ -6,6 +6,7 @@ const env=require("dotenv").config();
 const bcrypt=require("bcrypt");
 const product = require("../../models/productSchema");
 const Order=require("../../models/orderSchema")
+const Address=require("../../models/addressSchema")
 
 
 
@@ -236,18 +237,17 @@ const logout=async(req,res)=>{
 const loadShoppingPage=async (req, res) => {
 
     try {
-        const user=req.session.user;
+        const userId=req.session.user;
 
 
 
-      const query = req.query.query || ""; // Search query
-      const sort = req.query.sort || "popularity"; // Default sort
+      const query = req.query.query || ""; 
+      const sort = req.query.sort || "popularity"; 
       const page = parseInt(req.query.page) || 1;
-      const limit = 10; // Items per page
+      const limit = 10; 
 
       const category=await Category.find();
   
-      // Search filter
       const searchFilter = query
         ? { productName: { $regex: query, $options: "i" } }
         : {};
@@ -256,7 +256,7 @@ const loadShoppingPage=async (req, res) => {
       let sortOptions = {};
       switch (sort) {
         case "popularity":
-          sortOptions = { popularity: -1 }; // Assuming you track popularity
+          sortOptions = { popularity: -1 }; 
           break;
         case "priceLowHigh":
           sortOptions = { salePrice: 1 };
@@ -265,13 +265,13 @@ const loadShoppingPage=async (req, res) => {
           sortOptions = { salePrice: -1 };
           break;
         case "avgRating":
-          sortOptions = { avgRating: -1 }; // Assuming products have an avgRating field
+          sortOptions = { avgRating: -1 }; 
           break;
         case "featured":
-          sortOptions = { isFeatured: -1 }; // Assuming a boolean field for featured products
+          sortOptions = { isFeatured: -1 }; 
           break;
         case "newArrivals":
-          sortOptions = { createOn: -1 };
+          sortOptions = { createdAt: -1 };
           break;
         case "aToZ":
           sortOptions = { productName: 1 };
@@ -283,14 +283,17 @@ const loadShoppingPage=async (req, res) => {
           sortOptions = { popularity: -1 };
       }
   
-      // Pagination and fetching data
       const totalProducts = await Product.countDocuments(searchFilter);
       const totalPages = Math.ceil(totalProducts / limit);
+
+      
   
       const products = await Product.find(searchFilter)
         .sort(sortOptions)
         .skip((page - 1) * limit)
         .limit(limit);
+
+        const user=await User.findById(userId)
   
       res.render("shop", {
         products,
@@ -300,6 +303,9 @@ const loadShoppingPage=async (req, res) => {
         category,
         query,
         user,
+        
+
+        
       });
     } catch (error) {
       console.error("Error fetching shop page:", error);
@@ -395,7 +401,7 @@ const filterByPrice=async(req,res)=>{
 const loadProductDetail = async (req, res) => {
 
     const productId = req.params.id; 
-    const user=req.session.user
+    const userId=req.session.user
   
     try {
       const product = await Product.findById(productId);
@@ -417,11 +423,10 @@ const loadProductDetail = async (req, res) => {
         regularPrice: product.regularPrice, 
         discount: product.regularPrice - product.salePrice, 
         stock: product.quantity > 0 ? product.quantity : 'Out of Stock', 
-        // stockCode: product.stockCode, 
         relatedProducts:relatedProducts
       };
       console.log(product.quantity,"product quantity in get product detail pag")
-  
+  const user= await User.findById(userId)
       res.render('product-detail', { product: productData,
         products:product,relatedProducts,user
        });
@@ -431,19 +436,16 @@ const loadProductDetail = async (req, res) => {
     }
   };
   
-  // Fetch Product Data (API-style response)
   const getProductDetail = async (req, res) => {
-    const productId = req.params.id; // Extract product ID
+    const productId = req.params.id; 
   
     try {
-      // Fetch product from the database
       const product = await Product.findById(productId);
   
       if (!product) {
         return res.status(404).send('Product not found');
       }
   
-      // Send the product data as JSON (useful for API or AJAX requests)
       res.json(product);
     } catch (error) {
       console.error('Error fetching product detail:', error);

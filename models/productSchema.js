@@ -52,17 +52,17 @@ const productSchema = new Schema(
     },
     avgRating: {
       type: Number,
-      default: 0, // Default average rating to prevent sorting errors
+      default: 3, 
       min: 0,
-      max: 5, // Assuming ratings are on a scale of 0 to 5
+      max: 5, 
     },
     popularity: {
       type: Number,
-      default: 0, // Default popularity score for sorting
+      default: 2, 
     },
     isFeatured: {
       type: Boolean,
-      default: false, // Helps filter featured products
+      default: false, 
     },
   },
   { timestamps: true }

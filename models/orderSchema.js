@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true, // Ensure every order is linked to a user
+    required: true, 
   },
   orderedItems: [
     {
@@ -45,8 +45,8 @@ const orderSchema = new mongoose.Schema({
     default: 0,
   },
   address: {
-    type: Schema.Types.Mixed, // Allow either a string or an object
-    required: true, // Ensure an address is always provided
+    type: Schema.Types.Mixed, 
+    required: true, 
   },
   invoiceDate: {
     type: Date,

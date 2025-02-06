@@ -111,7 +111,7 @@
                                        <div class="col-sm-6 mb-3">
                                            <label class="form-label">Category</label>
                                            <select class="form-select border" style="width: 150px;" name="category">
-                                            <%for(let i=0;i<cat.length;i++){%>
+                                            <%for(let i=0;i< cat.length ;i++){%>
                                               
                                                    <option value="<%=cat[i].name%>">
                                                       <%=cat[i].name%>
@@ -342,7 +342,7 @@ function viewImage(event, index) {
 
 
 
-const selectedImages=[];//image tumbline
+const selectedImages=[];
 document.getElementById("input1").addEventListener("change",handleFileselect);
 function handleFileselect(event){
     const  addedImagesContainer = document.getElementById("addedImagesContainer");
@@ -381,7 +381,6 @@ function handleFileselect(event){
               clearErrorMessages();
               const name = document.getElementsByName('productName')[0].value;
               const description = document.getElementsByName('descriptionData')[0].value;
-              //   const brand = document.getElementsByName('brand')[0].value;
               const price = document.getElementsByName('regularPrice')[0].value;
               const salePrice = document.getElementsByName('salePrice')[0].value;
               const color = document.getElementsByName('color')[0].value;
@@ -439,12 +438,13 @@ function handleFileselect(event){
                   displayErrorMessage('color-error', 'Please enter a color.');
                   isValid = false;
               }
+              const imageContainer = document.querySelectorAll("img.rounded")
   
-  
-            //   if (images.files.length === 0) {
-            //       displayErrorMessage("images-error",'Please select an image.');
-            //       isValid = false;
-            //   }
+              if (images.files.length === 0&&imageContainer.length===0) {
+
+                  displayErrorMessage("images-error",'Please select an image.');
+                  isValid = false;
+              }
               return isValid;
           }
 
@@ -479,17 +479,17 @@ function handleFileselect(event){
 
           };
           function viewImage1(event) {
-    const imgView1 = document.getElementById('imgView1'); // Find the preview image element
-    const file = event.target.files[0]; // Get the selected file
+    const imgView1 = document.getElementById('imgView1'); 
+    const file = event.target.files[0]; 
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            imgView1.src = e.target.result; // Set the src of the img tag to the file content
-            imgView1.style.display = "block"; // Make the image visible if hidden
+            imgView1.src = e.target.result; 
+            imgView1.style.display = "block"; 
         };
-        reader.readAsDataURL(file); // Read the file content as a data URL
+        reader.readAsDataURL(file); 
     } else {
-        imgView1.src = ''; // Clear the image if no file is selected
+        imgView1.src = ''; 
         imgView1.style.display = "none";
     }
 }

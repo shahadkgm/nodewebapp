@@ -157,28 +157,47 @@ const postNewPassword=async(req,res)=>{
 
     }
 };
-const userProfile=async(req,res)=>{
+const userProfile = async (req, res) => {
     try {
-        const userId=req.session.user;
-        const orders = await Order.find({ userId }).populate("orderedItems.product").exec();
-        const product=await Product.find({userId})
-        console.log("order from user profile",orders)
-        const userAddress=await User.findById(userId);
-        console.log("this is user router",userAddress)
-        const address = await Address.findOne({userId:userAddress._id})
-        console.log(address)
-        res.render('profile',{
-            userAddress:address,
-            user:userAddress,
-            orders,
-            product,
-        })
+        const userId = req.session.user;
+
+        const query = req.query.query || "";
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 10; 
+        const activeTab=req.query.tab||"dashboard";
+
+        const searchFilter = query
+            ? { userId, "orderedItems.productName": { $regex: query, $options: "i" } }
+            : { userId };
+
+        const totalOrders = await Order.countDocuments(searchFilter);
+
+        const orders = await Order.find(searchFilter)
+            .populate("orderedItems.product")
+            .sort({ createdAt: 1 }) 
+            .skip((page - 1) * limit) 
+            .limit(limit); 
+
+        const userAddress = await User.findById(userId);
+        const address = await Address.findOne({ userId: userAddress._id });
+
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        res.render("profile", {
+            userAddress: address,
+            user: userAddress,
+            orders, // Paginated orders
+            totalPages,
+            query,
+            currentPage: page,
+            activeTab
+        });
     } catch (error) {
-        
-        console.error("error for retriving profile data ",error);
-        res.redirect("/pageNotFound")
+        console.error("Error retrieving profile data:", error);
+        res.redirect("/pageNotFound");
     }
 };
+
 const changeEmailValid= async(req,res)=>{
     try {
         const {email}=req.body;

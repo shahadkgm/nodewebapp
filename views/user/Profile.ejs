@@ -90,7 +90,13 @@
   }
   .breadcrumb a:hover::after {
     transform: scaleX(1);
-  }
+  }.pagination {
+   display: flex;
+   justify-content: center;
+   gap: 10px;
+   margin: 20px 0;
+ }
+ 
 </style>
 
 <main class="main">
@@ -111,7 +117,7 @@
               <div class="dashboard-menu">
                 <ul class="nav flex-column" role="tablist">
                   <li class="nav-item">
-                    <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="false">
+                    <a class="nav-link <%= activeTab === 'dashboard' ? 'active' : '' %>" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="false">
                       <i class="fi-rs-settings-sliders mr-10"></i>Dashboard
                     </a>
                   </li>
@@ -121,7 +127,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false">
+                    <a class="nav-link <%= activeTab === 'orders' ? 'active' : '' %>" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false">
                       <i class="fi-rs-shopping-bag mr-10"></i>Orders
                     </a>
                   </li>
@@ -152,7 +158,7 @@
               <div class="tab-content dashboard-content">
 
                 <!-- Dashboard Tab -->
-                <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                <div class="tab-pane fade <%= activeTab === 'dashboard' ? 'show active' : '' %>" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
                   <div class="card card-green">
                     <div class="card-header">
                       <h5 class="mb-0 text-center">User Profile</h5>
@@ -213,7 +219,7 @@
                 </div>
 
                 <!-- Orders Tab -->
-                <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                <div class="tab-pane fade <%= activeTab === 'orders' ? 'show active' : '' %>" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                   <div class="card">
                     <div class="card-header">
                       <h5 class="mb-0">Your Orders</h5>
@@ -265,6 +271,26 @@
                       <% } %>
                     </div>
                   </div>
+                  <!-- Pagination -->
+                  <div class="pagination">
+                    <% if (currentPage > 1) { %>
+                      <a class="btn" href="/userProfile?page=<%= currentPage - 1 %>&query=<%= query %>&tab=orders">Prev</a>
+                    <% } %>
+                  
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                      <a class="btn <%= currentPage === i ? 'active' : '' %>" href="/userProfile?page=<%= i %>&query=<%= query %>&tab=orders">
+                        <%= i %>
+                      </a>
+                    <% } %>
+                  
+                    <% if (currentPage < totalPages) { %>
+                      <a class="btn" href="/userProfile?page=<%= currentPage + 1 %>&query=<%= query %>&tab=orders">Next</a>
+                    <% } %>
+                  </div>
+                  
+  
+  
+    
                 </div>
                 
 

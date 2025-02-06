@@ -229,11 +229,11 @@
       <form action="/shop" method="GET" id="sort-form">
         <label for="sort">Sort by:</label>
         <select name="sort" id="sort" onchange="document.getElementById('sort-form').submit()">
-          <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Popularity</option>
+          <!-- <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Popularity</option> -->
           <option value="priceLowHigh" <%= sort === 'priceLowHigh' ? 'selected' : '' %>>Price: Low to High</option>
           <option value="priceHighLow" <%= sort === 'priceHighLow' ? 'selected' : '' %>>Price: High to Low</option>
           <option value="avgRating" <%= sort === 'avgRating' ? 'selected' : '' %>>Average Ratings</option>
-          <option value="featured" <%= sort === 'featured' ? 'selected' : '' %>>Featured</option>
+          <!-- <option value="featured" <%= sort === 'featured' ? 'selected' : '' %>>Featured</option> -->
           <option value="newArrivals" <%= sort === 'newArrivals' ? 'selected' : '' %>>New Arrivals</option>
           <option value="aToZ" <%= sort === 'aToZ' ? 'selected' : '' %>>A-Z</option>
           <option value="zToA" <%= sort === 'zToA' ? 'selected' : '' %>>Z-A</option>
@@ -299,7 +299,7 @@
 						 </a>
 						 <form action="/add" method="POST">
 							<input type="hidden" name="productId" value="<%= products[i]._id %>">
-							<input type="hidden" name="quantity" value="1"> <!-- Default quantity -->
+							<input type="hidden" name="quantity" value="1"> 
 							<button type="submit" class="add-to-cart-btn" id="addToCart">Add to Cart</button>
 						  </form>
 						  

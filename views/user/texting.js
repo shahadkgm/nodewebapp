@@ -1,605 +1,907 @@
+
 <%- include("../../views/partials/user/header") %>
-<style>
-  /* Page Header */
-.page-header {
-  background-color: #f8f9fa;
-  padding: 20px 0;
-}
 
-.breadcrumb {
-  font-size: 14px;
-  padding: 10px 0;
-  margin: 0;
-  background: none;
-}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swiper/6.8.4/swiper.min.css">
 
-.breadcrumb a {
-  color: #007bff;
-  text-decoration: none;
-}
+    <style>
+        /* Page Header */
+        .page-header {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }
 
-.breadcrumb span {
-  color: #6c757d;
-}
+        .breadcrumb {
+            font-size: 14px;
+            padding: 10px 0;
+            margin: 0;
+            background: none;
+        }
 
-/* Product Detail Slider */
-.product-detail .detail-gallery {
-  position: relative;
-}
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
 
-.product-detail .swiper-container {
-  width: 100%;
-  max-height: 400px;
-  overflow: hidden;
-}
+        .breadcrumb span {
+            color: #6c757d;
+        }
 
-.product-detail .swiper-slide img {
-  width: 100%;
-  height: auto;
-  max-height: 400px;
-  object-fit: cover;
-  border-radius: 10px;
-}
+        /* Product Detail Slider */
+        .product-detail .detail-gallery {
+            position: relative;
+        }
 
-.swiper-button-next,
-.swiper-button-prev {
-  color: #333;
-  font-size: 18px;
-  transition: color 0.3s ease;
-}
+        .product-detail .swiper-container {
+            width: 100%;
+            max-height: 400px;
+            overflow: hidden;
+        }
 
-.swiper-button-next:hover,
-.swiper-button-prev:hover {
-  color: #000;
-}
+        .product-detail .swiper-slide img {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
 
-/* Product Information */
-.detail-info {
-  padding-left: 30px;
-  display: flex;
-  flex-direction: column;
-}
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: #333;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
 
-.title-detail {
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            color: #000;
+        }
 
-.product-price {
-  font-size: 24px;
-  color: #28a745;
-}
+        /* Image Zoom Styles */
+        .detail-gallery .zoom-container {
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+        }
 
-.product-price .old-price {
-  color: #6c757d;
-  text-decoration: line-through;
-}
+        .detail-gallery .zoom-container img {
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+        }
 
-.save-price {
-  color: #dc3545;
-}
+        .detail-gallery .zoom-container:hover img {
+            transform: scale(1.5);
+        }
 
-.short-desc p {
-  font-size: 16px;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
+        .detail-gallery .zoom-lens {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            display: none;
+            pointer-events: none;
+        }
 
-.product-meta {
-  margin-top: 20px;
-}
+        /* Product Information */
+        .detail-info {
+            padding-left: 30px;
+            display: flex;
+            flex-direction: column;
+        }
 
-.product-meta li {
-  margin-bottom: 5px;
-}
+        .title-detail {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
 
-.product-meta .in-stock {
-  color: #28a745;
-}
+        .product-price {
+            font-size: 24px;
+            color: #28a745;
+        }
 
-.product-detail-rating {
-  margin-bottom: 20px;
-}
+        .product-price .old-price {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
 
-/* Make Images Responsive */
-.detail-gallery img {
-  max-width: 100%;
-}
+        .save-price {
+            color: #dc3545;
+        }
 
-/* Related Products Section */
-.related-products ul {
-  padding: 0;
-  list-style: none;
-}
+        .short-desc p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
 
-.related-products ul li {
-  margin-bottom: 15px;
-}
+        .product-meta {
+            margin-top: 20px;
+        }
 
-.related-products ul li img {
-  border-radius: 5px;
-  margin-right: 10px;
-}
+        .product-meta li {
+            margin-bottom: 5px;
+        }
 
-/* Add to Cart Button */
-.add-to-cart-btn {
-  background-color: #28a745;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
+        .product-meta .in-stock {
+            color: #28a745;
+        }
 
-.add-to-cart-btn:hover {
-  background-color: #218838;
-}
+        .product-detail-rating {
+            margin-bottom: 20px;
+        }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .detail-info {
-    padding-left: 0;
-    margin-top: 20px;
-  }
+        /* Make Images Responsive */
+        .detail-gallery img {
+            max-width: 100%;
+        }
 
-  .title-detail {
-    font-size: 24px;
-  }
+        /* Related Products Section */
+        .related-products ul {
+            padding: 0;
+            list-style: none;
+        }
 
-  .product-price {
-    font-size: 20px;
-  }
+        .related-products ul li {
+            margin-bottom: 15px;
+        }
 
-  .short-desc p {
-    font-size: 14px;
-  }
-}
+        .related-products ul li img {
+            border-radius: 5px;
+            margin-right: 10px;
+        }
 
-</style>
+        /* Add to Cart Button */
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
 
-<main class="main">
-  <!-- Breadcrumb Section -->
-  <div class="page-header breadcrumb-wrap">
-    <div class="container">
-      <div class="breadcrumb">
-        <a href="/" rel="nofollow">Home</a>
-        <span></span>
-        <span>Product Detail Page</span>
-      </div>
-    </div>
-  </div>
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
 
-  <!-- Product Detail Section -->
-  <section class="mt-50 mb-50">
-    <div class="container">
-      <div class="row">
-        <!-- Product Details -->
-        <div class="col-lg-9">
-          <div class="product-detail accordion-detail">
-            <div class="row mb-50">
-              <!-- Product Images -->
-              <div class="col-md-6 col-sm-12">
-                <div class="detail-gallery">
-                  <div class="swiper-container product-image-slider">
-                    <div class="swiper-wrapper">
-                      <% product.productImages.forEach((image) => { %>
-                        <div class="swiper-slide">
-                          <figure class="border-radius-10">
-                            <img
-                              src="/uploads/product-images/<%= image %>"
-                              alt="<%= product.name %>"
-                              style="width: 100%; object-fit: cover;"
-                            />
-                          </figure>
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .detail-info {
+                padding-left: 0;
+                margin-top: 20px;
+            }
+
+            .title-detail {
+                font-size: 24px;
+            }
+
+            .product-price {
+                font-size: 20px;
+            }
+
+            .short-desc p {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="main">
+        <!-- Breadcrumb Section -->
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="/" rel="nofollow">Home</a>
+                    <span></span>
+                    <span>Product Detail Page</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Detail Section -->
+        <section class="mt-50 mb-50">
+            <div class="container">
+                <div class="row">
+                    <!-- Product Details -->
+                    <div class="col-lg-9">
+                        <div class="product-detail accordion-detail">
+                            <div class="row mb-50">
+                                <!-- Product Images -->
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="detail-gallery">
+                                        <div class="swiper-container product-image-slider">
+                                            <div class="swiper-wrapper">
+                                                <% product.productImages.forEach((image) => { %>
+                                                    <div class="swiper-slide">
+                                                        <figure class="border-radius-10 zoom-container">
+                                                            <img
+                                                                src="/uploads/product-images/<%= image %>"
+                                                                alt="<%= product.name %>"
+                                                                style="width: 100%; object-fit: cover;"
+                                                                class="zoom-image"
+                                                            />
+                                                            <div class="zoom-lens"></div>
+                                                        </figure>
+                                                    </div>
+                                                <% }); %>
+                                            </div>
+                                            <!-- Navigation buttons -->
+                                            <div class="swiper-button-next"></div>
+                                            <div class="swiper-button-prev"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Info -->
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="detail-info">
+                                        <h2 class="title-detail"><%= product.name %></h2>
+                                        <div class="product-detail-rating"></div>
+                                        <div class="clearfix product-price-cover">
+                                            <div class="product-price primary-color float-left">
+                                                <ins><span class="text-brand">₹<%= product.salePrice.toLocaleString('en-IN') %></span></ins>
+                                                <span class="old-price font-md ml-15">
+                                                    ₹<%= product.regularPrice.toLocaleString('en-IN') %>
+                                                </span>
+                                                <span class="save-price font-md color3 ml-15">
+                                                    Save ₹<%= (product.regularPrice - product.salePrice).toLocaleString('en-IN') %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="short-desc mb-30">
+                                            <p><%= product.description %></p>
+                                        </div>
+                                        <ul class="product-meta font-xs color-grey mt-50">
+                                            <li>Availability:
+                                                <span class="in-stock text-success ml-5">
+                                                    <%= product.stock %>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <form action="/add" method="POST">
+                                            <input type="hidden" name="productId" value="<%= product.id %>">
+                                            <input type="hidden" name="quantity" value="1"> <!-- Default quantity -->
+                                            <button type="submit" class="add-to-cart-btn btn btn-success">
+                                                Add to Cart
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                      <% }); %>
                     </div>
-                    <!-- Navigation buttons -->
-                    <div class="swiper-button-next"></div>
-                    <div class="swiper-button-prev"></div>
-                  </div>
-                </div>
-              </div>
-              
 
-              <!-- Product Info -->
-              <div class="col-md-6 col-sm-12">
-                <div class="detail-info">
-                  <h2 class="title-detail"><%= product.name %></h2>
-                  <div class="product-detail-rating"></div>
-                  <div class="clearfix product-price-cover">
-                    <div class="product-price primary-color float-left">
-                      <ins><span class="text-brand">₹<%= product.salePrice.toLocaleString('en-IN') %></span></ins>
-                      <span class="old-price font-md ml-15">
-                        ₹<%= product.regularPrice.toLocaleString('en-IN') %>
-                      </span>
-                      <span class="save-price font-md color3 ml-15">
-                        Save ₹<%= (product.regularPrice - product.salePrice).toLocaleString('en-IN') %>
-                      </span>
+                    <!-- Related Products -->
+                    <div class="col-lg-3">
+                        <div class="related-products">
+                            <h4>Related Products</h4>
+                            <ul class="list-unstyled">
+                                <% if (relatedProducts && relatedProducts.length > 0) { %>
+                                    <% relatedProducts.forEach((related) => { %>
+                                        <li class="mb-2 d-flex align-items-center">
+                                            <a href="/product/<%= related._id %>" class="text-decoration-none d-flex align-items-center">
+                                                <img
+                                                    src="/uploads/product-images/<%= related.productImage[0] %>"
+                                                    alt="<%= related.productName %>"
+                                                    style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 5px;"
+                                                />
+                                                <span><%= related.productName %></span>
+                                            </a>
+                                            <p class="mb-0 text-muted small">
+                                                ₹<%= related.salePrice.toLocaleString('en-IN') %>
+                                            </p>
+                                        </li>
+                                    <% }); %>
+                                <% } else { %>
+                                    <li>No related products found.</li>
+                                <% } %>
+                            </ul>
+                        </div>
                     </div>
-                  </div>
-                  <div class="short-desc mb-30">
-                    <p><%= product.description %></p>
-                  </div>
-                  <ul class="product-meta font-xs color-grey mt-50">
-                    <li>Availability:
-                      <span class="in-stock text-success ml-5">
-                        <%= product.stock %>
-                      </span>
-                    </li>
-                  </ul>
-                  <form action="/add" method="POST">
-                    <input type="hidden" name="productId" value="<%= product._id %>">
-                    <input type="hidden" name="quantity" value="1"> <!-- Default quantity -->
-                    <button type="submit" class="add-to-cart-btn btn btn-success">
-                      Add to Cart
-                    </button>
-                  </form>
+                    <h5>Quality: We prioritize high-quality products and services.
+                        Customer Focused: We go the extra mile to ensure customer satisfaction.
+                        Innovation: We're always looking for new ways to serve our customers better.
+                        Sustainability: We are committed to environmentally-friendly practices and solutions.</h5>
                 </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swiper/6.8.4/swiper.min.js"></script>
+    <script>
+        const swiper = new Swiper('.product-image-slider', {
+            loop: false,
+            slidesPerView: 1,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            effect: 'slide',
+            spaceBetween: 0,
+        });
+
+        // Image Zoom Functionality
+        document.querySelectorAll('.zoom-container').forEach(container => {
+            const image = container.querySelector('.zoom-image');
+            const lens = container.querySelector('.zoom-lens');
+
+            container.addEventListener('mousemove', (e) => {
+                lens.style.display = 'none';
+
+                const containerRect = container.getBoundingClientRect();
+                const x = e.clientX - containerRect.left;
+                const y = e.clientY - containerRect.top;
+
+                lens.style.left = `${x - lens.offsetWidth / 2}px`;
+                lens.style.top = `${y - lens.offsetHeight / 2}px`;
+
+                const percentX = (x / container.offsetWidth) * 100;
+                const percentY = (y / container.offsetHeight) * 100;
+                image.style.transformOrigin = `${percentX}% ${percentY}%`;
+            });
+
+             
+        });
+    </script>
+</body>
+</html>
+netstat -ano | findstr :3003
+taskkill /PID 19124 /F
+
+<style>
+        .page-header {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            padding: 10px 0;
+            margin: 0;
+            background: none;
+        }
+
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb span {
+            color: #6c757d;
+        }
+
+        .product-detail .detail-gallery {
+            position: relative;
+        }
+
+        .product-detail .swiper-container {
+            width: 100%;
+            max-height: 400px;
+            overflow: hidden;
+        }
+
+        .product-detail .swiper-slide img {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: #333;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            color: #000;
+        }
+
+        .detail-gallery .zoom-container {
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+        }
+
+        .detail-gallery .zoom-container img {
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+        }
+
+        .detail-gallery .zoom-container:hover img {
+            transform: scale(1.5);
+        }
+
+        .detail-gallery .zoom-lens {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            display: none;
+            pointer-events: none;
+        }
+
+        /* Product Information */
+        .detail-info {
+            padding-left: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title-detail {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .product-price {
+            font-size: 24px;
+            color: #28a745;
+        }
+
+        .product-price .old-price {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+
+        .save-price {
+            color: #dc3545;
+        }
+
+        .short-desc p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .product-meta {
+            margin-top: 20px;
+        }
+
+        .product-meta li {
+            margin-bottom: 5px;
+        }
+
+        .product-meta .in-stock {
+            color: #28a745;
+        }
+
+        .product-detail-rating {
+            margin-bottom: 20px;
+        }
+
+        .detail-gallery img {
+            max-width: 100%;
+        }
+
+        .related-products ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        .related-products ul li {
+            margin-bottom: 15px;
+        }
+
+        .related-products ul li img {
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        /* Add to Cart Button */
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .detail-info {
+                padding-left: 0;
+                margin-top: 20px;
+            }
+
+            .title-detail {
+                font-size: 24px;
+            }
+
+            .product-price {
+                font-size: 20px;
+            }
+
+            .short-desc p {
+                font-size: 14px;
+            }
+        }
+    </style>
+    {/* new  */}
+     
+  
+  <style>
+    /* Custom Navbar Styles */
+.custom-navbar {
+    padding: 20px 0;
+    transition: all 0.3s ease;
+    background: #3b5d50 !important;  /* Custom dark green background */
+}
+
+/* Brand/Logo Styles */
+.navbar-brand {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff !important;
+}
+
+.navbar-brand span {
+    color: #198754;  /* Green dot after WODDIE */
+}
+
+/* Navigation Links */
+.custom-navbar-nav .nav-link {
+    font-weight: 500;
+    color: #ffffff !important;
+    position: relative;
+    padding: 10px 15px !important;
+    transition: all 0.3s ease;
+}
+
+.custom-navbar-nav .nav-link:hover {
+    color: #198754 !important;
+}
+
+/* Active Link Style */
+.custom-navbar-nav .nav-item.active .nav-link {
+    color: #198754 !important;
+}
+
+/* Dropdown Styles - Refined */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    padding: 0 15px;
+}
+
+.dropdown a {
+    color: #ffffff !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.dropdown a:hover {
+    color: #198754 !important;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1000;
+    right: 0;
+    top: 100%;
+    margin-top: 10px;
+}
+
+.dropdown-content::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #ffffff;
+}
+
+.dropdown-content a {
+    color: #333333 !important;
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background-color: #f8f9fa;
+    color: #198754 !important;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Cart Icon Styles */
+.custom-navbar-cta {
+    margin-left: 20px !important;
+}
+
+.custom-navbar-cta .nav-link {
+    padding: 8px !important;
+    position: relative;
+}
+
+.custom-navbar-cta img {
+    width: 24px;
+    filter: invert(1);  /* Makes SVG icon white */
+    transition: all 0.3s ease;
+}
+
+.custom-navbar-cta .nav-link:hover img {
+    transform: scale(1.1);
+}
+
+/* Mobile Navigation Styles */
+.navbar-toggler {
+    border: none;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    position: relative;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler-icon {
+    background-image: none;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Responsive Styles */
+@media (max-width: 991.98px) {
+    .custom-navbar {
+        padding: 15px 0;
+    }
+
+    .navbar-collapse {
+        background: #3b5d50;
+        padding: 20px;
+        margin-top: 15px;
+        border-radius: 8px;
+    }
+
+    .custom-navbar-nav .nav-link {
+        padding: 10px 0 !important;
+    }
+
+    .dropdown {
+        padding: 0;
+    }
+
+    .dropdown-content {
+        position: static;
+        background-color: rgba(255,255,255,0.1);
+        margin-top: 5px;
+        box-shadow: none;
+    }
+
+    .dropdown-content::before {
+        display: none;
+    }
+
+    .dropdown-content a {
+        color: #ffffff !important;
+    }
+
+    .custom-navbar-cta {
+        margin-left: 0 !important;
+        margin-top: 15px;
+    }
+}
+  </style>
+</head>
+<body>
+  <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Furni navigation bar">
+    <div class="container">
+      <a class="navbar-brand" href="/index">WODDIE<span>.</span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsFurni">
+        <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+          <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
+          <li><a class="nav-link" href="/shop">Shop</a></li>
+          <%if(locals.user){%>
+            <div class="dropdown">
+              <a href="#" class="sign-in-link"><%= locals.user.name %></a>
+              <div class="dropdown-content">
+                <a href="/userProfile">Profile</a>
+                <a href="/logout">Logout</a>
               </div>
             </div>
-          </div>
-        </div>
-
-
-        <!-- Related Products -->
-        <div class="col-lg-3">
-          <div class="related-products">
-            <h4>Related Products</h4>
-            <ul class="list-unstyled">
-              <% if (relatedProducts && relatedProducts.length > 0) { %>
-                <% relatedProducts.forEach((related) => { %>
-                  <li class="mb-2 d-flex align-items-center">
-                    <a href="/product/<%= related._id %>" class="text-decoration-none d-flex align-items-center">
-                      <img
-                        src="/uploads/product-images/<%= related.productImage[0] %>"
-                        alt="<%= related.productName %>"
-                        style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 5px;"
-                      />
-                      <span><%= related.productName %></span>
-                    </a>
-                    <p class="mb-0 text-muted small">
-                      ₹<%= related.salePrice.toLocaleString('en-IN') %>
-                    </p>
-                  </li>
-                <% }); %>
-              <% } else { %>
-                <li>No related products found.</li>
-              <% } %>
-            </ul>
-          </div>
-        </div>
-        <h5>Quality: We prioritize high-quality products and services.
-          Customer Focused: We go the extra mile to ensure customer satisfaction.
-          Innovation: We’re always looking for new ways to serve our customers better.
-          Sustainability: We are committed to environmentally-friendly practices and solutions.</h5>
+          <%} else {%>
+            <li><a class="nav-link" href="/signup">Sign up</a></li>
+            <li><a class="nav-link" href="/login">Log in</a></li>
+          <%}%>
+        </ul>
+        <!-- Update the cart icon HTML to match the styles -->
+<ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+    <li>
+      <a class="nav-link" href="/cart">
+        <img src="images/cart.svg" alt="Cart">
+      </a>
+    </li>
+  </ul>
       </div>
     </div>
-  </section>
-</main>
-<script>
-  const swiper = new Swiper('.product-image-slider', {
-    loop: true, // Infinite loop through the slides
-    slidesPerView: 1, // Display one image at a time
-    navigation: {
-      nextEl: '.swiper-button-next', // Next slide button
-      prevEl: '.swiper-button-prev', // Previous slide button
-    },
-    effect: 'slide', // Slide transition effect
-    spaceBetween: 0, // No space between slides
-  });
-</script>
-add to cart 
-const mongoose = require("mongoose");
-const Cart = require("../../models/cartSchema");
-const Product = require('../../models/productSchema');
-const User=require('../../models/userschema');
-const Order=require('../../models/orderSchema')
-const Address=require('../../models/addressSchema')
-
-
-const loadCartPage = async (req, res) => {
-  try {
-    const user=req.session.user;
-
-    const userId = req.session.user; 
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
-
-    if (!cart || cart.items.length === 0) {
-      return res.render("cart", { cart: [], totalAmount: 0,user });
-    }
-
-    const totalAmount = cart.items.reduce(
-      (acc, item) => acc + item.totalPrice,
-      0
-    );
-
-    res.render("cart", { cart: cart.items, totalAmount, userId,user });
-  } catch (error) {
-    console.error("Error fetching cart:", error);
-    res.status(500).send("An error occurred while fetching the cart.");
-  }
-};
-
-
-
-const addToCart = async (req, res) => {
-  try {
-    const { productId, quantity } = req.body;
-    const userId = req.session.user; 
-
-    if (!userId) {
-      return res.redirect("/login"); 
-    }
-
-    console.log("Adding product to cart:", productId);
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).send("Product not found!");
-    }
-
-    // Check if the product has sufficient stock
-    if (product.quantity < quantity) {
-      return res.status(400).send("Insufficient stock available.");
-    }
-
-    let cart = await Cart.findOne({ userId });
-    const itemPrice = product.salePrice;
-
-    if (!cart) {
-      cart = new Cart({ userId, items: [] });
-    }
-
-    const existingItem = cart.items.find((item) => item.productId.equals(productId));
-    if (existingItem) {
-      if (product.quantity < existingItem.quantity + parseInt(quantity, 10)) {
-        return res.status(400).send("Insufficient stock available.");
-      }
-
-      existingItem.quantity += parseInt(quantity, 10);
-      existingItem.totalPrice = existingItem.quantity * itemPrice;
-    } else {
-      cart.items.push({
-        productId,
-        quantity: parseInt(quantity, 10),
-        price: itemPrice,
-        totalPrice: quantity * itemPrice,
-      });
-    }
-
-    // Decrease stock in the Product model
-    product.quantity -= parseInt(quantity, 10);
-    await product.save();
-
-    // Save the updated cart
-    await cart.save();
-
-    res.redirect("/cart"); // Redirect to the cart page after adding
-  } catch (error) {
-    console.error("Error adding to cart:", error);
-    return res.status(500).send("An error occurred while adding the product to the cart.");
-  }
-};
-
-const updateCart = async (req, res) => {
-  try {
-    const { productId, quantity } = req.body;
-    const userId = req.session.user;
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).send("Product not found!");
-    }
-
-    // Fetch the user's cart
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
-      return res.redirect("/cart");
-    }
-
-    const item = cart.items.find((item) => item.productId.equals(productId));
-    if (item) {
-      const newQuantity = parseInt(quantity, 10);
-      const quantityDifference = newQuantity - item.quantity;
-
-      if (product.quantity < item.quantity) {
-        return res.status(400).send("Insufficient stock available.");
-      }
-
-      item.quantity = newQuantity;
-      item.totalPrice = newQuantity * item.price;
-
-      
-
-      await product.save();
-    }
-
-    await cart.save();
-    res.redirect("/cart");
-  } catch (error) {
-    console.error("Error updating cart:", error);
-    res.status(500).send("An error occurred while updating the cart.");
-  }
-};
-
-
-const removeItem = async (req, res) => {
-  try {
-    const { productId } = req.body;
-    const userId = req.session.user;
-
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
-      return res.redirect("/cart");
-    }
-
-    cart.items = cart.items.filter((item) => !item.productId.equals(productId));
-
-    await cart.save();
-    res.redirect("/cart");
-  } catch (error) {
-    console.error("Error removing item from cart:", error);
-    res.status(500).send("An error occurred while removing the item.");
-  }
-};
-
-// Load Checkout Page
-const loadCheckoutPage = async (req, res) => {
-  try {
-    const userId = req.session.user;
-
-    // Fetch cart
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
-    if (!cart || cart.items.length === 0) {
-      return res.render("checkout", { cart: [], totalAmount: 0, addresses: [] });
-    }
-
-    const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-
-    // Fetch addresses
-    const userAddresses = await Address.findOne({ userId });
-
-    res.render("checkout", {
-      cart: cart.items,
-      totalAmount,
-      addresses: userAddresses ? userAddresses.address : [], // Pass the addresses to the template
-    });
-  } catch (error) {
-    console.error("Error loading checkout page:", error);
-    res.status(500).send("An error occurred while loading the checkout page.");
-  }
-};
-
-
-const processOrder = async (req, res) => {
-  try {
-    const { selectedAddress, paymentMethod, discount } = req.body;
-    console.log(paymentMethod)
-    const userId = req.session.user;
-
-    // Fetch cart
-    const cart = await Cart.findOne({ userId }).populate('items.productId');
-    if (!cart || cart.items.length === 0) {
-      return res.redirect('/cart');
-    }
-
-    const parsedAddress = JSON.parse(selectedAddress);
-
-    const orderedItems = cart.items.map((item) => ({
-      product: item.productId._id,
-      quantity: item.quantity,
-      price: item.price,
-    }));
-
-    const totalPrice = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-
-    // Create the order
-    const order = new Order({
-      userId, // Link order to the user
-      orderedItems,
-      totalPrice,
-      discount: discount || 0,
-      address: parsedAddress,
-      paymentMethod:paymentMethod,
-      status: 'Pending',
-      couponApplied: !!discount,
-    });
-
-    // Save the order
-    await order.save();
-
-    // Clear the cart
-    cart.items = [];
-    await cart.save();
-
-    res.redirect('/orders');
-  } catch (error) {
-    console.error('Error processing order:', error);
-    res.status(500).send('Something went wrong while processing the order.');
-  }
-};
-
-
-
-// Fetch user orders
-const orderPageLoad = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    // Populate orderedItems.product to fetch product details (productName, price, etc.)
-    const orders = await Order.find({ userId })
-      .populate('orderedItems.product') // Populate the 'product' field in orderedItems
-      .exec();
-
-    console.log(orders, 'Orders with populated products');
-
-    res.render("orders", { orders });
-  } catch (error) {
-    console.error("Error fetching orders:", error);
-    res.status(500).send("Something went wrong.");
-  }
-};
-
-
-const cancelOrder = async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const order = await Order.findById(orderId);
-
-    if (!order || !(order.status === "Pending" || order.status === "Processing")) {
-      return res.status(400).send("Cannot cancel this order.");
-    }
-
-    // Update product stock
-    for (const item of order.orderedItems) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        product.quantity += item.quantity; // Return stock
-        await product.save(); // Save updated product
-      }
-    }
-
-  
-    order.status = "Cancelled";
-    await order.save();
-
-    res.redirect("/orders");
-  } catch (error) {
-    console.error("Error cancelling order:", error);
-    res.status(500).send("Something went wrong.");
-  }
-};
-
-const viewOrder =async(req,res)=>{
-  try {
-    const userId=req.session.user;
-    const orderId=req.params.id;
-    const order = await Order.findById(orderId);
-    const product=await Product.findById(userId)
-    
-  if (order){
-    res.render('view-order',{order,product})
-  }
-  } catch (error) {
-    console.error(error,"error from view order")
-    res.redirect('/pageNotFound')
-    
-  }
-}
-
-
-
-
-module.exports = {
-  loadCartPage,
-  addToCart,
-  updateCart,
-  removeItem,
-  loadCheckoutPage,
-  processOrder,
-  orderPageLoad,
-  cancelOrder,
-  viewOrder
-};
+  </nav>
+
+
+
+    <main class="main">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="/" rel="nofollow">Home</a>
+                    <span></span>
+                    <span>Product Detail Page</span>
+                </div>
+            </div>
+        </div>
+
+        <section class="mt-50 mb-50">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="product-detail accordion-detail">
+                            <div class="row mb-50">
+
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="detail-gallery">
+                                        <div class="swiper-container product-image-slider">
+                                            <div class="swiper-wrapper">
+                                                <% product.productImages.forEach((image) => { %>
+                                                    <div class="swiper-slide">
+                                                        <figure class="border-radius-10 zoom-container">
+                                                            <img
+                                                                src="/uploads/product-images/<%= image %>"
+                                                                alt="<%= product.name %>"
+                                                                style="width: 100%; object-fit: cover;"
+                                                                class="zoom-image"
+                                                            />
+                                                            <div class="zoom-lens"></div>
+                                                        </figure>
+                                                    </div>
+                                                <% }); %>
+                                            </div>
+                                            <!-- Navigation buttons -->
+                                            <div class="swiper-button-next"></div>
+                                            <div class="swiper-button-prev"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Info -->
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="detail-info">
+                                        <h2 class="title-detail"><%= product.name %></h2>
+                                        <div class="product-detail-rating"></div>
+                                        <div class="clearfix product-price-cover">
+                                            <div class="product-price primary-color float-left">
+                                                <ins><span class="text-brand">₹<%= product.salePrice.toLocaleString('en-IN') %></span></ins>
+                                                <span class="old-price font-md ml-15">
+                                                    ₹<%= product.regularPrice.toLocaleString('en-IN') %>
+                                                </span>
+                                                <span class="save-price font-md color3 ml-15">
+                                                    Save ₹<%= (product.regularPrice - product.salePrice).toLocaleString('en-IN') %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="short-desc mb-30">
+                                            <p><%= product.description %></p>
+                                        </div>
+                                        <ul class="product-meta font-xs color-grey mt-50">
+                                            <li>Availability:
+                                                <span class="in-stock text-success ml-5">
+                                                    <%= product.stock %>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <form action="/add" method="POST">
+                                            <input type="hidden" name="productId" value="<%= product.id %>">
+                                            <input type="hidden" name="quantity" value="1"> 
+                                            <button type="submit" class="add-to-cart-btn btn btn-success">
+                                                Add to Cart
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Related Products -->
+                    <div class="col-lg-3">
+                        <div class="related-products">
+                            <h4>Related Products</h4>
+                            <ul class="list-unstyled">
+                                <% if (relatedProducts && relatedProducts.length > 0) { %>
+                                    <% relatedProducts.forEach((related) => { %>
+                                        <li class="mb-2 d-flex align-items-center">
+                                            <a href="/product/<%= related._id %>" class="text-decoration-none d-flex align-items-center">
+                                                <img
+                                                    src="/uploads/product-images/<%= related.productImage[0] %>"
+                                                    alt="<%= related.productName %>"
+                                                    style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 5px;"
+                                                />
+                                                <span><%= related.productName %></span>
+                                            </a>
+                                            <p class="mb-0 text-muted small">
+                                                ₹<%= related.salePrice.toLocaleString('en-IN') %>
+                                            </p>
+                                        </li>
+                                    <% }); %>
+                                <% } else { %>
+                                    <li>No related products found.</li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                    <h5>Quality: We prioritize high-quality products and services.
+                        Customer Focused: We go the extra mile to ensure customer satisfaction.
+                        Innovation: We're always looking for new ways to serve our customers better.
+                        Sustainability: We are committed to environmentally-friendly practices and solutions.</h5>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swiper/6.8.4/swiper.min.js"></script>
+    <script>
+        const swiper = new Swiper('.product-image-slider', {
+            loop: false,
+            slidesPerView: 1,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            effect: 'slide',
+            spaceBetween: 0,
+        });
+
+        document.querySelectorAll('.zoom-container').forEach(container => {
+            const image = container.querySelector('.zoom-image');
+            const lens = container.querySelector('.zoom-lens');
+
+            container.addEventListener('mousemove', (e) => {
+                lens.style.display = 'none';
+
+                const containerRect = container.getBoundingClientRect();
+                const x = e.clientX - containerRect.left;
+                const y = e.clientY - containerRect.top;
+
+                lens.style.left = `${x - lens.offsetWidth / 2}px`;
+                lens.style.top = `${y - lens.offsetHeight / 2}px`;
+
+                const percentX = (x / container.offsetWidth) * 100;
+                const percentY = (y / container.offsetHeight) * 100;
+                image.style.transformOrigin = `${percentX}% ${percentY}%`;
+            });
+
+             
+        });
+    </script>
+    </body>
+    </html>

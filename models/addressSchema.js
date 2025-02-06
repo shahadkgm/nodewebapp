@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose; // Correctly destructure Schema with a capital "S"
+const { Schema } = mongoose; 
 
 const addressSchema = new Schema({
   userId: {

@@ -9,6 +9,7 @@ const product = require("../../models/productSchema");
 // const { createHash } = require("crypto");
 // const { log } = require("console");
 const { status } = require("init");
+const { json } = require("stream/consumers");
 
 
 
@@ -40,16 +41,13 @@ const addProducts = async (req, res) => {
         for (let i = 0; i < req.files.length; i++) {
           const originalImagePath = req.files[i].path;
 
-          // Generate a unique filename for resized image
           const uniqueFilename = `resized-${Date.now()}-${req.files[i].filename}`;
           const resizedImagePath = path.join('public', 'uploads', 'product-images', uniqueFilename);
 
-          // Resize the image
-          await sharp(originalImagePath)
+        await sharp(originalImagePath)
             .resize({ width: 440, height: 440 })
             .toFile(resizedImagePath);
 
-          // Push the new unique filename to the images array
           images.push(uniqueFilename);
         }
 
@@ -202,17 +200,19 @@ const getEditProduct = async (req, res) => {
 
         // Fetch the product and related category
         const product = await Product.findOne({ _id: id }).populate('category');
-        console.log(product,"product frm get edt prdct");
+        
+        console.log("product frm get edt prdct",product);
         if (!product) {
             console.error("Product not found");
             return res.redirect("/admin/pageerror");
         }
 
         const categories = await Category.find({ isListed: true });
+        
 
         res.render("product-edit", {
-            product: product,  // Pass the product object
-            cat: categories,   // Pass the categories
+            product: product,  
+            cat: categories,   
         });
     } catch (error) {
         console.error("Error in getEditProduct:", error);
@@ -228,7 +228,7 @@ const editProduct = async (req, res) => {
         console.log("product in edit product", product)
 
         if (!product) {
-            return res.status(404).json({ error: "Product not found." });  // Return 404 if product doesn't exist
+            return res.status(404).json({ error: "Product not found." });  
         }
 
         const data = req.body;
@@ -251,7 +251,7 @@ const editProduct = async (req, res) => {
         const updateFields = {
             productName: data.productName,
             description: data.description,
-            category: product.category, // Ensure 'product' exists before accessing 'category'
+            category:product.category, 
             regularPrice: data.regularPrice,
             salePrice: data.salePrice,
             quantity:data.quantity,
@@ -260,7 +260,7 @@ const editProduct = async (req, res) => {
         };
 
         if (images.length > 0) {
-            updateFields.productImage = images; // Replace with new images
+            updateFields.productImage = images; 
         }
         
 
