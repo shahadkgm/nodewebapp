@@ -53,14 +53,12 @@ const addProducts = async (req, res) => {
 
         console.log("Category selected:", products.category);
 
-        // Find the category ID
         const categoryId = await Category.findOne({ name: products.category });
 
         if (!categoryId) {
           return res.status(400).json("Invalid category name");
         }
 
-        // Create the new product
         const newProduct = new Product({
           productName: products.productName,
           description: products.description,

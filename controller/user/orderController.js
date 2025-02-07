@@ -6,13 +6,11 @@ const Order=require("../../models/orderSchema");
 const User=require("../../models/userschema")
 
 
-// Load Checkout Page
 const loadCheckoutPage = async (req, res) => {
   // const userId=req.session.user
   try {
     const userId = req.session.user;
 
-    // Fetch cart
     const cart = await Cart.findOne({ userId }).populate("items.productId");
     if (!cart || cart.items.length === 0) {
       return res.render("checkout", { cart: [], totalAmount: 0, addresses: [] ,user});
@@ -47,7 +45,6 @@ const processOrder = async (req, res) => {
       // const product=await Product.findOne({userId})
   //  console.log("processOrder product quantity",product.quantity)
   
-      // Fetch cart
       const cart = await Cart.findOne({ userId }).populate('items.productId');
       if (!cart || cart.items.length === 0) {
         return res.redirect('/cart');
@@ -75,7 +72,6 @@ const processOrder = async (req, res) => {
   
       const totalPrice = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
   
-      // Create the order
       const order = new Order({
         userId, 
         orderedItems,
@@ -107,7 +103,7 @@ const processOrder = async (req, res) => {
     try {
       const userId = req.session.user;
   
-      const orders = await Order.find({ userId }).populate("orderedItems.product");
+      const orders = await Order.find({ userId }).populate("orderedItems.product").sort({createdAt:-1});
   
       res.render("orders", { orders }); 
     } catch (error) {

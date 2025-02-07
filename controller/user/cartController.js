@@ -43,7 +43,7 @@ const addToCart = async (req, res) => {
 
     if (product.quantity < quantity) {
       
-      return res.status(400).send("Insufficient stock available.");
+      return res.status(400).json({ success: false, message: "Insufficient stock available." });
     }
 
     let cart = await Cart.findOne({ userId });
@@ -56,7 +56,7 @@ const addToCart = async (req, res) => {
     const existingItem = cart.items.find((item) => item.productId.equals(productId));
     if (existingItem) {
       if (product.quantity < existingItem.quantity + parseInt(quantity, 10)) {
-        return res.status(400).send("Insufficient stock available.");
+        return res.status(400).json({ success: false, message: "Insufficient stock available." });
       }
 
       existingItem.quantity += parseInt(quantity, 10);
@@ -73,10 +73,10 @@ const addToCart = async (req, res) => {
     await product.save();
 
     await cart.save();
-    res.redirect("/cart"); 
+    return res.json({ success: true, message: "Product added to cart successfully!" });
   } catch (error) {
     console.error("Error adding to cart:", error);
-    res.status(500).send("An error occurred while adding to the cart.");
+    res.status(500).json({ success: false, message: "An error occurred while adding to the cart." });
   }
 };
 

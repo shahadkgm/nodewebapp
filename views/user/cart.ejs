@@ -27,8 +27,17 @@
           <tr>
             <td><%= item.productId.productName %></td>
             <td>
-              <img src="/uploads/product-images/<%= item.productId.productImage %>" alt="<%= item.productName %>" style="width: 50px; height: 50px;">
+              <% if (Array.isArray(item.productId.productImage) && item.productId.productImage.length > 0) { %>
+                <img src="/uploads/product-images/<%= item.productId.productImage[0] %>" 
+                     alt="<%= item.productId.productName %>" 
+                     style="width: 50px; height: 50px;">
+              <% } else { %>
+                <img src="/uploads/product-images/default.jpg" 
+                     alt="No Image Available" 
+                     style="width: 50px; height: 50px;">
+              <% } %>
             </td>
+            
             <td data-price-product-id="<%= item.productId._id %>" data-price="<%= item.price %>">₹<%= item.price.toLocaleString('en-IN') %></td>
             <td>
               <form action="/update" method="POST" class="d-inline">

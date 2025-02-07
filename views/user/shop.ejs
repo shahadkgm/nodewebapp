@@ -12,6 +12,13 @@
    margin-bottom: 20px;
  }
 
+ li {
+  text-decoration: none;
+ }
+
+ ul {
+  text-decoration: none;
+ }
 
  .search-form {
    display: flex;
@@ -228,17 +235,15 @@
     <div class="sort-bar">
       <form action="/shop" method="GET" id="sort-form">
         <label for="sort">Sort by:</label>
-        <select name="sort" id="sort" onchange="document.getElementById('sort-form').submit()">
-          <!-- <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Popularity</option> -->
-          <option value="priceLowHigh" <%= sort === 'priceLowHigh' ? 'selected' : '' %>>Price: Low to High</option>
-          <option value="priceHighLow" <%= sort === 'priceHighLow' ? 'selected' : '' %>>Price: High to Low</option>
-          <option value="avgRating" <%= sort === 'avgRating' ? 'selected' : '' %>>Average Ratings</option>
-          <!-- <option value="featured" <%= sort === 'featured' ? 'selected' : '' %>>Featured</option> -->
-          <option value="newArrivals" <%= sort === 'newArrivals' ? 'selected' : '' %>>New Arrivals</option>
-          <option value="aToZ" <%= sort === 'aToZ' ? 'selected' : '' %>>A-Z</option>
-          <option value="zToA" <%= sort === 'zToA' ? 'selected' : '' %>>Z-A</option>
+        <select name="sort" id="sort" onchange="applySort()">
+            <option value="priceLowHigh" <%= sort === 'priceLowHigh' ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="priceHighLow" <%= sort === 'priceHighLow' ? 'selected' : '' %>>Price: High to Low</option>
+            <option value="avgRating" <%= sort === 'avgRating' ? 'selected' : '' %>>Average Ratings</option>
+            <option value="newArrivals" <%= sort === 'newArrivals' ? 'selected' : '' %>>New Arrivals</option>
+            <option value="aToZ" <%= sort === 'aToZ' ? 'selected' : '' %>>A-Z</option>
+            <option value="zToA" <%= sort === 'zToA' ? 'selected' : '' %>>Z-A</option>
         </select>
-      </form>
+    </form>
     </div>
   </div>
   
@@ -249,9 +254,10 @@
          <div class="filter-title">Categories</div>
          <div class="category-brand-container">
            <ul>
-			<% for (let i = 0; i < category.length; i++) { %>
+			<% for (let i = 0; i<category.length; i++) { %>
 				<li class="filter-item">
-					<a href="/filter?category=<%= category[i]._id %>"><%= category[i].name %></a>
+          <a href="/filter?category=<%= category[i]._id %>&sort=<%= sort %>">
+            <%= category[i].name %>          </a>
 				</li>
 			<% } %>
 			
@@ -268,12 +274,21 @@
        <div class="price-filter">
          <div class="filter-title">Filter by Price</div>
          <form id="price-filter-form">
-			<div class="price-options">
-				<a href="/filterPrice?price=under500"><button type="button" class="price-button">Under ₹500</button></a>
-				<a href="/filterPrice?price=500-1000"><button type="button" class="price-button">₹500 - ₹1000</button></a>
-				<a href="/filterPrice?price=1000-1500"><button type="button" class="price-button">₹1000 - ₹1500</button></a>
-				<a href="/filterPrice?price=above1500"><button type="button" class="price-button">Above ₹1500</button></a>
-			  </div>
+          <div class="price-options">
+            <a href="/filterPrice?price=under500&sort=<%= sort %>">
+                <button type="button" class="price-button">Under ₹500</button>
+            </a>
+            <a href="/filterPrice?price=500-1000&sort=<%= sort %>">
+                <button type="button" class="price-button">₹500 - ₹1000</button>
+            </a>
+            <a href="/filterPrice?price=1000-1500&sort=<%= sort %>">
+                <button type="button" class="price-button">₹1000 - ₹1500</button>
+            </a>
+            <a href="/filterPrice?price=above1500&sort=<%= sort %>">
+                <button type="button" class="price-button">Above ₹1500</button>
+            </a>
+        </div>
+        
          </form>
        </div>
      </aside>
@@ -295,13 +310,20 @@
 					₹<%= typeof products[i].regularPrice === 'number' ? products[i].regularPrice.toLocaleString('en-IN') : 'N/A' %>
 				  </strike>
 				</span>
+        
+<br>
+          category:<%= products[i].category.name %>
+        
 			  </p>
 						 </a>
-						 <form action="/add" method="POST">
-							<input type="hidden" name="productId" value="<%= products[i]._id %>">
-							<input type="hidden" name="quantity" value="1"> 
-							<button type="submit" class="add-to-cart-btn" id="addToCart">Add to Cart</button>
-						  </form>
+             <button 
+             class="add-to-cart-btn" 
+             data-product-id="<%= products[i]._id %>" 
+             data-product-name="<%= products[i].productName %>"
+           >
+             Add to Cart
+           </button>
+           
 						  
          </div>
 		 <%}%>
@@ -331,7 +353,63 @@
  </section>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script>
+  function applySort() {
+      const sortValue = document.getElementById("sort").value;
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      urlParams.set("sort", sortValue);
+  
+      window.location.href = window.location.pathname + "?" + urlParams.toString();
 
+  };
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+      button.addEventListener("click", async function () {
+        const productId = this.getAttribute("data-product-id");
+        const productName = this.getAttribute("data-product-name");
+
+        try {
+          const response = await fetch("/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, quantity: 1 }) // Default to 1 quantity
+          });
+
+          const data = await response.json();
+          
+          if (data.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Added to Cart!",
+              text: `"${productName}" has been added to your cart.`,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: data.message
+            });
+          }
+        } catch (error) {
+          console.error("Error adding to cart:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong. Please try again later."
+          });
+        }
+      });
+    });
+  });
+</script>
+
+  
 <%- include("../../views/partials/user/footer") %>
 
 

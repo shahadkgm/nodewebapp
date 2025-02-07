@@ -442,13 +442,13 @@
                                                 </span>
                                             </li>
                                         </ul>
-                                        <form action="/add" method="POST">
-                                            <input type="hidden" name="productId" value="<%= product.id %>">
-                                            <input type="hidden" name="quantity" value="1"> <!-- Default quantity -->
-                                            <button type="submit" class="add-to-cart-btn btn btn-success">
-                                                Add to Cart
-                                            </button>
-                                        </form>
+                                        <button 
+             class="add-to-cart-btn" 
+             data-product-id="<%= products._id %>" 
+             data-product-name="<%= products.productName %>"
+           >
+             Add to Cart
+           </button>
                                     </div>
                                 </div>
                             </div>
@@ -526,6 +526,50 @@
 
              
         });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+          button.addEventListener("click", async function () {
+            const productId = this.getAttribute("data-product-id");
+            const productName = this.getAttribute("data-product-name");
+    
+            try {
+              const response = await fetch("/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId, quantity: 1 }) // Default to 1 quantity
+              });
+    
+              const data = await response.json();
+              
+              if (data.success) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Added to Cart!",
+                  text: `"${productName}" has been added to your cart.`,
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: data.message
+                });
+              }
+            } catch (error) {
+              console.error("Error adding to cart:", error);
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Something went wrong. Please try again later."
+              });
+            }
+          });
+        });
+      });
     </script>
 </body>
 </html>

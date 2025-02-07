@@ -174,7 +174,7 @@ const userProfile = async (req, res) => {
 
         const orders = await Order.find(searchFilter)
             .populate("orderedItems.product")
-            .sort({ createdAt: 1 }) 
+            .sort({ createOn: -1 }) 
             .skip((page - 1) * limit) 
             .limit(limit); 
 
@@ -186,7 +186,7 @@ const userProfile = async (req, res) => {
         res.render("profile", {
             userAddress: address,
             user: userAddress,
-            orders, // Paginated orders
+            orders,
             totalPages,
             query,
             currentPage: page,
