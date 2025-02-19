@@ -7,15 +7,16 @@
         <h2 class="content-title card-title">Products</h2>
     </div>
 </div>
-<header class="card-header text-center mb-20">
-    <form action="" method="get" class="d-inline">
-        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
+<header class="card-header text-center mb-20 ">
+    <form action="" method="get" class="d-inline ">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 402px;">
+            <input type="text" class="form-control border-0 rounded-pill " placeholder="Search products " name="search">
             <button class="btn  border-0" type="submit">Search</button>
         </div>
     </form>
 </header>
 <div class="right mt-5">
+    <%if (data.length>0){%>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -30,12 +31,11 @@
             </tr>
         </thead>
         <tbody>
-
             <%for(let i=data.length-1;i>=0;i--){%>
             
             <tr>
                 <td><%=data[i].productName%></td>
-                <td><%=data[i].category.name%></td>
+                <td><%= data[i].category ? data[i].category.name : 'No Category' %></td>
                 <td><%=data[i].salePrice%></td>
 <!--                 
                 <td>
@@ -68,13 +68,13 @@
                 <td>
 
                 <%if(data[i].isBlocked===false){%>
-                    <button class="btn btn-danger" style="width: 80px;">
-                        <a href="/admin/blockProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Block</a>
-                    </button>
+                    <button class="btn btn-danger" style="width: 80px;" onclick="blockProduct('<%= data[i]._id %>')">
+                        <a href="#" class="text-white" style="text-decoration: none;">Block</a>
+                      </button>
                     <%}else{%>
-                    <button class="btn btn-success" style="width: 80px;">
-                        <a href="/admin/unblockProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
-                    </button>
+                        <button class="btn btn-success" style="width: 80px;" onclick="unblockProduct('<%= data[i]._id %>')">
+                            <a href="#" class="text-white" style="text-decoration: none;">Unblock</a>
+                          </button>
             <%}%>
                 </td>
                 <td>
@@ -84,6 +84,16 @@
                 </td>
             </tr>
             <%}%>
+            <% } else { %>
+                <div class="card text-center text-white bg-danger mx-auto mt-3" style="max-width: 50rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">try again</h5>
+                        <p class="card-text">Oooops Not find Anything Related to your query</p>
+                    </div>
+                </div>
+                
+              <% } %>
+        
         </tbody>
 
     </table>
@@ -176,6 +186,86 @@
         console.error(error)
     }
    }
+
+   function blockProduct(productId) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this action!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, block it!',
+    cancelButtonText: 'No, cancel!',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // If the user confirmed, proceed with blocking
+      $.ajax({
+        url: `/admin/blockProduct?id=${productId}`, // Ensure the URL is correct
+        method: 'GET',
+        data: { id: productId },
+        success: function(response) {
+          if (response.status === true) {
+            Swal.fire(
+              'Blocked!',
+              'The product has been blocked.',
+              'success'
+            ).then(() => {
+              location.reload(); // Reload the page after blocking the product
+            });
+          } else {
+           
+
+            Swal.fire(
+              'Failed!',
+              'An error occurred while blocking the product.',
+              'error'
+            );
+          }
+        }
+      });
+    }
+  });
+}
+
+function unblockProduct(productId) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You can unblock it later.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, unblock it!',
+    cancelButtonText: 'No, cancel!',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // If the user confirmed, proceed with unblocking
+      $.ajax({
+        url: "/admin/unblockProduct", // Change the URL based on your actual route for unblocking
+        method: 'GET',
+        data: { id: productId },
+        success: function(response) {
+          if (response.status === true) {
+            Swal.fire(
+              'Unblocked!',
+              'The product has been unblocked.',
+              'success'
+            ).then(() => {
+              location.reload(); // Reload the page after unblocking the product
+            });
+          } else {
+            Swal.fire(
+              'Failed!',
+              'An error occurred while unblocking the product.',
+              'error'
+            );
+          }
+        }
+      });
+    }
+  });
+}
+
+
 
 
 

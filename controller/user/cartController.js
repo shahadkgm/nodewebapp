@@ -12,7 +12,7 @@ const loadCartPage = async (req, res) => {
     const user=await User.findById(userId)
 
     const cart = await Cart.findOne({ userId }).populate("items.productId");
-
+    
     if (!cart || cart.items.length === 0) {
       return res.render("cart", { cart: [], totalAmount: 0,user });
     }
@@ -22,8 +22,15 @@ const loadCartPage = async (req, res) => {
       0
     );
 
-    res.render("cart", { cart: cart.items, totalAmount, userId,user });
-  } catch (error) {
+    res.render("cart", { 
+      cart: cart.items.map(item => ({
+        ...item._doc,
+        stock: item.productId.quantity, // Add stock to the cart items
+      })), 
+      totalAmount, 
+      userId, 
+      user 
+    });  } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).send("An error occurred while fetching the cart.");
   }
@@ -116,7 +123,7 @@ const addToCart = async (req, res) => {
 //   }
 // };
 
-const removeItem = async (req, res) => {
+const  removeItem = async (req, res) => {
   try {
     const { productId } = req.body;
     const userId = req.session.user;
@@ -142,14 +149,11 @@ const removeItem = async (req, res) => {
 
 
 
-// Fetch user orders
 const orderPageLoad = async (req, res) => {
   try {
     const userId = req.session.user;
-    // Populate orderedItems.product to fetch product details (productName, price, etc.)
     const orders = await Order.find({ userId })
-      .populate('orderedItems.product') // Populate the 'product' field in orderedItems
-      .exec();
+      .populate('orderedItems.product') 
 
     console.log(orders, 'Orders with populated products');
 
@@ -162,30 +166,57 @@ const orderPageLoad = async (req, res) => {
 
 const updatingCart=async(req,res)=>{
   try {
-    const { items } = req.body;
+    const { productId, quantity, action } = req.body;
     const userId = req.session.user;
-    
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
-    if (!cart) return res.json({ success: false, message: "Cart not found" });
 
-    for (const item of items) {
-      const product = await Product.findById(item.productId);
-      if (!product || product.quantity < item.quantity) {
-        return res.json({ success: false, message: `Stock unavailable for ${product.productName}` });
-      }
-      
-      const cartItem = cart.items.find(i => i.productId._id.toString() === item.productId);
-      if (cartItem) {
-        cartItem.quantity = parseInt(item.quantity, 10);
-        cartItem.totalPrice = cartItem.quantity * cartItem.price;
-      }
+    // Find the product and cart
+    const product = await Product.findById(productId);
+    const cart = await Cart.findOne({ userId });
+
+    if (!product || !cart) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product or cart not found'
+      });
     }
 
+    // Find the cart item
+    const cartItem = cart.items.find(item => item.productId.equals(productId));
+    if (!cartItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'Item not found in cart'
+      });
+    }
+
+    // Check stock availability for increment
+    if (action === 'increment' && quantity > product.quantity) {
+      return res.status(400).json({
+        success: false,
+        message: 'Requested quantity exceeds available stock'
+      });
+    }
+
+    // Update quantity and total price
+    cartItem.quantity = quantity;
+    cartItem.totalPrice = quantity * cartItem.price;
+
+    // Save the updated cart
     await cart.save();
-    res.json({ success: true });
+
+    res.json({
+      success: true,
+      message: 'Quantity updated successfully',
+      newQuantity: quantity,
+      newTotal: cartItem.totalPrice
+    });
+
   } catch (error) {
-    console.error("Error updating cart before checkout:", error);
-    res.json({ success: false, message: "Error updating cart." });
+    console.error('Error updating quantity:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating the quantity'
+    });
   }
 };
 

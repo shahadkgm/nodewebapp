@@ -1,13 +1,16 @@
 <%- include("../../views/partials/user/header") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
   .card-green {
     background-color: #ADD8E6;
+
   }
   .main {
     padding: 30px 0;
   }
   .dashboard-menu {
-    background-color: #cce3e6;
+    background-color: #328945;
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -19,7 +22,7 @@
     transition: box-shadow 0.3s ease;
   }
   .dashboard-menu .nav-link:hover {
-    color: #00bfff;
+    color: #33aa43;
     box-shadow: 0 4px 15px rgba(173, 255, 47, 0.5), 0 6px 25px rgba(0, 191, 255, 0.4);
   }
   .card {
@@ -28,12 +31,13 @@
     margin-bottom: 20px;
   }
   .card-header {
-    background-color: #487379;
     color: white;
     border-radius: 10px 10px 0 0;
+    /* background: linear-gradient(#0056b3,#00bfff,#00bfff); */
+    background: linear-gradient(135deg, #146c43 0%, #198754 61%);
   }
   .btn-success {
-    background-color: #577194;
+    background-color: #198754;
     border-color: #6bb87d;
   }
   .btn-success:hover {
@@ -100,10 +104,10 @@
 </style>
 
 <main class="main">
-  <div class="page-header breadcrumb-wrap mb-3">
+  <div class="page-header breadcrumb-wrap mb-3 border-success">
     <div class="container">
       <div class="breadcrumb">
-        <a href="#" rel="nofollow">Home</a>
+        <a href="/" rel="nofollow">Home</a>
         <span></span> Profile <span></span> Account
       </div>
     </div>
@@ -114,9 +118,9 @@
         <div class="col-lg-10 m-auto">
           <div class="row">
             <div class="col-md-4">
-              <div class="dashboard-menu">
-                <ul class="nav flex-column" role="tablist">
-                  <li class="nav-item">
+              <div class="dashboard-menu border-success">
+                <ul class="nav flex-column" style="    background: aliceblue;"   role="tablist">
+                  <li class="nav-item" >
                     <a class="nav-link <%= activeTab === 'dashboard' ? 'active' : '' %>" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="false">
                       <i class="fi-rs-settings-sliders mr-10"></i>Dashboard
                     </a>
@@ -158,12 +162,12 @@
               <div class="tab-content dashboard-content">
 
                 <!-- Dashboard Tab -->
-                <div class="tab-pane fade <%= activeTab === 'dashboard' ? 'show active' : '' %>" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                <div class="border-success tab-pane fade <%= activeTab === 'dashboard' ? 'show active' : '' %>" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
                   <div class="card card-green">
                     <div class="card-header">
                       <h5 class="mb-0 text-center">User Profile</h5>
                     </div>
-                    <div class="card-body text-center">
+                    <div class="card-body text-center " style="background-color:white;">
                       <h5 class="card-title"><%= user.name %></h5>
                       <p class="card-text">
                         <strong>Phone: <%= user.phone %></strong>
@@ -200,7 +204,7 @@
                               <div class="d-flex justify-content-between">
                                 <a href="/edit-address/<%= address._id %>" class="btn-small">Edit</a>
                                 <form action="/delete-address/<%= address._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this address?');">
-                                  <button type="submit" class="btn-small">Delete</button>
+                                  <button type="submit" class="btn-small border-danger  bg-danger">Delete</button>
                                 </form>                              </div>
                             </div>
                           </div>
@@ -239,26 +243,24 @@
                             <tbody>
                               <% orders.forEach(order => { %>
                                 <tr>
-                                  <!-- Order ID -->
                                   <td><%= order.orderId %></td>
                                   
-                                  <!-- Status -->
                                   <td><%= order.status %></td>
                                   
-                                  <!-- Total Price -->
                                   <td>₹<%= order.totalPrice %></td>
                                   
-                                  <!-- Actions -->
                                   <td>
                                     <div class="d-flex align-items-center">
                                       <a href="/view-order/<%= order._id %>" class="btn btn-primary btn-sm me-2">View</a>
-                                      <form action="/cancel-order/<%= order._id %>" method="POST" class="d-inline">
-                                        <% if (order.status === 'Pending' || order.status === 'Processing') { %>
-                                          <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
-                                        <% } else { %>
-                                          <button type="button" class="btn btn-secondary btn-sm" disabled>Cannot Cancel</button>
-                                        <% } %>
-                                      </form>
+
+                                     <form action="/cancel-order/<%= order._id %>" method="POST" class="d-inline" onsubmit="return handleCancelOrder(event, '<%= order._id %>')">
+  <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+  <% } else { %>
+    <button type="button" class="btn btn-secondary btn-sm" disabled>Cannot Cancel</button>
+  <% } %>
+</form>
+
                                     </div>
                                   </td>
                                 </tr>
@@ -361,4 +363,56 @@
       </div>
     </div>
   </section>
+  <script>
+    function handleCancelOrder(event, orderId) {
+      event.preventDefault(); 
+  
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to cancel this order?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, cancel it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = event.target;
+          form.submit();
+        }
+      });
+    }
+
+    function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  // Check for the 'cancelStatus' query parameter
+  const cancelStatus = getQueryParam("cancelStatus");
+
+  if (cancelStatus === "success") {
+    Swal.fire({
+      title: "Success!",
+      text: "The order has been cancelled successfully.",
+      icon: "success",
+      confirmButtonText: "OK",
+    });
+  } else if (cancelStatus === "error") {
+    Swal.fire({
+      title: "Error!",
+      text: "Failed to cancel the order. Please try again.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
+
+  // Optional: Clean up the URL to remove the query parameter
+  if (cancelStatus) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("cancelStatus");
+    window.history.replaceState({}, document.title, url.pathname + url.search);
+  }
+  </script>
+  
 </main>

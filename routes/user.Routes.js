@@ -6,7 +6,6 @@ const profileController=require("../controller/user/profileController")
 const {adminAuth,userAuth}=require("../middlewares/auth");
 const cartController=require("../controller/user/cartController")
 
-// const User=require("../models/userschema");
 const orderController=require("../controller/user/orderController")
 
 router.get("/",userController.loadHomepage)
@@ -33,14 +32,13 @@ router.get('/home',(req,res)=>{
 })
 //profile management
 
+router.get('/userProfile',userAuth,profileController.userProfile)
 router.get('/forgot-password',profileController.getfForgotPassPage)
 router.post("/forgot-email-valid",profileController.forgotEmailValid)
 router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp)
 router.get('/reset-password',profileController.getResetPassPage)
 router.post('/reset-password',profileController.postNewPassword)
-// router.get('/profile',userController.getUserProfile)
 router.post('/resend-forgot-otp',profileController.resendOtp)
-router.get('/userProfile',userAuth,profileController.userProfile)
 router.get('/change-email',userAuth,profileController.changeEmail)
 // router.get('/change-password',userAuth,profileController.changePassword)
 router.post("/change-email",userAuth,profileController.changeEmailValid)

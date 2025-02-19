@@ -43,10 +43,9 @@
               <form action="/update" method="POST" class="d-inline">
                 <input type="hidden" name="productId" value="<%= item.productId._id %>">
                 <div class="input-group input-group-sm" style="max-width: 150px;">
-                  <!-- Decrement Button -->
+
                   <button type="button" class="btn btn-outline-secondary decrement-btn" data-product-id="<%= item.productId._id %>">-</button>
                   
-                  <!-- Quantity Input -->
                   <input 
                     type="number" 
                     name="quantity" 
@@ -56,6 +55,8 @@
                     class="form-control text-center quantity-input" 
                     style="width: 50px;" 
                     data-product-id="<%= item.productId._id %>"
+                    data-stock="<%= item.productId.stock %>" 
+
                   >
                   
                   <button type="button" class="btn btn-outline-secondary increment-btn" data-product-id="<%= item.productId._id %>">+</button>
@@ -67,9 +68,9 @@
             
             <td data-total-product-id="<%= item.productId._id %>">₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
             <td>
-              <form action="/remove" method="POST" class="d-inline">
+              <form action="/remove" method="POST" class="d-inline remove-form">
                 <input type="hidden" name="productId" value="<%= item.productId._id %>">
-                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                <button type="button" class="btn btn-sm btn-danger remove-btn">Remove</button>
               </form>
             </td>
           </tr>
@@ -79,9 +80,9 @@
 
     <div class="text-end " style="height: 173px;">
       <h3>Total: <span id="grand-total">₹<%= totalAmount.toLocaleString('en-IN') %></span></h3>
-      <!-- <a href="/checkOut" class="btn btn-success">Proceed to Checkout</a> -->
+      <a href="/checkOut" class="btn btn-success " id="checkout-btn">Proceed to Checkout</a>
       <!-- <button type="submit" class="btn btn-sm btn-primary mt-2">Update</button> -->
-      <button id="checkout-btn" class="btn btn-success">Proceed to Checkout</button>
+      <!-- <button id="checkout-btn" class="btn btn-success">Proceed to Checkout</button> -->
     </div>
   
   <% } %>
@@ -91,83 +92,154 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-  document.querySelectorAll('.increment-btn').forEach(button => {
-    button.addEventListener('click', function () {
-      const productId = this.getAttribute('data-product-id');
-      const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
-      const priceElement = document.querySelector(`td[data-price-product-id="${productId}"]`);
-      const totalElement = document.querySelector(`td[data-total-product-id="${productId}"]`);
+document.querySelectorAll('.increment-btn').forEach(button => {
+  button.addEventListener('click', async function() {
+    const productId = this.getAttribute('data-product-id');
+    const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+    const priceElement = document.querySelector(`td[data-price-product-id="${productId}"]`);
+    const totalElement = document.querySelector(`td[data-total-product-id="${productId}"]`);
+    const stock = parseInt(input.getAttribute('data-stock'));
+    let quantity = parseInt(input.value);
 
-      let quantity = parseInt(input.value);
-      if (quantity < 10) {
+    try {
+      if (quantity >= stock) {
+        Swal.fire({
+          title: 'Stock Limit Reached',
+          text: 'Cannot add more items than available in stock',
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
+      const response = await fetch('/update-cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          productId,
+          quantity: quantity + 1,
+          action: 'increment'
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
         quantity++;
         input.value = quantity;
         updateRowTotal(priceElement, totalElement, quantity);
         updateGrandTotal();
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: result.message || 'Failed to update quantity',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
-    });
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to update quantity',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    }
   });
+});
 
-  document.querySelectorAll('.decrement-btn').forEach(button => {
-    button.addEventListener('click', function () {
-      const productId = this.getAttribute('data-product-id');
-      const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
-      const priceElement = document.querySelector(`td[data-price-product-id="${productId}"]`);
-      const totalElement = document.querySelector(`td[data-total-product-id="${productId}"]`);
+document.querySelectorAll('.decrement-btn').forEach(button => {
+  button.addEventListener('click', async function() {
+    const productId = this.getAttribute('data-product-id');
+    const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+    const priceElement = document.querySelector(`td[data-price-product-id="${productId}"]`);
+    const totalElement = document.querySelector(`td[data-total-product-id="${productId}"]`);
+    let quantity = parseInt(input.value);
 
-      let quantity = parseInt(input.value);
-      if (quantity > 1) {
+    if (quantity <= 1) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/update-cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          productId,
+          quantity: quantity - 1,
+          action: 'decrement'
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
         quantity--;
         input.value = quantity;
         updateRowTotal(priceElement, totalElement, quantity);
         updateGrandTotal();
-      }
-    });
-  });
-
-  function updateRowTotal(priceElement, totalElement, quantity) {
-    const price = parseFloat(priceElement.dataset.price);
-    const newTotal = price * quantity;
-    totalElement.textContent = `₹${newTotal.toLocaleString('en-IN')}`;
-  }
-
-  function updateGrandTotal() {
-    let grandTotal = 0;
-    document.querySelectorAll('td[data-total-product-id]').forEach(totalElement => {
-      grandTotal += parseFloat(totalElement.textContent.replace('₹', '').replace(/,/g, ''));
-    });
-
-    document.getElementById('grand-total').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
-  }
-  //new
-  document.getElementById("checkout-btn").addEventListener("click", async function () {
-    const quantities = [];
-    
-    document.querySelectorAll(".quantity-input").forEach(input => {
-      const productId = input.getAttribute("data-product-id");
-      const quantity = input.value;
-      quantities.push({ productId, quantity });
-    });
-
-    try {
-      const response = await fetch("/update-cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: quantities })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        window.location.href = "/checkOut";
       } else {
-        Swal.fire("Error", data.message || "Could not update cart.", "error");
+        Swal.fire({
+          title: 'Error',
+          text: result.message || 'Failed to update quantity',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
     } catch (error) {
-      console.error("Checkout Error:", error);
-      Swal.fire("Error", "Something went wrong!", "error");
+      console.error('Error updating quantity:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to update quantity',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   });
+});
+
+function updateRowTotal(priceElement, totalElement, quantity) {
+  const price = parseFloat(priceElement.dataset.price);
+  const newTotal = price * quantity;
+  totalElement.textContent = `₹${newTotal.toLocaleString('en-IN')}`;
+}
+
+function updateGrandTotal() {
+  let grandTotal = 0;
+  document.querySelectorAll('td[data-total-product-id]').forEach(totalElement => {
+    grandTotal += parseFloat(totalElement.textContent.replace('₹', '').replace(/,/g, ''));
+  });
+  document.getElementById('grand-total').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+}
   
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".remove-btn").forEach(button => {
+      button.addEventListener("click", function () {
+        const form = this.closest(".remove-form"); 
+        Swal.fire({
+          title: "Are you sure?",
+          text: "Do you want to remove this item from your cart?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, remove it!"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit(); 
+          }
+        });
+      });
+    });
+  });
 </script>
 
 

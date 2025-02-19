@@ -77,7 +77,6 @@ const addProducts = async (req, res) => {
         console.log("salePrice", products.salePrice);
         console.log("newProduct", newProduct);
 
-        // Save the product to the database
         await newProduct.save();
         return res.redirect("/admin/addProducts");
       } else {
@@ -96,7 +95,7 @@ const getAllProducts = async (req, res) => {
     try {
         const search = req.query.search || "";
         const page = parseInt(req.query.page, 10) || 1;
-        const limit = 4;
+        const limit = 5;
 
         const productData = await Product.find({
             $or: [
@@ -115,6 +114,11 @@ const getAllProducts = async (req, res) => {
         }).countDocuments();
 
         const category = await Category.find({ isListed: true });
+        // console.log("productdata from getAllproduct ",productData)
+
+
+
+
 
         if (category && category.length > 0) {
             res.render("products", {
@@ -127,7 +131,7 @@ const getAllProducts = async (req, res) => {
             res.render("page-404");
         }
     } catch (error) {
-        console.error(error);  // Log the error for debugging
+        console.error("error from getAll product",error);  
         res.redirect("/admin/pageerror");
     }
 };
@@ -172,31 +176,38 @@ const removeProductOffer = async (req, res) => {
 
 const blockProduct = async (req, res) => {
     try {
-        let id = req.query.id;
-        await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        res.redirect("/admin/products")
-
+      console.log("hi from block");
+      let id = req.query.id;
+  
+      const result = await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
+      console.log("Block result:", result);
+  
+      res.json({ status: true, message: "Product blocked successfully." }); // Respond with JSON
     } catch (error) {
-        res.redirect("/pageerror")
+      console.error("Error in block:", error);
+      res.status(500).json({ status: false, message: "Failed to block product." }); // Respond with error JSON
     }
-};
-const unblockProduct = async (req, res) => {
+  };
+  
+  const unblockProduct = async (req, res) => {
     try {
-        let id = req.query.id;
-        await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        res.redirect("/admin/products")
+      let id = req.query.id;
+  
+      const result = await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
+      console.log("Unblock result:", result);
+  
+      res.json({ status: true, message: "Product unblocked successfully." }); // Respond with JSON
     } catch (error) {
-        res.redirect("/admin/pageerror")
-
+      console.error("Error in unblock:", error);
+      res.status(500).json({ status: false, message: "Failed to unblock product." }); // Respond with error JSON
     }
-
-};
+  };
+  
 const getEditProduct = async (req, res) => {
     try {
         const id = req.query.id;
         console.log("Product ID:", id);
 
-        // Fetch the product and related category
         const product = await Product.findOne({ _id: id }).populate('category');
         
         console.log("product frm get edt prdct",product);
@@ -249,7 +260,7 @@ const editProduct = async (req, res) => {
         const updateFields = {
             productName: data.productName,
             description: data.description,
-            category:product.category, 
+            category:data.category, 
             regularPrice: data.regularPrice,
             salePrice: data.salePrice,
             quantity:data.quantity,
@@ -258,11 +269,21 @@ const editProduct = async (req, res) => {
         };
 
         if (images.length > 0) {
-            updateFields.productImage = images; 
+            await Product.findByIdAndUpdate(
+                id,
+                {
+                    ...updateFields,
+                    $push: { productImage: { $each: images } }
+                },
+                { new: true }
+            );
+        } else {
+            await Product.findByIdAndUpdate(
+                id,
+                updateFields,
+                { new: true }
+            );
         }
-        
-
-        await Product.findByIdAndUpdate(id, updateFields, { new: true });
         console.log("Product updated successfully");
         res.redirect("/admin/products");
 

@@ -12,6 +12,8 @@ const loadCheckoutPage = async (req, res) => {
     const userId = req.session.user;
 
     const cart = await Cart.findOne({ userId }).populate("items.productId");
+    console.log("cart from load checkout page",cart)
+    // console.log("quantity from load checkout page",cart.quantity)
     if (!cart || cart.items.length === 0) {
       return res.render("checkout", { cart: [], totalAmount: 0, addresses: [] ,user});
     }
@@ -20,6 +22,8 @@ const loadCheckoutPage = async (req, res) => {
 
     const userAddresses = await Address.findOne({ userId });
     const user=await User.findById(userId)
+    
+    
     
 
     res.render("checkout", {
@@ -36,66 +40,109 @@ const loadCheckoutPage = async (req, res) => {
 
 
 const processOrder = async (req, res) => {
-    try {
-      const { selectedAddress, paymentMethod, discount,productId,quantity} = req.body;
-      const product=await Product.findById(productId)
-      console.log("product from process order",product)
-      console.log(paymentMethod)
-      const userId = req.session.user;
-      // const product=await Product.findOne({userId})
-  //  console.log("processOrder product quantity",product.quantity)
-  
-      const cart = await Cart.findOne({ userId }).populate('items.productId');
-      if (!cart || cart.items.length === 0) {
-        return res.redirect('/cart');
+  try {
+    console.log("its reached in the process order page");
+    console.log("it from processOrder", req.body);
+
+    const { selectedAddress, paymentMethod, discount } = req.body;
+    const userId = req.session.user;
+
+    const parsedAddress = JSON.parse(selectedAddress);
+
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Your cart is empty.",
+      });
+    }
+
+    const insufficientStockItems = [];
+    for (let item of cart.items) {
+      const product = item.productId;
+
+      if (!product || product.quantity < item.quantity) {
+        insufficientStockItems.push({
+          productName: product?.productName || "Unknown Product",
+          availableStock: product?.quantity || 0,
+          requestedQuantity: item.quantity,
+        });
+      }
+    }
+    console.log("insufficient ",insufficientStockItems)
+    console.log("1")
+    
+      if (insufficientStockItems.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Some items have insufficient stock.",
+          insufficientStockItems,
+        });
       }
   
-      await Promise.all(cart.items.map(async(item)=>{
-        const product = item.productId
-        console.log("product items",product)
-        console.log("product quantity",product.quantity)
-    await Product.updateOne(
-      {_id:product._id},{$inc:{'quantity':-item.quantity}}
-    )
-      }))
-      
-  
-  
-  
-      const parsedAddress = JSON.parse(selectedAddress);
-       console.log("items in cart",cart)
-      const orderedItems = cart.items.map((item) => ({
-        product: item.productId._id,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-  
-      const totalPrice = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-  
-      const order = new Order({
-        userId, 
-        orderedItems,
-        totalPrice,
-        discount: discount || 0,
-        address: parsedAddress,
-        paymentMethod:paymentMethod,
-        status: 'Pending',
-        couponApplied: !!discount,
-      });
-    
-      console.log("order items",order)
-     
-      await order.save();
-  
-      cart.items = [];
-      await cart.save();
-  // if (product.quantity<item.quantity)
-      res.redirect('/thankyou');
-    } catch (error) {
-      console.error('Error processing order:', error);
-      res.status(500).send('Something went wrong while processing the order.');
-    }
-  };
+   
+
+    console.log("2")
+
+    await Promise.all(
+      cart.items.map(async (item) => {
+        const product = item.productId;
+        await Product.updateOne(
+          { _id: product._id },
+          { $inc: { quantity: -item.quantity } }
+        );
+      })
+    );
+    console.log("3")
+
+
+    // const totalAmount = cart.items.reduce(
+    //   (sum, item) => sum + price * item.quantity,
+    //   0
+    // );
+    const totalPrice = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+
+    console.log("3")
+    const orderedItems = cart.items.map((item) => ({
+      product: item.productId._id,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
+
+    const order = new Order({
+      userId,
+      orderedItems,
+      address: parsedAddress, // Use parsedAddress
+      paymentMethod,
+      discount: discount || 0,
+      totalPrice,
+      status: "Pending",
+      orderDate: new Date(),
+      couponApplied: !!discount,
+
+
+    });
+
+    await order.save();
+
+    await Cart.findOneAndUpdate({ userId }, { items: [], totalAmount: 0 });
+
+    res.status(200).json({
+      success: true,
+      message: "Order placed successfully!",
+      orderId: order._id,
+    });
+  } catch (error) {
+    console.error("Error processing order:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while processing the order.",
+    });
+  }
+};
+
+
 
 
 
@@ -103,9 +150,12 @@ const processOrder = async (req, res) => {
     try {
       const userId = req.session.user;
   
-      const orders = await Order.find({ userId }).populate("orderedItems.product").sort({createdAt:-1});
-  
-      res.render("orders", { orders }); 
+      const orders = await Order.find({ userId })
+      .populate("orderedItems.product")
+      .sort({ createOn: -1 }) 
+      .limit(1); 
+      
+      res.render("orders", { orders,user:userId }); 
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).send("An error occurred while fetching your orders.");
@@ -115,47 +165,51 @@ const processOrder = async (req, res) => {
   const cancelOrder = async (req, res) => {
     try {
       const orderId = req.params.id;
+  
       const order = await Order.findById(orderId);
   
-      if (!order || !(order.status === "Pending" || order.status === "Processing")) {
-        return res.status(400).send("Cannot cancel this order.");
+      if (!order) {
+        return res.status(404).json({ success: false, message: "Order not found." });
+      }
+      if (order.status !== "Pending" && order.status !== "Processing") {
+        return res.status(400).json({ success: false, message: "This order cannot be cancelled." });
       }
   
-      // Update product stock
       for (const item of order.orderedItems) {
         const product = await Product.findById(item.product);
         if (product) {
-          product.quantity += item.quantity; // Return stock
-          await product.save(); // Save updated product
+          product.quantity += item.quantity; 
+          await product.save();
         }
       }
   
-    
+      // Update order status
       order.status = "Cancelled";
       await order.save();
   
-      res.redirect("/orders");
-    } catch (error) {
+      res.redirect("/userProfile?tab=orders&cancelStatus=success");    } catch (error) {
       console.error("Error cancelling order:", error);
-      res.status(500).send("Something went wrong.");
+      res.redirect("/userProfile?tab=orders&cancelStatus=error");
     }
   };
-
+  
 
   const viewOrder =async(req,res)=>{
     try {
+      const query = req.query.query || "";
+      
+      const activeTab=req.query.tab||"dashboard";
       const userId=req.session.user;
       const orderId=req.params.id;
       const order = await Order.findById(orderId)
       .populate({
         path:'orderedItems.product',
-        select:'productName price quantity productImage'
+        select:'productName price quantity productImage description status'
     });
-      const product=await Product.findById(userId);
       console.log("order from view order",JSON.stringify(order,null,2));
       
     if (order){
-      res.render('view-order',{order,product})
+      res.render('view-order',{order,user:userId,query,activeTab})
     }
     } catch (error) {
       console.error(error,"error from view order")

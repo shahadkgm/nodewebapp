@@ -52,7 +52,7 @@ const loadSignup = async (req, res) => {
 
 function generateOtp(){
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log("Generated OTP:", otp);  // Add this line
+    console.log("Generated OTP:", otp);  
     return otp;
 }
 
@@ -115,7 +115,6 @@ req.session.userOtp=otp;
 req.session.userData={name,phone,email,password};
 
 
-// res,render("verify-otp")
 res.render("verify-otp")
 console.log("otp sent",otp)
     } catch (error) {
@@ -242,7 +241,7 @@ const loadShoppingPage=async (req, res) => {
 
 
       const query = req.query.query || ""; 
-      const sort = req.query.sort || "popularity"; 
+      const sort = req.query.sort || "priceHighLow"; 
       const page = parseInt(req.query.page) || 1;
       const limit = 10; 
 
@@ -279,7 +278,7 @@ const loadShoppingPage=async (req, res) => {
           sortOptions = { productName: -1 };
           break;
         default:
-          sortOptions = { popularity: -1 };
+          sortOptions = { priceHighLow: -1 };
       }
   
       const totalProducts = await Product.countDocuments(searchFilter);
@@ -287,7 +286,7 @@ const loadShoppingPage=async (req, res) => {
 
       
   
-      const products = await Product.find(searchFilter).populate("category")
+      const products = await Product.find({isBlocked:false,...searchFilter}).populate("category")
         .sort(sortOptions)
         .skip((page - 1) * limit)
         .limit(limit);
@@ -449,7 +448,7 @@ const loadProductDetail = async (req, res) => {
       }
       const relatedProducts = await Product.find({
         category: product.category._id,
-        _id: { $ne: productId }, // Exclude the current product
+        _id: { $ne: productId }, 
       }).limit(5);
   
       const productData = {
@@ -478,7 +477,7 @@ const loadProductDetail = async (req, res) => {
     const productId = req.params.id; 
   
     try {
-      const product = await Product.findById(productId);
+      const product = await Product.findById({ _id: productId, isBlocked: false });   ;
   
       if (!product) {
         return res.status(404).send('Product not found');

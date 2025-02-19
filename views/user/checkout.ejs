@@ -1,94 +1,179 @@
 <%- include("../../views/partials/user/header") %>
 
 <div class="container my-5">
-  <h1 class="text-center mb-4">Checkout</h1>
+  <!-- Checkout Title -->
+  <div class="text-center">
+    <h1 class="mb-4 display-5 fw-bold text-success">Checkout</h1>
+  </div>
 
   <!-- Order Summary Section -->
   <div class="row mb-5">
     <div class="col-md-12">
-      <h3>Order Summary</h3>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% cart.forEach(item => { %>
-            <tr>
-              <td><%= item.productId.productName %></td>
-              <td><%= item.quantity %></td>
-              <td>₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-        <tfoot>
-          <tr>
-            <th colspan="2" class="text-end">Grand Total:</th>
-            <th>₹<%= totalAmount.toLocaleString('en-IN') %></th>
-          </tr>
-        </tfoot>
-      </table>
+      <div class="card border-success shadow">
+        <div class="card-header bg-success text-white">
+          <h3 class="mb-0">Order Summary</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-hover table-bordered text-center align-middle">
+            <thead class="table-success">
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% cart.forEach(item => { %>
+                <tr>
+                  <td><%= item.productId.productName %></td>
+                  <td><%= item.quantity %></td>
+                  <td>₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <th colspan="2" class="text-end">Grand Total:</th>
+                <th>₹<%= totalAmount.toLocaleString('en-IN') %></th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Payment Method Section -->
   <div class="row mb-5">
     <div class="col-md-12">
-      <h3>Payment Method</h3>
-      <form action="/checkOut" method="post">
-        <!-- Payment Options -->
-        <div class="form-check">
-          <input type="radio" name="paymentMethod" id="cod" value="COD" class="form-check-input" checked>
-          <label for="cod" class="form-check-label">Cash on Delivery (COD)</label>
+      <div class="card border-primary shadow">
+        <div class="card-header bg-success text-white">
+          <h3 class="mb-0">Payment Method</h3>
         </div>
-        <div class="form-check">
-          <input type="radio" name="paymentMethod" id="online" value="Online" class="form-check-input">
-          <label for="online" class="form-check-label">Online Payment</label>
-        </div>
+        <div class="card-body">
+          <form action="/checkOut" method="post">
+            <div class="form-check mb-3">
+              <input type="radio" name="paymentMethod" id="cod" value="COD" class="form-check-input" checked>
+              <label for="cod" class="form-check-label fw-bold">Cash on Delivery (COD)</label>
+            </div>
+            <div class="form-check mb-4">
+              <input type="radio" name="paymentMethod" id="online" value="Online" class="form-check-input">
+              <label for="online" class="form-check-label fw-bold">Online Payment</label>
+            </div>
 
-        <!-- Saved Addresses Section -->
-        <h3 class="mt-4">Saved Addresses</h3>
-        <% if (addresses.length > 0) { %>
-          <div class="mb-3">
-            <% addresses.forEach((address, index) => { %>
-              <div class="form-check">
-                <input 
-                  type="radio" 
-                  name="selectedAddress" 
-                  id="address<%= index %>" 
-                  value='<%= JSON.stringify(address) %>' 
-                  class="form-check-input" 
-                  <%= index === 0 ? "checked" : "" %>
-                >
-                <label for="address<%= index %>" class="form-check-label">
-                  <strong><%= address.addressType %></strong><br>
-                  <%= address.name %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %><br>
-                  Phone: <%= address.phone %> <%= address.altPhone ? `, Alt: ${address.altPhone}` : "" %>
-                </label>
+            <!-- Saved Addresses Section -->
+            <h3 class="mt-4">Saved Addresses</h3>
+            <% if (addresses.length > 0) { %>
+              <div class="mb-3">
+                <% addresses.forEach((address, index) => { %>
+                  <div class="form-check p-3 border rounded mb-2 shadow-sm">
+                    <input 
+                      type="radio" 
+                      name="selectedAddress" 
+                      id="address<%= index %>" 
+                      value='<%= JSON.stringify(address) %>' 
+                      class="form-check-input" 
+                      <%= index === 0 ? "checked" : "" %>
+                    >
+                    <label for="address<%= index %>" class="form-check-label">
+                      <strong><%= address.addressType %></strong><br>
+                      <%= address.name %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %><br>
+                      <small>Phone: <%= address.phone %> <%= address.altPhone ? `, Alt: ${address.altPhone}` : "" %></small>
+                    </label>
+                  </div>
+                <% }); %>
+                <div class="text-end">
+                  <a href="/address" class="btn btn-outline-success btn-sm">
+                    Add New Address
+                  </a>
+                </div>
               </div>
-              
+            <% } else { %>
+              <p class="text-muted">No saved addresses found. Please add a new address.</p>
+              <a href="/address" class="btn btn-success">Add Address</a>
+            <% } %>
 
-            <% }); %>
-            <a href="/address">
-              <button type="button" class="btn btn-success">Add Address</button>
-            </a>
-          </div>
-        <!-- <% } else { %> -->
-          <p>No saved addresses found. Please add a new address.</p>
-          <a href="/address">
-            <button type="button" class="btn btn-success">Add Address</button>
-          </a>
-        <% } %>
-
-        <!-- Submit Button -->
-        <div class="text-end mt-5">
-          <button type="submit" class="btn btn-primary">Place Order</button>
+            <!-- Submit Button -->
+            <div class="text-end mt-5">
+              <button type="button" class="btn btn-primary btn-lg place-order">
+                Place Order
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.querySelector('.place-order').addEventListener('click', function (event) {
+  event.preventDefault(); 
+
+  const form = event.target.closest('form');
+  const formData = new FormData(form);
+
+  const data = Object.fromEntries(formData.entries()); // Convert FormData to plain object
+  console.log('Payload being sent:', data); // Debug log
+
+  fetch('/checkOut', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', 
+    },
+    body: JSON.stringify(data), 
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(data => {
+      console.error('Order failed:', data.message);
+      alert(`Order failed: ${data.message}. Insufficient stock for: ${data.insufficientStockItems.map(item => item.productName).join(', ')}`);
+    })      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        Swal.fire({
+          title: 'Order Placed!',
+          text: 'Your order has been placed successfully.',
+          icon: 'success',
+        }).then(() => {
+          window.location.href = "/thankyou";
+        });
+      } else {
+        if (data.insufficientStockItems) {
+          let errorMessage = 'The following items have insufficient stock:\n';
+          data.insufficientStockItems.forEach(item => {
+            errorMessage += `- ${item.productName}: Requested ${item.requestedQuantity}, Available ${item.availableStock}\n`;
+          });
+
+          Swal.fire({
+            title: 'Insufficient Stock',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'Update Cart',
+          }).then(() => {
+            window.location.href = '/cart';
+          });
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: data.message,
+            icon: 'error',
+          });
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error placing order:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'An unexpected error occurred. Please try again later.',
+        icon: 'error',
+      });
+    });
+});
+
+</script>
+
 

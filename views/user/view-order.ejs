@@ -1,310 +1,63 @@
-
 <%- include("../../views/partials/user/header") %>
-<style>
-    .card {
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(79, 226, 63, 0.1);
-}
-
-.card-header {
-  background-color: #f8f9fa;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.card-body ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.card-body li {
-  margin-bottom: 15px;
-}
-
-hr {
-  border-top: 1px solid #e9ecef;
-}
-
-h5 {
-  color: #343a40;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
-}
-/*  */
-custom-navbar {
-    padding: 20px 0;
-    transition: all 0.3s ease;
-    background: #3b5d50 !important;  
-}
-
-.navbar-brand {
-    font-size: 28px;
-    font-weight: 700;
-    color: #ffffff !important;
-}
-
-.navbar-brand span {
-    color: #198754;  
-}
-
-.custom-navbar-nav .nav-link {
-    font-weight: 500;
-    color: #ffffff !important;
-    position: relative;
-    padding: 10px 15px !important;
-    transition: all 0.3s ease;
-}
-
-.custom-navbar-nav .nav-link:hover {
-    color: #198754 !important;
-}
-
-.custom-navbar-nav .nav-item.active .nav-link {
-    color: #198754 !important;
-}
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-    padding: 0 15px;
-}
-
-.dropdown a {
-    color: #ffffff !important;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.dropdown a:hover {
-    color: #198754 !important;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #ffffff;
-    min-width: 180px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
-    z-index: 1000;
-    right: 0;
-    top: 100%;
-    margin-top: 10px;
-}
-
-.dropdown-content::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    right: 20px;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid #ffffff;
-}
-
-.dropdown-content a {
-    color: #333333 !important;
-    padding: 12px 20px;
-    text-decoration: none;
-    display: block;
-    transition: all 0.3s ease;
-    font-size: 14px;
-}
-
-.dropdown-content a:hover {
-    background-color: #f8f9fa;
-    color: #198754 !important;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.custom-navbar-cta {
-    margin-left: 20px !important;
-}
-
-.custom-navbar-cta .nav-link {
-    padding: 8px !important;
-    position: relative;
-}
-
-.custom-navbar-cta img {
-    width: 24px;
-    filter: invert(1);  
-    transition: all 0.3s ease;
-}
-
-.custom-navbar-cta .nav-link:hover img {
-    transform: scale(1.1);
-}
-
-.navbar-toggler {
-    border: none;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    position: relative;
-}
-
-.navbar-toggler:focus {
-    box-shadow: none;
-}
-
-.navbar-toggler-icon {
-    background-image: none;
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-@media (max-width: 991.98px) {
-    .custom-navbar {
-        padding: 15px 0;
-    }
-
-    .navbar-collapse {
-        background: #3b5d50;
-        padding: 20px;
-        margin-top: 15px;
-        border-radius: 8px;
-    }
-
-    .custom-navbar-nav .nav-link {
-        padding: 10px 0 !important;
-    }
-
-    .dropdown {
-        padding: 0;
-    }
-
-    .dropdown-content {
-        position: static;
-        background-color: rgba(255,255,255,0.1);
-        margin-top: 5px;
-        box-shadow: none;
-    }
-
-    .dropdown-content::before {
-        display: none;
-    }
-
-    .dropdown-content a {
-        color: #ffffff !important;
-    }
-
-    .custom-navbar-cta {
-        margin-left: 0 !important;
-        margin-top: 15px;
-    }
-}
-/* Order Details Page Styles */
-.card {
-    border-radius: 10px;
-}
-
-.card-header {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-/* Order Status Badges */
-.badge {
-    font-size: 14px;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-.order-status-pending {
-    background-color: #ffedd5;
-    color: #d97706;
-}
-
-.order-status-processing {
-    background-color: #dbecff;
-    color: #2563eb;
-}
-
-.order-status-completed {
-    background-color: #d1fae5;
-    color: #059669;
-}
-
-/* List Group Styling */
-.list-group-item {
-    border: none;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 5px;
-    margin-bottom: 5px;
-}
-
-.list-group-item img {
-    border: 1px solid #ddd;
-}
-
-.fw-bold {
-    font-size: 18px;
-}
-
-/* Button Styles */
-.btn-outline-success {
-    border: 2px solid #198754;
-    color: #198754;
-    transition: 0.3s;
-}
-
-.btn-outline-success:hover {
-    background-color: #198754;
-    color: white;
-}
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 
-</style>
 
-  
+
 <div class="container my-5">
-  <h2 class="text-center mb-4">Order Details</h2>
-  <div class="card shadow-lg">
-      <div class="card-header bg-success text-white">
-          <div class="d-flex justify-content-between align-items-center">
-              <span><strong>Order ID:</strong> <%= order.orderId %></span>
-              <span class="badge order-status-<%= order.status.toLowerCase() %>"><%= order.status %></span>
-          </div>
-      </div>
-      <div class="card-body">
-          <h5 class="mb-4">Ordered Items</h5>
-          <ul class="list-group">
-              <% order.orderedItems.forEach(item => { %>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <div class="d-flex align-items-center">
-                          <% if (item.product && item.product.productImage) { %>
-                              <img src="/uploads/product-images/<%=item.product.productImage %>" alt="<%= item.product.productName %>" class="rounded img-thumbnail" style="width: 60px; height: 60px; object-fit: cover; margin-right: 15px;">
-                          <% } %>
-                          <div>
-                              <strong><%= item.product.productName %></strong> <br>
-                              <span class="text-muted">₹<%= item.price %> x <%= item.quantity %></span>
-                          </div>
-                      </div>
-                      <span class="fw-bold">₹<%= item.price * item.quantity %></span>
-                  </li>
-              <% }) %>
-          </ul>
-          <div class="mt-4">
-              <h5 class="fw-bold">Total Price: ₹<%= order.totalPrice %></h5>
-          </div>
-      </div>
+    <h2 class="text-center mb-4">Order Details</h2>
+    <div class="card shadow-lg">
+        <div class="card-header bg-success text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><strong>Order ID:</strong> <%= order.orderId %></span>
+                <span class="badge order-status-<%= order.status.toLowerCase() %>"><%= order.status %></span>
+            </div>
+        </div>
+        <div class="card-body">
+            <h5 class="mb-4">Ordered Items</h5>
+            <!-- Table for Ordered Items -->
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Price (₹)</th>
+                    <th>Quantity</th>
+                    <th>Total (₹)</th>
+                    <th>status</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <% order.orderedItems.forEach(item => { %>
+                    <tr>
+                      <td>
+                        <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="max-width: 80px; max-height: 80px;" />
+                      </td>
+                      <td><strong><%= item.product.productName %></strong></td>
+                      <td><%= item.product.description %></td>
+                      <td>₹<%= item.price %></td>
+                      <td><%= item.quantity %></td>
+                      <td>₹<%= item.price * item.quantity %></td>
+                      <td><%= item.status %></td>
+                      
+
+                    </tr>
+                    
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <!-- Total Price Section -->
+            <div class="mt-4">
+                <h5 class="fw-bold">Total Price: ₹<%= order.totalPrice %></h5>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a href="/userProfile?tab=orders" class="btn btn-outline-success">Back</a>
+    </div>
   </div>
-  <div class="text-center mt-4">
-      <a href="/orders" class="btn btn-outline-success">Back to Orders</a>
-  </div>
-</div>
+  

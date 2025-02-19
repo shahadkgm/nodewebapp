@@ -1,52 +1,63 @@
 <%- include("../../views/partials/user/header") %>
 
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-		
 
 <div class="container my-5">
-    <h2 class="text-center mb-4">Your Orders</h2>
-    <div class="row">
-      <% orders.forEach(order => { %>
-        <div class="col-md-12 mb-3">
-          <div class="card">
-            <div class="card-header">
-              <strong>Order ID:</strong> <%= order.orderId %>
-              <span class="float-end"><strong>Status:</strong> <%= order.status %></span>
-            </div>
-            <div class="card-body">
-              <% order.orderedItems.forEach(item => { %>
-                <div class="d-flex justify-content-between mb-3">
-                  <div>
-                    <strong>Product:</strong> <%= item.product.productName %> <br>
-                    <strong>Price:</strong> ₹<%= item.price %> <br>
-                    <strong>Quantity:</strong> <%= item.quantity %>
-                  </div>
-                </div>
-              <% }) %>
-              <hr>
-              <div class="d-flex justify-content-between">
-                <strong>Total Price:</strong> ₹<%= order.totalPrice %>
-                <form action="/cancel-order/<%= order._id %>"  id="cancelOrderForm-<%= order._id %>"  method="POST" class="d-inline">
-                  <% if (order.status === 'Pending' || order.status === 'Processing') { %>
-                    <button type="submit"  onclick="confirmCancel('<%= order._id %>')"  class="btn btn-danger btn-sm">Cancel Order</button>
-                  <% } else { %>
-                    <button type="button" class="btn btn-secondary btn-sm" disabled>Cannot Cancel</button>
-                  <% } %>
-                </form>
-              </div>
+  <h2 class="text-center mb-4">Your Last Order</h2>
+  <div class="row">
+    <% orders.forEach(order => { %>
+      <div class="col-md-12 mb-4">
+        <div class="card shadow-sm rounded-3">
+          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-receipt"></i> <strong>Order ID:</strong> <%= order.orderId %></span>
+            <span><i class="fas fa-info-circle"></i> <strong>Status:</strong> <%= order.status %></span>
+          </div>
+          <div class="card-body">
+            <h5 class="mb-4">Ordered Items</h5>
+            <!-- Table for Ordered Items -->
+            <table class="table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Description</th>
+                  <th>Price (₹)</th>
+                  <th>Quantity</th>
+                  <th>Total (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% order.orderedItems.forEach(item => { %>
+                  <tr>
+                    <td>
+                      <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="max-width: 80px; max-height: 80px;" />
+                    </td>
+                    <td><strong><%= item.product.productName %></strong></td>
+                    <td><%= item.product.description %></td>
+                    <td>₹<%= item.price %></td>
+                    <td><%= item.quantity %></td>
+                    <td>₹<%= item.price * item.quantity %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+            <!-- Order Summary -->
+            <div class="mt-4">
+              <h5><strong>Payment Method:</strong> <%= order.paymentMethod %></h5>
+              <h5><strong>Total Price:</strong> ₹<%= order.totalPrice %></h5>
             </div>
           </div>
         </div>
-      <% }) %>
-    </div>
+      </div>
+    <% }) %>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/js/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-  <script>
-
-function confirmCancel(orderId) {
+<script>
+  function confirmCancel(orderId) {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to undo this action!",
@@ -58,12 +69,8 @@ function confirmCancel(orderId) {
       cancelButtonText: "No, keep it",
     }).then((result) => {
       if (result.isConfirmed) {
-        // Submit the form if confirmed
         document.getElementById(`cancelOrderForm-${orderId}`).submit();
       }
     });
   }
-
-
-
-  </script>
+</script>

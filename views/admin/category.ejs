@@ -112,8 +112,8 @@
                     <!-- <th class="text-center"></th> -->
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Offer Price</th>
-                    <th>Offer</th>
+                    <!-- <th>Offer Price</th> -->
+                    <!-- <th>Offer</th> -->
                     <th>Status</th>
                     <th>List/Unlist</th>
                     <th class="text-start">Edit</th>
@@ -124,7 +124,7 @@
                   <tr>
                     <td class="text-start"><%=category.name%> </td>
                     <td class="text-start"><%=category.description%></td>
-                    <td>
+                    <!-- <td>
                       <%if(category.categoryOffer){%>
                         <%=category.categoryOffer%>  
                       <%}else{%>
@@ -141,7 +141,7 @@
                         <a href="#" class="text-white" onclick="removeOffer('<%=category._id%>')">Remove</a>
                       </button>
                       <%}%>
-                    </td>
+                    </td> -->
                     <td class="text-start">
                       <%if(category.isListed) {%>
                       <span class="badge rounded-pill alert-success " style=" width: 60px ;color: green; ">Listed</span>
