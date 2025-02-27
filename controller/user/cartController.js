@@ -9,32 +9,40 @@ const Address=require('../../models/addressSchema')
 const loadCartPage = async (req, res) => {
   try {
     const userId = req.session.user; 
-    const user=await User.findById(userId)
+    const user = await User.findById(userId);
 
     const cart = await Cart.findOne({ userId }).populate("items.productId");
     
     if (!cart || cart.items.length === 0) {
-      return res.render("cart", { cart: [], totalAmount: 0,user });
+      return res.render("cart", { cart: [], totalAmount: 0, user });
     }
 
-    const totalAmount = cart.items.reduce(
+    const filteredItems = cart.items.filter(item => !item.productId.blocked); 
+
+    if (filteredItems.length === 0) {
+      return res.render("cart", { cart: [], totalAmount: 0, user });
+    }
+
+    const totalAmount = filteredItems.reduce(
       (acc, item) => acc + item.totalPrice,
       0
     );
 
     res.render("cart", { 
-      cart: cart.items.map(item => ({
+      cart: filteredItems.map(item => ({
         ...item._doc,
-        stock: item.productId.quantity, // Add stock to the cart items
+        stock: item.productId.quantity, 
       })), 
       totalAmount, 
       userId, 
       user 
-    });  } catch (error) {
+    });  
+  } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).send("An error occurred while fetching the cart.");
   }
 };
+
 
 const addToCart = async (req, res) => {
   try {
@@ -169,7 +177,6 @@ const updatingCart=async(req,res)=>{
     const { productId, quantity, action } = req.body;
     const userId = req.session.user;
 
-    // Find the product and cart
     const product = await Product.findById(productId);
     const cart = await Cart.findOne({ userId });
 
@@ -180,7 +187,6 @@ const updatingCart=async(req,res)=>{
       });
     }
 
-    // Find the cart item
     const cartItem = cart.items.find(item => item.productId.equals(productId));
     if (!cartItem) {
       return res.status(404).json({
@@ -189,7 +195,6 @@ const updatingCart=async(req,res)=>{
       });
     }
 
-    // Check stock availability for increment
     if (action === 'increment' && quantity > product.quantity) {
       return res.status(400).json({
         success: false,
@@ -197,11 +202,9 @@ const updatingCart=async(req,res)=>{
       });
     }
 
-    // Update quantity and total price
     cartItem.quantity = quantity;
     cartItem.totalPrice = quantity * cartItem.price;
 
-    // Save the updated cart
     await cart.save();
 
     res.json({

@@ -21,6 +21,8 @@
         <thead>
             <tr>
                 <th scope="col"><b>Product name</b></th>
+                <th scope="col"><b>Product image</b></th>
+
                 <th scope="col"><b>Category</b></th>
                 <th scope="col"><b>Sale Price</b></th>
                 <!-- <th scope="col"><b>Offer Price</b></th>
@@ -35,6 +37,10 @@
             
             <tr>
                 <td><%=data[i].productName%></td>
+                <td>
+                 <img src="/uploads/product-images/<%=data[i].productImage[0]%>" alt="" style="max-width: 80px; max-height: 80px;"> </td>
+
+
                 <td><%= data[i].category ? data[i].category.name : 'No Category' %></td>
                 <td><%=data[i].salePrice%></td>
 <!--                 

@@ -15,13 +15,16 @@ passport.use(new GoogleStrategy({
 async (accessToken,refreshToken,profile,done)=>{
    try {
     let user=await User.findOne({googleId:profile.id});
+    console.log("user from google",user)
+
     if(user){
        return done(null,user) ;
     }else{
         user=new User({
             name:profile.displayName,
             email:profile.emails[0].value,
-            googleId:profile.id
+            googleId:profile.id,
+             
         });
         await user.save();
         return done(null,user);

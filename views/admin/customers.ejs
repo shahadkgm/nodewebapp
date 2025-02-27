@@ -1,55 +1,62 @@
 <%- include("../../views/partials/admin/header") %>
+
 <div class="content-header row">
     <div class="d-flex justify-content-between align-items-center">
         <h2 class="content-title card-title">Customers</h2>
     </div>
 </div>
 
-<header class="card-header text-center mb-20">
-    <form action="/admin/users/" method="get" class="d-inline">
-        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search">
-            <button class="btn border-0" type="submit">Search</button>
+<header class="card-header text-center mb-4">
+    <form action="/admin/users/" method="get" class="d-flex justify-content-center">
+        <div class="input-group input-group-lg border border-1 border-secondary rounded-pill" style="max-width: 500px;">
+            <input type="text" class="form-control border-0 rounded-pill px-3" placeholder="Search customers..." name="search" value="<%= searchQuery %>">
+            <button class="btn btn-success rounded-pill px-4" type="submit"> Search</button>
         </div>
     </form>
 </header>
 
-<div class="right mt-5">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col"><b>Name</b></th>
-                <th scope="col"><b>Email</b></th>
-                <th scope="col"><b>Phone No</b></th>
-                <th scope="col"><b>Action</b></th>
-            </tr>
-        </thead>
-        <tbody>
-            <% for (let i = 0; i < data.length; i++) { %>
+<div class="container mt-4">
+    <% if (data.length > 0) { %>
+        <table class="table table-hover table-bordered shadow-sm">
+            <thead class="table-success text-center">
                 <tr>
-                    <td><%= data[i].name %></td>
-                    <td><%= data[i].email %></td>
-                    <td><%= data[i].phone %></td>
-                    <td> 
-                        <% if (data[i].isBlocked === false) { %>
-                            <button class="btn btn-danger" style="width: 80px;">
-                                <a href="/admin/blockCustomer?id=<%= data[i].id %>" class="text-white" style="text-decoration: none;">Block</a>
-                            </button>
-                        <% } else { %>
-                            <button class="btn btn-success" style="width: 80px;">
-                                <a href="/admin/unblockCustomer?id=<%= data[i].id %>" class="text-white" style="text-decoration: none;">Unblock</a>
-                            </button>
-                        <% } %>
-                    </td>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone No</th>
+                    <th scope="col">Action</th>
                 </tr>
-            <% } %>
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="text-center">
+                <% for (let i = 0; i < data.length; i++) { %>
+                    <tr>
+                        <td><%= data[i].name %></td>
+                        <td><%= data[i].email %></td>
+                        <td><%= data[i].phone %></td>
+                        <td> 
+                            <% if (!data[i].isBlocked) { %>
+                                <a href="/admin/blockCustomer?id=<%= data[i].id %>" class="btn btn-danger btn-sm px-3">Block</a>
+                            <% } else { %>
+                                <a href="/admin/unblockCustomer?id=<%= data[i].id %>" class="btn btn-success btn-sm px-3">Unblock</a>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <div class="card text-center bg-light shadow-lg mx-auto mt-3" style="max-width: 40rem;">
+            <div class="card-body">
+                <h5 class="card-title text-danger"><i class="bi bi-exclamation-circle"></i> No Results Found</h5>
+                <p class="card-text">Oops! We couldn't find anything matching your search.</p>
+                <a href="/admin/users" class="btn-info">back to full details </a>
+            </div>
+        </div>
+    <% } %>
 </div>
 
 <div class="container mt-3">
     <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
+        <ul class="pagination justify-content-center">
             <% for (let i = 1; i <= totalPages; i++) { %>
                 <li class="page-item <%= i === currentPage ? 'active' : '' %>">
                     <a class="page-link" href="?page=<%= i %>"><%= i %></a>

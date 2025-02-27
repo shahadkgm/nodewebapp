@@ -300,7 +300,7 @@
                                                               alt="<%= product.name %>"
                                                               style="width: 100%; object-fit: cover;"
                                                               class="zoom-image"
-                                                              data-index="<%= index %>"  <!-- Added data-index for identifying thumbnail click -->
+                                                              data-index="<%= index %>"  <!-- for identifying thumbnail click -->
                                                           
                                                           <div class="zoom-lens"></div>
                                                           <div class="swiper-button-next"></div>
@@ -534,15 +534,14 @@
       }
     });
 
-    // Thumbnail click to change main image
     document.querySelectorAll('.thumbnail-image').forEach(thumbnail => {
         thumbnail.addEventListener('click', function () {
-            const index = this.getAttribute('data-index'); // Get index from thumbnail
-            swiper.slideTo(index); // Change the main image to the clicked thumbnail
+            const index = this.getAttribute('data-index'); 
+            swiper.slideTo(index); 
         });
     });
 
-    // Zoom effect for the main image
+    // z main image
     document.querySelectorAll('.zoom-container').forEach(container => {
         const image = container.querySelector('.zoom-image');
 

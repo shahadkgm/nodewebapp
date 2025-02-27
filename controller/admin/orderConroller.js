@@ -7,8 +7,39 @@ const Order=require("../../models/orderSchema");
 
 const getOrderpage = async (req, res) => {
   try {
-    const orders = await Order.find().populate( "orderedItems.product");  
-    res.render('order-manage', { orders }); 
+    let search = req.query.search || "";
+    let page = parseInt(req.query.page) || 1;
+    const limit = 4; 
+
+    // Apply search, pagination, and populate ordered items
+    const orders = await Order.find({
+      $or: [
+        { orderId: { $regex: ".*" + search + ".*", $options: "i" } },
+        { status: { $regex: ".*" + search + ".*", $options: "i" } },
+      ]
+    })
+      .limit(limit) 
+      .skip((page - 1) * limit) 
+      .populate("orderedItems.product") 
+      .exec();
+
+    const count = await Order.countDocuments({
+      $or: [
+        { orderId: { $regex: ".*" + search + ".*", $options: "i" } },
+        { status: { $regex: ".*" + search + ".*", $options: "i" } },
+      ]
+    });
+
+    const totalPages = Math.ceil(count / limit); 
+
+    res.render('order-manage', {
+      orders: orders,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: count,
+      searchQuery: search, 
+    });
+
   } catch (error) {
     console.error(error, "Error in getOrderpage");
     res.status(500).send("Internal Server Error");
@@ -53,8 +84,32 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+const viewOrder =async(req,res)=>{
+  try {
+    const query = req.query.query || "";
+    
+    const userId=req.session.user;
+    const orderId=req.params.id;
+    const order = await Order.findById(orderId)
+    .populate({
+      path:'orderedItems.product',
+      select:'productName price quantity productImage description status'
+  });
+    console.log("order from view order admin",JSON.stringify(order,null,2));
+    
+  if (order){
+    res.render('admin-orderview',{order,user:userId,query})
+  }
+  } catch (error) {
+    console.error(error,"error from view order")
+    res.redirect('/pageNotFound')
+    
+  }
+}
+
 module.exports = {
   getOrderpage,
   getUpdateOrder,
-  deleteOrder
+  deleteOrder,
+  viewOrder
 };

@@ -82,15 +82,18 @@
                   </div>
                 <% }); %>
                 <div class="text-end">
-                  <a href="/address" class="btn btn-outline-success btn-sm">
-                    Add New Address
-                  </a>
+                 <!-- Button to trigger the modal -->
+<button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+  Add New Address
+</button>
+
                 </div>
               </div>
             <% } else { %>
               <p class="text-muted">No saved addresses found. Please add a new address.</p>
-              <a href="/address" class="btn btn-success">Add Address</a>
-            <% } %>
+              <a href="/address" class="btn btn-outline-success btn-sm">
+                Add New Address
+              </a>            <% } %>
 
             <!-- Submit Button -->
             <div class="text-end mt-5">
@@ -104,6 +107,67 @@
     </div>
   </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="modalAddressForm">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="modalAddressType" class="form-label">Address Type:</label>
+              <input type="text" class="form-control" id="modalAddressType" name="addressType">
+            </div>
+            <div class="col-md-6">
+              <label for="modalName" class="form-label">Name:</label>
+              <input type="text" class="form-control" id="modalName" name="name">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="modalCity" class="form-label">City:</label>
+              <input type="text" class="form-control" id="modalCity" name="city">
+            </div>
+            <div class="col-md-6">
+              <label for="modalState" class="form-label">State:</label>
+              <input type="text" class="form-control" id="modalState" name="state">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="modalPincode" class="form-label">Pincode:</label>
+              <input type="number" class="form-control" id="modalPincode" name="pincode">
+            </div>
+            <div class="col-md-6">
+              <label for="modalLandmark" class="form-label">Landmark:</label>
+              <input type="text" class="form-control" id="modalLandmark" name="landMark">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="modalPhone" class="form-label">Phone:</label>
+              <input type="number" class="form-control" id="modalPhone" name="phone">
+            </div>
+            <div class="col-md-6">
+              <label for="modalAltPhone" class="form-label">Alternate Phone:</label>
+              <input type="number" class="form-control" id="modalAltPhone" name="altPhone">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -113,8 +177,8 @@
   const form = event.target.closest('form');
   const formData = new FormData(form);
 
-  const data = Object.fromEntries(formData.entries()); // Convert FormData to plain object
-  console.log('Payload being sent:', data); // Debug log
+  const data = Object.fromEntries(formData.entries()); 
+  console.log('Payload being sent:', data); 
 
   fetch('/checkOut', {
     method: 'POST',
@@ -173,7 +237,147 @@
       });
     });
 });
+//address form validation 
+
+
+
+
+document.getElementById('modalAddressForm').addEventListener('submit', function(event) {
+    event.preventDefault();  
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    fetch('/checkout-address', {  
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                title: 'Success',
+                text: 'Address added successfully!',
+                icon: 'success'
+            }).then(() => {
+                location.reload();  
+            });
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: data.message,
+                icon: 'error'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error from address:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Something went wrong. Try again!',
+            icon: 'error'
+        });
+    });
+});
 
 </script>
+<script>
+  document.getElementById('modalAddressForm').addEventListener('submit', function(event) {
+      if (!validateModalForm()) {
+          event.preventDefault(); 
+      }
+  });
+  
+  function validateModalForm() {
+      let isValid = true;
+      const requiredFields = ["modalAddressType", "modalName", "modalCity", "modalLandmark", "modalState", "modalPincode", "modalPhone"];
+      
+      requiredFields.forEach(function(field) {
+          const input = document.getElementById(field);
+          const inputValue = input.value.trim();
+          let errorElement = document.getElementById(field + '-error');
+  
+          if (inputValue === "") {
+              if (!errorElement) {
+                  errorElement = document.createElement('div');
+                  errorElement.className = "text-danger mt-1";
+                  errorElement.id = field + '-error';
+                  errorElement.textContent = "This field is required.";
+                  input.parentNode.appendChild(errorElement);
+              }
+              isValid = false;
+          } else {
+              if (errorElement) {
+                  errorElement.remove();
+              }
+          }
+      });
+  
+      const name = document.getElementById('modalName').value.trim();
+      const city = document.getElementById('modalCity').value.trim();
+      const landMark = document.getElementById('modalLandmark').value.trim();
+      const state = document.getElementById('modalState').value.trim();
+      const pincode = document.getElementById('modalPincode').value.trim();
+      const phone = document.getElementById('modalPhone').value.trim();
+      const altPhone = document.getElementById('modalAltPhone').value.trim();
+  
+      const namePattern = /^[A-Za-z\s]+$/;
+      const pincodePattern = /^\d{6}$/;
+      const phonePattern = /^\d{10}$/;
+  
+      if (!namePattern.test(name)) {
+          showError("modalName", "Name should contain alphabets only.");
+          isValid = false;
+      }
+      if (!namePattern.test(city)) {
+          showError("modalCity", "City should contain alphabets only.");
+          isValid = false;
+      }
+      if (!namePattern.test(landMark)) {
+          showError("modalLandmark", "Landmark should contain alphabets only.");
+          isValid = false;
+      }
+      if (!namePattern.test(state)) {
+          showError("modalState", "State should contain alphabets only.");
+          isValid = false;
+      }
+      if (!pincodePattern.test(pincode)) {
+          showError("modalPincode", "Pincode should be a 6-digit number.");
+          isValid = false;
+      }
+      if (!phonePattern.test(phone)) {
+          showError("modalPhone", "Phone number should be a 10-digit number.");
+          isValid = false;
+      }
+      if (altPhone && !phonePattern.test(altPhone)) {
+          showError("modalAltPhone", "Alternate phone number should be a 10-digit number.");
+          isValid = false;
+      }
+      if (phone === altPhone) {
+          showError("modalAltPhone", "Phone number and alternate phone number should be different.");
+          isValid = false;
+      }
+  
+      return isValid;
+  }
+  
+  function showError(fieldId, message) {
+      Swal.fire({
+          title: "Error",
+          text: message,
+          icon: "error"
+      });
+  }
+  
+  
 
 
+
+
+
+
+
+</script>

@@ -17,8 +17,9 @@ router.get("/signup",userController.loadSignup)
 router.post("/signup",userController.signup)
 router.post("/verify-otp",userController.verifyOtp)
 router.post("/resend-otp",userController.resendOtp)
-router.get('/auth/google',userAuth,passport.authenticate('google',{scope:['profile','email']}));
+router.get('/auth/google', passport.authenticate('google',{scope:['profile','email']}));
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),(req,res)=>{
+    req.session.user = req.user;
     res.redirect('/')
 });
 
@@ -73,8 +74,11 @@ router.post('/remove',userAuth,cartController.removeItem)
 //order page 
 router.get('/checkOut',userAuth,orderController.loadCheckoutPage);
 router.post('/checkOut',userAuth,orderController.processOrder);
+router.post("/checkout-address",userAuth,orderController.checkoutaddress)
 router.get('/orders',userAuth,orderController.getOrders);
+
 router.post("/cancel-order/:id",userAuth,orderController.cancelOrder);
+// router.post('/cancel-product/:orderId/:productId', userAuth,orderController.cancelProduct);
 router.get('/view-order/:id',userAuth,orderController.viewOrder);
 router.get('/thankyou',userAuth,orderController.getthankyou);
 

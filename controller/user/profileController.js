@@ -1,4 +1,4 @@
-const User=require("../../models/userschema.js");
+ const User=require("../../models/userschema.js");
 const nodemailer=require("nodemailer")
 const bcrypt=require("bcrypt");
 const env=require("dotenv").config();

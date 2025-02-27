@@ -2,46 +2,54 @@
 
 <div class="container my-5">
   <h2 class="text-center mb-4">Order Management</h2>
+
   <div class="row">
     <% orders.forEach(order => { %>
       <div class="col-md-12 mb-3">
-        <div class="card border-success">
-          <div class="card-header " >
+        <div class="card border-success shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center">
             <strong>Order ID:</strong> <%= order.orderId %>
-            <span class="float-end"><strong>Status:</strong> <%= order.status %></span>
+            <span class="badge bg-info text-dark"><strong>Status:</strong> <%= order.status %></span>
           </div>
+
           <div class="card-body">
             <h5 class="mb-3">Ordered Items:</h5>
             <% order.orderedItems.forEach(item => { %>
-              <div class="d-flex justify-content-between mb-3">
+              <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
+                     alt="Product Image" 
+                     class="me-3 rounded" 
+                     style="max-width: 80px; max-height: 80px; object-fit: cover;">
+
                 <div>
                   <strong>Product:</strong> <%= item.product.productName %> <br>
                   <strong>Price:</strong> ₹<%= item.price %> <br>
                   <strong>Quantity:</strong> <%= item.quantity %> <br>
-                  <strong>paymentMethod:</strong><%= order.paymentMethod%>
+                  <strong>Payment Method:</strong> <%= order.paymentMethod %>
                 </div>
               </div>
             <% }) %>
+
             <hr>
-            <div class="d-flex justify-content-between">
+
+            <div class="d-flex justify-content-between align-items-center">
               <strong>Total Price:</strong> ₹<%= order.totalPrice %>
-              <div>
+
+              <div class="d-flex">
                 <!-- Status Update Form -->
-                <form action="/admin/update-order-status/<%= order._id %>" method="POST" class="d-inline">
-                  <select name="status" class="form-select form-select-sm d-inline-block w-auto me-2 border-success">
+                <form action="/admin/update-order-status/<%= order._id %>" method="POST" class="d-flex align-items-center">
+                  <select name="status" class="form-select form-select-sm me-2 border-success">
                     <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
                     <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
                     <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                     <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                     <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                   </select>
-                  <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                  <button type="submit" class="btn btn-success btn-sm me-2">Update</button>
                 </form>
 
-                <!-- Delete Order
-                <form action="/admin/delete-order/<%= order._id %>" method="POST" class="d-inline">
-                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form> -->
+                <!-- View Order Button -->
+                <a href="/admin/view-order/<%= order._id %>" class="btn btn-primary btn-sm me-2">View</a>
               </div>
             </div>
           </div>
@@ -49,4 +57,18 @@
       </div>
     <% }) %>
   </div>
+
+  <!-- Pagination Section -->
+  <div class="container mt-3">
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+
 </div>

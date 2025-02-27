@@ -100,8 +100,19 @@ document.querySelectorAll('.increment-btn').forEach(button => {
     const totalElement = document.querySelector(`td[data-total-product-id="${productId}"]`);
     const stock = parseInt(input.getAttribute('data-stock'));
     let quantity = parseInt(input.value);
+    
 
     try {
+      
+      if (quantity >= 10) {
+        Swal.fire({
+          title: 'Quantity Limit Reached',
+          text: 'You cannot add more than 10 items.',
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
       if (quantity >= stock) {
         Swal.fire({
           title: 'Stock Limit Reached',

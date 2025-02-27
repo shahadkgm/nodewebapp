@@ -93,7 +93,6 @@ const processOrder = async (req, res) => {
         );
       })
     );
-    console.log("3")
 
 
     // const totalAmount = cart.items.reduce(
@@ -166,19 +165,22 @@ const processOrder = async (req, res) => {
     try {
       const orderId = req.params.id;
   
+      // Fetch the order from the database
       const order = await Order.findById(orderId);
   
+      // Check if the order exists and can be cancelled
       if (!order) {
         return res.status(404).json({ success: false, message: "Order not found." });
       }
       if (order.status !== "Pending" && order.status !== "Processing") {
-        return res.status(400).json({ success: false, message: "This order cannot be cancelled." });
-      }
+return res.status(400).json({ success: false, message: "This order cannot be cancelled." });
+      }        
   
+      // Update product stock
       for (const item of order.orderedItems) {
         const product = await Product.findById(item.product);
         if (product) {
-          product.quantity += item.quantity; 
+          product.quantity += item.quantity; // Add back the stock
           await product.save();
         }
       }
@@ -221,13 +223,42 @@ const processOrder = async (req, res) => {
     const userId=req.session.user;
     const user=await User.findById(userId)
     try {
-      res.render('thankyou',user)
+      res.render('thankyou',{user,userId})
       
     } catch (error) {
       res.redirect('/pageNotFound')
       
     }
   };
+  const checkoutaddress=async(req,res)=>{
+    try {
+      const userId=req.session.user;
+      const userData=await User.findOne({_id:userId})
+      const {addressType,name,city,landMark,state,pincode,phone,altPhone}=req.body
+      console.log("Received address data:", req.body);
+
+      const userAddress=await Address.findOne({userId:userData._id});
+      if(!userAddress){
+          const newAddress=new Address({
+              userId:userData._id,
+              address:[{addressType,name,city,landMark,state,pincode,phone,altPhone}]
+          });
+          await newAddress.save();
+
+      }else{
+          userAddress.address.push({addressType,name,city,landMark,state,pincode,phone,altPhone});
+          await userAddress.save();
+      }
+      res.status(200).json({
+        success: true,
+        message: " added successfully!",
+      });  } catch (error) {
+      console.error("Error adding address",error);
+
+      return res.status(400).json({ success: false, message: "This Address  cannot be Added." });
+    }
+  }
+  
 
 
 
@@ -242,5 +273,6 @@ module.exports={
     getOrders,
     cancelOrder,
     viewOrder,
-    getthankyou
+    getthankyou,
+    checkoutaddress
 }

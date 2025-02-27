@@ -48,6 +48,8 @@ router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 router.get("/orders",adminAuth,orderController.getOrderpage)
 router.post("/update-order-status/:id", adminAuth, orderController.getUpdateOrder);
 router.post("/delete-order/:id", adminAuth, orderController.deleteOrder);
+router.get('/view-order/:id',adminAuth,orderController.viewOrder);
+
  
 
 

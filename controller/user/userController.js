@@ -316,7 +316,7 @@ const loadShoppingPage=async (req, res) => {
     try {
         const user = req.session.user;
         const categoryId = req.query.category;
-        const sort = req.query.sort || "popularity";  // Get sorting preference
+        const sort = req.query.sort || "popularity";  
         const category = await Category.find({ isListed: true }).lean();
         const findCategory = categoryId ? await Category.findOne({ _id: categoryId }) : null;
 
@@ -370,6 +370,7 @@ const loadShoppingPage=async (req, res) => {
             currentPage,
             category,
             sort, 
+            
         });
 
     } catch (error) {

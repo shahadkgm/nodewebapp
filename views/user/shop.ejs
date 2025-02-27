@@ -264,6 +264,21 @@
     padding: 0;
     margin: 0;
   }
+  /* Active category filter */
+.filter-item.active a {
+    font-weight: bold;
+    color: #007bff; /* Change to your preferred active color */
+}
+
+/* Active price filter button */
+.price-button.active {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #0056b3;
+}
+
+
+
  
 </style>
 
@@ -273,7 +288,7 @@
   <div class="shop-topbar">
     <div class="search-bar">
       <form action="/shop" method="GET" class="search-form">
-        <input type="text" name="query" placeholder="Search items..." class="search-input" />
+        <input type="text" name="query" placeholder="Search items..." class="search-input"  value="<%=query%>"/>
         <button type="submit" class="search-button">Search</button>
       </form>
     </div>
@@ -297,11 +312,12 @@
    <div class="product-list-container">
      <aside class="sidebar">
        <div class="filter-section">
-         <div class="filter-title">Categories</div>
+         
+         <div class="filter-title">Categories <a href="/shop"><button class="border-info card">  ALL</button></a></div>
          <div class="category-brand-container">
            <ul>
 			<% for (let i = 0; i<category.length; i++) { %>
-				<li class="filter-item">
+				<li class="filter-item ">
           <a href="/filter?category=<%= category[i]._id %>&sort=<%= sort %>">
             <%= category[i].name %>          </a>
 				</li>
@@ -310,6 +326,8 @@
            </ul>
          </div>
        </div>
+       
+       
 
 
       
@@ -357,7 +375,8 @@
               </p>
               <p>Category: <%= products[i].category.name %></p>
             </a>
-            <button class="add-to-cart-btn" data-product-id="<%= products[i]._id %>" data-product-name="<%= products[i].productName %>">
+            
+            <button class="add-to-cart-btn" data-product-id="<%= products[i]._id %>" data-product-name="<%= products[i].productName %>" >
               Add to Cart
             </button>
           </div>
@@ -413,46 +432,75 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".add-to-cart-btn").forEach(button => {
-      button.addEventListener("click", async function () {
-        const productId = this.getAttribute("data-product-id");
-        const productName = this.getAttribute("data-product-name");
+  document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+    button.addEventListener("click", async function () {
+      const productId = this.getAttribute("data-product-id");
+      const productName = this.getAttribute("data-product-name");
 
-        try {
-          const response = await fetch("/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productId, quantity: 1 }) 
-          });
+      try {
+        const response = await fetch("/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId, quantity: 1 }) 
+        });
 
-          const data = await response.json();
-          
-          if (data.success) {
-            Swal.fire({
-              icon: "success",
-              title: "Added to Cart!",
-              text: `"${productName}" has been added to your cart.`,
-              showConfirmButton: false,
-              timer: 1500
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: data.message
-            });
-          }
-        } catch (error) {
-          console.error("Error adding to cart:", error);
+        const data = await response.json();
+        
+        if (data.success) {
           Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Something went wrong. Please try again later."
+            icon: "success",
+            title: "Added to Cart!",
+            text: `"${productName}" has been added to your cart.`,
+            showConfirmButton: false,
+            timer: 1500
           });
+        } else {
+          this.disabled = true; 
+          // Swal.fire({
+          //   icon: "error",
+          //   title: "Oops...",
+          //   text: data.message
+          // });
         }
-      });
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+        this.disabled = true; // Disable the button on error
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Something went wrong. Please try again later."
+        });
+      }
     });
   });
+});
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Activate selected category filter
+    const selectedCategory = urlParams.get("category");
+    if (selectedCategory) {
+        document.querySelectorAll(".filter-item a").forEach(link => {
+            if (link.href.includes(`category=${selectedCategory}`)) {
+                link.parentElement.classList.add("active");
+            }
+        });
+    }
+
+    // Activate selected price filter
+    const selectedPrice = urlParams.get("price");
+    if (selectedPrice) {
+        document.querySelectorAll(".price-options a").forEach(link => {
+            if (link.href.includes(`price=${selectedPrice}`)) {
+                link.querySelector("button").classList.add("active");
+            }
+        });
+    }
+});
+
+
 </script>
 
   
