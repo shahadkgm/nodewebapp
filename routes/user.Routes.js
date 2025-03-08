@@ -5,7 +5,8 @@ const userController=require("../controller/user/userController");
 const profileController=require("../controller/user/profileController")
 const {adminAuth,userAuth}=require("../middlewares/auth");
 const cartController=require("../controller/user/cartController")
-
+const couponController=require("../controller/user/couponController")
+const wishlistController=require("../controller/user/wishlistController")
 const orderController=require("../controller/user/orderController")
 
 router.get("/",userController.loadHomepage)
@@ -76,6 +77,7 @@ router.get('/checkOut',userAuth,orderController.loadCheckoutPage);
 router.post('/checkOut',userAuth,orderController.processOrder);
 router.post("/checkout-address",userAuth,orderController.checkoutaddress)
 router.get('/orders',userAuth,orderController.getOrders);
+router.post('/return-order/:orderId',userAuth,orderController.returnOrder)
 
 router.post("/cancel-order/:id",userAuth,orderController.cancelOrder);
 // router.post('/cancel-product/:orderId/:productId', userAuth,orderController.cancelProduct);
@@ -83,4 +85,19 @@ router.get('/view-order/:id',userAuth,orderController.viewOrder);
 router.get('/thankyou',userAuth,orderController.getthankyou);
 
 router.post('/update-cart',userAuth,cartController.updatingCart)
+
+
+router.post('/applyCoupon',userAuth,couponController.applyCoupon);
+router.post('/remove-coupon',userAuth,couponController.removeCoupon)
+
+
+router.post('/toggle',userAuth,wishlistController.toggleWishlist)
+router.get('/wishlist',userAuth,wishlistController.getWishlist)
+router.delete('/remove-wishlist/:productId',userAuth,wishlistController.removeWishlist)
+router.post('/addwishlist',userAuth,wishlistController.Cartfrmwish)
+
+
+
+router.post('/verify-payment',userAuth,orderController.verifyPayment);
+
 module.exports=router;

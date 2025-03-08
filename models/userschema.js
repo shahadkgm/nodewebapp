@@ -42,7 +42,9 @@ const userSchema = new Schema({
     }],
     wallet: {
         type: Number,
-        ref: "wishlist"
+        ref: "wishlist",
+        default: 0
+
     },
     orderHistory: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -53,7 +55,9 @@ const userSchema = new Schema({
         default: Date.now,
     },
     referralCode: {
-        type: String
+        type: String,
+        unique:true
+
     },
     redeemed: {
         type: Boolean
@@ -67,14 +71,20 @@ const userSchema = new Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
         },
-        brand: {
-            type: String
-        },
+        
         searchOn: {
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+    walletHistory: [{
+        type: { type: String, enum: ['credit', 'debit'], required: true },
+        amount: { type: Number, required: true },
+        description: { type: String, required: true },
+        date: { type: Date, default: Date.now }
+      }],
+      referralToken: { type: String, unique: true }
+
 });
 
 const User = mongoose.model("User", userSchema);

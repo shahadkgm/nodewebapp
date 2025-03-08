@@ -174,14 +174,18 @@ const userProfile = async (req, res) => {
 
         const orders = await Order.find(searchFilter)
             .populate("orderedItems.product")
-            .sort({ createOn: -1 }) 
+            .sort({ orderDate: -1 }) 
             .skip((page - 1) * limit) 
             .limit(limit); 
-
+ console.log("orders from the userprofilepage",orders)
         const userAddress = await User.findById(userId);
         const address = await Address.findOne({ userId: userAddress._id });
+        const wallet=userAddress.wallet
 
         const totalPages = Math.ceil(totalOrders / limit);
+        const finalAmount=req.session.finalAmount;
+        const nameredeem=await User.find({_id:userAddress.redeemedUsers});
+        console.log("name redeem",nameredeem)
 
         res.render("profile", {
             userAddress: address,
@@ -190,7 +194,10 @@ const userProfile = async (req, res) => {
             totalPages,
             query,
             currentPage: page,
-            activeTab
+            activeTab,
+            
+            wallet,
+            nameredeem
         });
     } catch (error) {
         console.error("Error retrieving profile data:", error);

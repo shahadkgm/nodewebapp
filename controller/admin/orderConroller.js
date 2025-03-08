@@ -18,10 +18,11 @@ const getOrderpage = async (req, res) => {
         { status: { $regex: ".*" + search + ".*", $options: "i" } },
       ]
     })
-      .limit(limit) 
-      .skip((page - 1) * limit) 
-      .populate("orderedItems.product") 
-      .exec();
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .populate("orderedItems.product")
+    .sort({ createdAt: -1 }); ;
+
 
     const count = await Order.countDocuments({
       $or: [
@@ -105,11 +106,71 @@ const viewOrder =async(req,res)=>{
     res.redirect('/pageNotFound')
     
   }
-}
+};
+const approveReturn = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Find the order
+    const order = await Order.findById(orderId);
+    if (!order || order.status !== 'Return Requested') {
+      return res.status(400).json({ success: false, message: 'Invalid return request' });
+    }
+
+    // Update order status
+    order.status = 'Return Approved';
+    order.returnProcessedAt = new Date();
+    await order.save();
+
+    // Refund logic (if applicable)
+    if (order.paymentMethod === 'WALLET' || order.paymentMethod === 'RAZORPAY') {
+      const user = await User.findById(order.userId);
+      if (user) {
+        const refundAmount = order.finalAmount;
+        user.wallet = (user.wallet || 0) + refundAmount;
+        user.walletHistory.push({
+          date: new Date(),
+          type: 'credit',
+          amount: refundAmount,
+          description: `Refund for approved return of order ${order.orderId}`,
+        });
+        await user.save();
+      }
+    }
+
+    res.redirect('/admin/orders?message=Return approved successfully');
+  } catch (error) {
+    console.error('Error approving return:', error);
+    res.redirect('/admin/pageerror');
+  }
+};
+
+const rejectReturn = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order || order.status !== 'Return Requested') {
+      return res.status(400).json({ success: false, message: 'Invalid return request' });
+    }
+
+    // Update order status
+    order.status = 'Return Rejected';
+    order.returnProcessedAt = new Date();
+    await order.save();
+
+    res.redirect('/admin/orders?message=Return rejected successfully');
+  } catch (error) {
+    console.error('Error rejecting return:', error);
+    res.redirect('/admin/pageerror');
+  }
+};
 
 module.exports = {
   getOrderpage,
   getUpdateOrder,
   deleteOrder,
-  viewOrder
+  viewOrder,
+  rejectReturn,
+  approveReturn
 };

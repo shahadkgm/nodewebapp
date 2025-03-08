@@ -46,9 +46,16 @@
               </table>
             </div>
             <!-- Total Price Section -->
-            <div class="mt-4">
-                <h5 class="fw-bold">Total Price: ₹<%= order.totalPrice %></h5>
+             <%if(finalAmount){%>
+              <div class="mt-4">
+                <h4>discount:<%=discount%></h4>
+                <h5 class="fw-bold">Total Price: ₹<%=finalAmount %></h5>
             </div>
+            <%}else{%>
+            <div class="mt-4">
+                <h5 class="fw-bold">Total Price: ₹<%=order.totalPrice %></h5>
+            </div>
+            <%}%>
         </div>
     </div>
     <div class="text-center mt-4">

@@ -1,0 +1,149 @@
+<%- include('../partials/admin/header') %>
+
+<style>
+  .sales-report-card { margin-bottom: 20px; }
+  .table-responsive { margin-top: 20px; }
+  .badge-success { background-color: #28a745; color: white; }
+  .badge-danger { background-color: #dc3545; color: white; }
+  .download-btn { margin-left: 10px; }
+</style>
+
+<div class="content-header">
+  <h2 class="content-title card-title">Sales Report</h2>
+</div>
+
+<!-- Date Range and Category Filter -->
+<div class="card sales-report-card">
+  <div class="card-header">
+    <h5>Filter by Date and Category</h5>
+  </div>
+  <div class="card-body">
+    <form id="filterForm" action="/admin/sales-report" method="get">
+      <div class="row">
+        <div class="col-md-3">
+          <label>Start Date</label>
+          <input type="date" name="startDate" class="form-control" value="<%= startDate || '' %>">
+        </div>
+        <div class="col-md-3">
+          <label>End Date</label>
+          <input type="date" name="endDate" class="form-control" value="<%= endDate || '' %>">
+        </div>
+        <div class="col-md-3">
+          <label>Category</label>
+          <select name="category" class="form-control">
+            <option value="">All Categories</option>
+            
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat %>" <%= category === cat ? 'selected' : '' %>><%= cat %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label> </label>
+          <div class="d-flex">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+            <button type="button" class="btn btn-secondary w-100 download-btn" onclick="downloadPDF()">Download as PDF</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Total Sales -->
+<div class="card sales-report-card">
+  <div class="card-header">
+    <h5>Total Sales</h5>
+  </div>
+  <div class="card-body">
+    <p>Total Revenue: ₹<%= totalSales.totalRevenue.toLocaleString('en-IN') %></p>
+    <p>Total Orders: <%= totalSales.totalOrders %></p>
+  </div>
+</div>
+
+<!-- Sales by Date -->
+<div class="card sales-report-card">
+  <div class="card-header">
+    <h5>Sales by Date</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Revenue</th>
+            <th>Orders</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% salesByDate.forEach(day => { %>
+            <tr>
+              <td><%= day._id %></td>
+              <td>₹<%= day.dailyRevenue.toLocaleString('en-IN') %></td>
+              <td><%= day.orderCount %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Top Products -->
+<div class="card sales-report-card">
+  <div class="card-header">
+    <h5>Top Products <%= category ? `in ${category}` : '' %></h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <% if (topProducts && topProducts.length > 0) { %>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>Quantity Sold</th>
+              <th>Revenue</th>
+              <% if (category) { %>
+                <th>Category</th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <% topProducts.forEach(product => { %>
+              <tr>
+                <td><%= product.productName %></td>
+                <td><%= product.totalQuantity %></td>
+                <td>₹<%= product.totalRevenue.toLocaleString('en-IN') %></td>
+                <% if (category) { %>
+                  <td><%= product.category %></td>
+                <% } %>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <div class="text-center py-4">
+          <p class="text-muted">No products in this category</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  function downloadPDF() {
+    const form = document.getElementById('filterForm');
+    const startDate = form.querySelector('input[name="startDate"]').value;
+    const endDate = form.querySelector('input[name="endDate"]').value;
+    const category = form.querySelector('select[name="category"]').value;
+
+    let url = `/admin/sales-report?startDate=${startDate}&endDate=${endDate}&format=pdf`;
+    if (category) {
+      url += `&category=${encodeURIComponent(category)}`;
+    }
+    window.location.href = url;
+  }
+</script>
+
+<%- include('../partials/admin/footer') %>

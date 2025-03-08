@@ -7,9 +7,14 @@ const bcrypt=require("bcrypt");
 const product = require("../../models/productSchema");
 const Order=require("../../models/orderSchema")
 const Address=require("../../models/addressSchema")
+const crypto=require("crypto")
+const Coupon=require("../../models/couponSchema")
 
 
 
+const generateReferralCode = () => {
+    return crypto.randomBytes(4).toString('hex').toUpperCase(); 
+  };
 
 
 const pageNoTFound = async (req, res) => {
@@ -90,8 +95,8 @@ async function sendVerificationEmail(email,otp){
 const signup=async(req,res)=>{
     try {
         console.log("signup called")
-       const {name,phone,email,password,cpassword}=req.body;
-       console.log("recieved data",email,password,cpassword)
+       const {name,phone,email,password,cpassword,referralCode}=req.body;
+       console.log("recieved data",email,password,cpassword,referralCode)
        if(password!==cpassword){
         console.log("password didnt match")
         return res.render("signup",{message:"password didnt match"});
@@ -101,6 +106,16 @@ const signup=async(req,res)=>{
         console.log("User already exists");
         return res.render("signup",{message:"User exist already exist"})
        }
+       //  referrer
+       let referrer = null;
+    if (referralCode) {
+      referrer = await User.findOne({ referralCode });
+
+      if (!referrer) {
+        console.log("Invalid referral code");
+        return res.render("signup", { message: "Invalid referral code" });
+      }
+    }
 const otp=generateOtp();
 
 const emailsent=await sendVerificationEmail(email,otp);
@@ -113,6 +128,7 @@ if(!emailsent){
 }
 req.session.userOtp=otp;
 req.session.userData={name,phone,email,password};
+req.session.referralData = referrer ? { referrerId: referrer._id } : null;
 
 
 res.render("verify-otp")
@@ -133,33 +149,82 @@ const securePassword=async (password)=>{
 
 
 
-const verifyOtp=async (req,res)=>{
-  try {
-    const{otp}=req.body;
-    console.log(otp);
-    if(otp===req.session.userOtp){
-        const user=req.session.userData
-        const passwordHash=await securePassword(user.password);
-        
-        const saveUserData=new User({
-           name:user.name,
-           email:user.email,
-           phone:user.phone,
-           password:passwordHash,
-        })
-        await saveUserData.save();
-        req.session.user=saveUserData._id ;
-        res.json({ success: true, redirectUrl: "/" });    
-    }else{
-        res.status(400).json({success:false,message:"Invalid otp,please try again"})
-    }
 
+
+
+
+const verifyOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    console.log("Received OTP:", otp);
+
+    if (otp === req.session.userOtp) {
+      const userData = req.session.userData;
+      const referralData = req.session.referralData;
+
+      if (!userData) {
+        return res.status(400).json({ success: false, message: "Session expired, please sign up again" });
+      }
+
+      const passwordHash = await securePassword(userData.password);
+
+      const saveUserData = new User({
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        password: passwordHash,
+        referralCode: generateReferralCode()
+      });
+
+      await saveUserData.save();
+
+      if (referralData && referralData.referrerId) {
+        const referrer = await User.findById(referralData.referrerId);
+        if (referrer) {
+
+          referrer.redeemedUsers.push(saveUserData._id);
+
+         
+          const referrerReward = 50; 
+          referrer.wallet = (referrer.wallet || 0) + referrerReward;
+          referrer.walletHistory.push({
+            type: 'credit',
+            amount: referrerReward,
+            description: `Referral reward for inviting ${saveUserData.email}`,
+            date: new Date()
+          });
+
+          await referrer.save();
+          console.log(`Referrer ${referrer.email} credited ₹${referrerReward}`);
+        }
+
+        const refereeReward = 30; 
+        saveUserData.wallet = (saveUserData.wallet || 0) + refereeReward;
+        saveUserData.walletHistory.push({
+          type: 'credit',
+          amount: refereeReward,
+          description: `Welcome bonus for joining via referral from ${referrer ? referrer.email : 'unknown'}`,
+          date: new Date()
+        });
+
+        await saveUserData.save();
+        console.log(`Referee ${saveUserData.email} credited ₹${refereeReward}`);
+      }
+
+      req.session.user = saveUserData._id;
+      req.session.userOtp = null;
+      req.session.userData = null;
+      req.session.referralData = null;
+
+      res.json({ success: true, redirectUrl: "/" });
+    } else {
+      res.status(400).json({ success: false, message: "Invalid OTP, please try again" });
+    }
   } catch (error) {
-    console.error("Error Verifying Otp",error);
-    res.status(400).json({success:false,message:"An orrur occured"})
-    
-  }  
-}
+    console.error("Error Verifying OTP:", error);
+    res.status(400).json({ success: false, message: "An error occurred" });
+  }
+};
 const resendOtp=async(req,res)=>{
     try {
         const {email}=req.session.userData;
@@ -241,6 +306,7 @@ const loadShoppingPage=async (req, res) => {
 
 
       const query = req.query.query || ""; 
+      console.log("qeury frm loadshopp",query)
       const sort = req.query.sort || "priceHighLow"; 
       const page = parseInt(req.query.page) || 1;
       const limit = 10; 
@@ -301,9 +367,6 @@ const loadShoppingPage=async (req, res) => {
         category,
         query,
         user,
-        
-
-        
       });
     } catch (error) {
       console.error("Error fetching shop page:", error);
@@ -380,6 +443,7 @@ const loadShoppingPage=async (req, res) => {
 };
 
 const filterByPrice = async (req, res) => {
+  const user=req.session.user
   const { price, sort } = req.query;
 
   let filterCondition = {};
@@ -428,6 +492,7 @@ const filterByPrice = async (req, res) => {
           totalPages: 1, 
           category: await Category.find({ isListed: true }), 
           sort, 
+          user
       });
 
   } catch (err) {
@@ -510,8 +575,4 @@ module.exports = {
     filterByPrice,
     loadProductDetail,
     getProductDetail,
-   
-   
-
-
 }

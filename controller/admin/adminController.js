@@ -43,7 +43,7 @@ const loadDashboard=async(req,res)=>{
     
    if(req.session.admin){
     try {
-        res.render("dashboard")
+        res.redirect("/admin/sales-report")
     } catch (error) {
         res.redirect("/pageerror")
     }

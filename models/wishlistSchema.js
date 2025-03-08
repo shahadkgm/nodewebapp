@@ -1,25 +1,26 @@
-const mongoose=require("mongoose");
-const {schema}=mongoose;
+const mongoose = require("mongoose");
+const { Schema } = mongoose; // Fix the schema import
 
-const wishlistSchema= new schema({
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true,
-
+const WishlistSchema = new Schema({
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  products: [
+    {
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      addedOn: {
+        type: Date,
+        default: Date.now,
+      },
     },
-    products:[{
-        productId:{
-          type:Schema.Types.ObjectId,
-          ref:'Product',
-          required:true
-        },
-        addedOn:{
-            type:Date,
-            default:Date.now,
+  ],
+});
 
-        }
-    }]
-})
-const Wishlist=mongoose.model('Wishlist',wishlistSchema);
-module.exports=Wishlist;
+const Wishlist = mongoose.model("Wishlist", WishlistSchema);
+module.exports = Wishlist;

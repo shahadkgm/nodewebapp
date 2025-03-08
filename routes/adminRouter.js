@@ -5,6 +5,9 @@ const customerController=require("../controller/admin/customerController")
 const categoryController=require("../controller/admin/categoryController")
 const productController=require("../controller/admin/productController")
 const orderController=require("../controller/admin/orderConroller")
+const couponController=require("../controller/admin/couponController")
+const salesController=require("../controller/admin/salesController")
+
 const {adminAuth,userAuth}=require("../middlewares/auth");
 const uploads=require("../util/Multer")
 
@@ -49,8 +52,22 @@ router.get("/orders",adminAuth,orderController.getOrderpage)
 router.post("/update-order-status/:id", adminAuth, orderController.getUpdateOrder);
 router.post("/delete-order/:id", adminAuth, orderController.deleteOrder);
 router.get('/view-order/:id',adminAuth,orderController.viewOrder);
+router.post('/approve-return/:orderId',adminAuth,orderController.approveReturn);
+router.post('/reject-return/:orderId',adminAuth,orderController.rejectReturn);
 
- 
+
+//coupen
+router.get("/Coupon",adminAuth,couponController.getCoupon);
+router.post("/createCoupon",adminAuth,couponController.createCoupon)
+router.get ("/editCoupon",adminAuth,couponController.editCoupon)
+router.post("/updateCoupon",adminAuth,couponController.updateCoupon)
+router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon)
 
 
+
+
+
+//sales
+// router.get("/salesReport",adminAuth,salesController.getSalesReport)
+router.get('/sales-report', adminAuth, salesController.getSalesReport);
 module.exports=router;

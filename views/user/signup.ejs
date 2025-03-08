@@ -132,6 +132,10 @@
                                     <input type="password" class="form-control" id="confirm-password" name="cpassword" placeholder="Confirm Password"  />
                                     <div id="error5" class="error-message"></div>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="referralCode" class="form-label">Referral Code (Optional)</label>
+                                    <input type="text" class="form-control" id="referralCode" name="referralCode" >
+                                  </div>
                                 <%if(locals.message&&message.length>0){%>
                                     <div class="alert alert-danger text-center">
                                     <%=message%>
@@ -156,7 +160,7 @@
                                 <img src="/images/sofa.png" alt="Shopping Site" />
                             </a>
                             <div class="text-center mt-2">
-                                <a href="#" class="sign-in-link">Already registered? Log in</a>
+                                <a href="/login" class="sign-in-link">Already registered? Log in</a>
                             </div>
                         </div>
                     </div>

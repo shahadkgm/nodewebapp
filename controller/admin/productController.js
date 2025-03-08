@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
 const product = require("../../models/productSchema");
+const mongoose=require("mongoose")
 // const { render } = require("ejs");
 // const { createHash } = require("crypto");
 // const { log } = require("console");
@@ -93,20 +94,22 @@ const addProducts = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
     try {
-        const search = req.query.search || "";
-        const page = parseInt(req.query.page, 10) || 1;
-        const limit = 5;
+        const search = req.query.search || ""; // Capture the search query from the URL
+        const page = parseInt(req.query.page, 10) || 1; // Capture the page query or default to 1
+        const limit = 5; // Limit number of results per page
 
+        // Find products with the search query and apply pagination
         const productData = await Product.find({
             $or: [
                 { productName: { $regex: new RegExp(".*" + search + ".*", "i") } }
             ]
         })
-            .limit(limit * 1)
+            .limit(limit)
             .skip((page - 1) * limit)
             .populate('category')
             .exec();
 
+        // Count total number of products that match the search query
         const count = await Product.find({
             $or: [
                 { productName: { $regex: new RegExp(".*" + search + ".*", "i") } }
@@ -114,65 +117,92 @@ const getAllProducts = async (req, res) => {
         }).countDocuments();
 
         const category = await Category.find({ isListed: true });
-        // console.log("productdata from getAllproduct ",productData)
 
-
-
-
-
+        // If categories exist, render the products page with pagination and search query
         if (category && category.length > 0) {
             res.render("products", {
                 data: productData,
                 currentPage: page,
                 totalPages: Math.ceil(count / limit),
-                cat: category
+                cat: category,
+                search: search // Pass the search query to the view
             });
         } else {
             res.render("page-404");
         }
     } catch (error) {
-        console.error("error from getAll product",error);  
+        console.error("Error from getAll product", error);  
         res.redirect("/admin/pageerror");
     }
 };
+
 const addProductOffer = async (req, res) => {
-    console.log("addprdct offr")
     try {
-        const { productId, percentage } = req.body;
-        const findProduct = await Product.findOne({ _id: productId });
-        const findCategory = await Category.findOne({ _id: findProduct.category });
-
-        if (findCategory.categoryOffer > percentage) {
-            return res.json({ status: false, message: "This products category have " })
-        }
-
-        findProduct.salePrice = Math.floor(findProduct.regularPrice * (percentage / 100));
-        findProduct.productOffer = parseInt(percentage);
-        await findProduct.save();
-        findCategory.categoryOffer = 0;
-        await findCategory.save();
-        res.json({ status: true })
+      const { productId, percentage } = req.body;
+      console.log("Adding product offer:", { productId, percentage });
+  
+      // Validate input
+      const parsedPercentage = parseInt(percentage);
+      if (isNaN(parsedPercentage) || parsedPercentage <= 0 || parsedPercentage > 100) {
+        return res.json({ status: false, message: "Percentage must be between 1 and 100" });
+      }
+  
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.json({ status: false, message: "Product not found" });
+      }
+  
+      const category = await Category.findById(product.category);
+      if (!category) {
+        return res.json({ status: false, message: "Category not found" });
+      }
+  
+      // Check if category offer exceeds product offer
+      if (category.categoryOffer > parsedPercentage) {
+        return res.json({ 
+          status: false, 
+          message: `Category offer (${category.categoryOffer}%) exceeds this offer (${parsedPercentage}%)` 
+        });
+      }
+  
+      // Calculate discounted sale price
+      const discountAmount = Math.floor(product.regularPrice * (parsedPercentage / 100));
+      product.salePrice = product.regularPrice - discountAmount;
+      product.productOffer = parsedPercentage;
+  
+      // Reset category offer if it exists
+      if (category.categoryOffer > 0) {
+        category.categoryOffer = 0;
+        await category.save();
+      }
+  
+      await product.save();
+      res.json({ status: true, message: "Offer applied successfully" });
     } catch (error) {
-        res.redirect("/admin/pageerror");
-        // res.status(500).json({status:false,message:"Internal Server Error"})
+      console.error("Error in addProductOffer:", error);
+      res.json({ status: false, message: "Internal Server Error" });
     }
-
-};
-
-const removeProductOffer = async (req, res) => {
+  };
+  
+  const removeProductOffer = async (req, res) => {
     try {
-        const { productId } = req.body;
-        const findProduct = await Product.findOne({ _id: productId });
-        const percentage = findProduct.productOffer;
-        findProduct.salePrice = Math.floor(findProduct.regularPrice * (percentage / 100));
-        findProduct.productOffer = 0;
-        await findProduct.save();
-        res.json({ status: true })
+      const { productId } = req.body;
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.json({ status: false, message: "Product not found" });
+      }
+  
+      // Reset sale price to regular price and remove offer
+      product.salePrice = product.regularPrice;
+      product.productOffer = 0;
+      await product.save();
+  
+      res.json({ status: true, message: "Offer removed successfully" });
     } catch (error) {
-        console.log(error)
-        res.redirect("/admin/pageerror")
+      console.error("Error in removeProductOffer:", error);
+      res.json({ status: false, message: "Internal Server Error" });
     }
-};
+  };
 
 const blockProduct = async (req, res) => {
     try {
@@ -182,10 +212,10 @@ const blockProduct = async (req, res) => {
       const result = await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
       console.log("Block result:", result);
   
-      res.json({ status: true, message: "Product blocked successfully." }); // Respond with JSON
+      res.json({ status: true, message: "Product blocked successfully." }); 
     } catch (error) {
       console.error("Error in block:", error);
-      res.status(500).json({ status: false, message: "Failed to block product." }); // Respond with error JSON
+      res.status(500).json({ status: false, message: "Failed to block product." }); 
     }
   };
   
@@ -196,18 +226,18 @@ const blockProduct = async (req, res) => {
       const result = await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
       console.log("Unblock result:", result);
   
-      res.json({ status: true, message: "Product unblocked successfully." }); // Respond with JSON
+      res.json({ status: true, message: "Product unblocked successfully." });
     } catch (error) {
       console.error("Error in unblock:", error);
-      res.status(500).json({ status: false, message: "Failed to unblock product." }); // Respond with error JSON
+      res.status(500).json({ status: false, message: "Failed to unblock product." }); 
     }
   };
   
-const getEditProduct = async (req, res) => {
+  const getEditProduct = async (req, res) => {
     try {
         const id = req.query.id;
         console.log("Product ID:", id);
-
+  
         const product = await Product.findOne({ _id: id }).populate('category');
         
         console.log("product frm get edt prdct",product);
@@ -215,10 +245,10 @@ const getEditProduct = async (req, res) => {
             console.error("Product not found");
             return res.redirect("/admin/pageerror");
         }
-
+  
         const categories = await Category.find({ isListed: true });
         
-
+  
         res.render("product-edit", {
             product: product,  
             cat: categories,   
@@ -227,36 +257,36 @@ const getEditProduct = async (req, res) => {
         console.error("Error in getEditProduct:", error);
         res.redirect("/admin/pageerror");
     }
-};
+  };
 
-const editProduct = async (req, res) => {
+  const editProduct = async (req, res) => {
     try {
         const id = req.params.id;
         console.log("id in edit prdct", id)
         const product = await Product.findOne({ _id: id });
         console.log("product in edit product", product)
-
+  
         if (!product) {
             return res.status(404).json({ error: "Product not found." });  
         }
-
+  
         const data = req.body;
         const existingProduct = await Product.findOne({
             productName: data.productName,
             _id: { $ne: id }
         });
-
+  
         if (existingProduct) {
             return res.status(400).json({ error: "Product with this name already exists. Please try with another name." });
         }
-
+  
         const images = [];
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
                 images.push(req.files[i].filename);
             }
         }
-
+  
         const updateFields = {
             productName: data.productName,
             description: data.description,
@@ -267,7 +297,7 @@ const editProduct = async (req, res) => {
             size: data.size,
             color: data.color
         };
-
+  
         if (images.length > 0) {
             await Product.findByIdAndUpdate(
                 id,
@@ -286,12 +316,12 @@ const editProduct = async (req, res) => {
         }
         console.log("Product updated successfully");
         res.redirect("/admin/products");
-
+  
     } catch (error) {
         console.error("Error in editProduct:", error);
         res.redirect("/admin/pageerror");
     }
-};
+  }
 
 const deleteSingleImage = async (req, res) => {
     console.log("deletsngle")

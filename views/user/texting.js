@@ -1,41 +1,107 @@
-const customerInfo = async (req, res) => {
-    try {
-        let search = req.query.search || ""; // Default to an empty string if no search query
-        let page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = 5; // Number of customers per page
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require('uuid'); // UUID generator
 
-        // Fetch paginated user data with search
-        const userData = await User.find({
-            isAdmin: false,
-            $or: [
-                { name: { $regex: ".*" + search + ".*", $options: "i" } },
-                { email: { $regex: ".*" + search + ".*", $options: "i" } },
-            ],
-        })
-            .limit(limit)
-            .skip((page - 1) * limit)
-            .exec();
+const orderSchema = new mongoose.Schema({
+  orderId: {
+    type: String,
+    default: () => uuidv4(),
+    unique: true,
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true, 
+  },
+  orderedItems: [
+    {
+      product: {
+        type: Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      status: {
+        type: String,
+        required: true,
+        enum: [
+          'Pending',
+          'Processing',
+          'Shipped',
+          'Delivered',
+          'Cancelled',
+          'Return Request',
+          'Returned',
+        ],
+        default: 'Pending',
+      },
+    },
+  ],
+  address: {
+    type: Schema.Types.Mixed, 
+    required: true, 
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['COD', 'WALLET', 'RAZORPAY'],
+    required: true
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['Pending', 'Completed', 'Failed', 'Refunded'],
+    default: 'Pending'
+  },
+  paymentId: { 
+    type: String, 
+    default: null 
+  },
+  razorpayOrderId: { 
+    type: String, 
+    default: null 
+  },
+  discount: {
+    type: Number,
+    default: 0
+  },
+  totalPrice: {
+    type: Number,
+    required: true
+  },
+  finalAmount: {
+    type: Number,
+    required: true
+  },
+  status: {
+    type: String,
+    required: true,
+    enum: [
+      'Pending',
+      'Payment Pending',
+      'Placed',
+      'Shipped',
+      'Delivered',
+      'Cancelled',
+      'Payment Failed'
+       
+    ],
+    default: 'Pending'
+  },
+  orderDate: {
+    type: Date,
+    default: Date.now
+  },
+  couponApplied: {
+    type: Boolean,
+    default: false
+  }
+}, { timestamps: true });
 
-        const count = await User.countDocuments({
-            isAdmin: false,
-            $or: [
-                { name: { $regex: ".*" + search + ".*", $options: "i" } },
-                { email: { $regex: ".*" + search + ".*", $options: "i" } },
-            ],
-        });
-
-        const totalPages = Math.ceil(count / limit);
-
-        res.render("customers", {
-            data: userData,
-            totalPages: totalPages,
-            currentPage: page,
-            totalCount: count,
-            searchQuery: search, 
-        });
-
-    } catch (error) {
-        console.error("Error fetching customer data:", error);
-        res.status(500).send("An error occurred while retrieving customer data.");
-    }
-};
+const Order = mongoose.model('Order', orderSchema);
+module.exports = Order;

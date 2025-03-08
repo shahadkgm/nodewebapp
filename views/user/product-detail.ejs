@@ -295,7 +295,8 @@
                                               <% product.productImages.forEach((image, index) => { %>
                                                   <div class="swiper-slide">
                                                       <figure class="border-radius-10 zoom-container">
-                                                          <img
+                                                          
+                                                        <img
                                                               src="/uploads/product-images/<%= image %>"
                                                               alt="<%= product.name %>"
                                                               style="width: 100%; object-fit: cover;"
@@ -306,6 +307,7 @@
                                                           <div class="swiper-button-next"></div>
                                                       </figure>
                                                   </div>
+                                                  
                                               <% }); %>
                                           </div>
                                       </div>
@@ -328,7 +330,10 @@
                               <!-- Product Info -->
                               <div class="col-md-6 col-sm-12">
                                   <div class="detail-info">
-                                      <h2 class="title-detail"><%= product.name %></h2>
+                                      <h2 class="title-detail"><%= product.name %> <span class="wishlist-btn" onclick="toggleWishlist('<%=product.id %>')">
+                                        ❤️
+                                      </span> </h2>
+                                      
                                       <div class="product-detail-rating"></div>
                                       <div class="clearfix product-price-cover">
                                           <div class="product-price primary-color float-left">
@@ -603,5 +608,40 @@
       });
     });
   });
+
+  async function toggleWishlist(productId) {
+    try {
+      const response = await fetch("/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: data.message,
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong. Please try again.",
+      });
+    }
+  }
 </script>
 </body>

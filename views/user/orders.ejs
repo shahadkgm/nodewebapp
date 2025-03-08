@@ -44,7 +44,14 @@
             <!-- Order Summary -->
             <div class="mt-4">
               <h5><strong>Payment Method:</strong> <%= order.paymentMethod %></h5>
-              <h5><strong>Total Price:</strong> ₹<%= order.totalPrice %></h5>
+              <!-- <h5><strong>Total Price:</strong> ₹<%= order.totalPrice %></h5> -->
+              <h5><strong>Discount:</strong> ₹<%= order.discount %></h5>
+        <%if(order.finalAmount){%>
+              <h5><strong>Total Price:</strong> ₹<%= order.finalAmount %></h5>
+            <%}else{%>
+              <h5><strong>Total Price:</strong> ₹<%= order.totalPrice %></h5> 
+
+           <% }%>
             </div>
           </div>
         </div>

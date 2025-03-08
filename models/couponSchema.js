@@ -7,7 +7,7 @@ const couponSchema=new mongoose.Schema({
         required:true,
         unique:true
     },
-    createOn:{
+    createdOn:{
        type:Date,
        deafault: Date.now,
        required:true
@@ -32,7 +32,10 @@ const couponSchema=new mongoose.Schema({
     userId:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
-    }]
+    }],
+    usedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], 
+    description: { type: String },
+    createdBy: { type: String, default: 'system' }
 
 })
 const Coupon=mongoose.model("Coupon",couponSchema);
