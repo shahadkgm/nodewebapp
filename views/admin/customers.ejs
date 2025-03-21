@@ -1,69 +1,384 @@
 <%- include("../../views/partials/admin/header") %>
 
-<div class="content-header row">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2 class="content-title card-title">Customers</h2>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+</head>
+
+<style>
+    .content-wrapper {
+        margin-left: 220px; 
+        padding: 20px 15px;
+        transition: margin-left 0.3s ease-in-out;
+        min-height: calc(100vh - 60px); 
+        /* Remove overflow-x: hidden to prevent clipping of fixed elements like SweetAlert2 */
+    }
+    .content-header {
+        margin-bottom: 20px;
+    }
+    .content-title {
+        font-size: 1.75rem;
+        color: #333;
+    }
+
+    /* Search Bar */
+    .card-header {
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    .input-group {
+        transition: all 0.3s ease-in-out;
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #28a745;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+        transition: background-color 0.3s ease-in-out;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    /* Table Styling */
+    .table-responsive {
+        border-radius: 8px;
+        overflow-x: auto; 
+        overflow-y: auto; 
+        max-height: 500px; 
+        width: 100%; 
+        -webkit-overflow-scrolling: touch; 
+    }
+    .table {
+        margin-bottom: 0;
+        width: 100%; 
+        min-width: 700px; 
+        table-layout: auto; 
+    }
+    .table th, .table td {
+        padding: 0.75rem;
+        vertical-align: middle;
+        text-align: center;
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis; 
+    }
+    .table th:nth-child(1), .table td:nth-child(1) { 
+        max-width: 150px;
+    }
+    .table th:nth-child(2), .table td:nth-child(2) { /* Email column */
+        max-width: 200px;
+    }
+    .table th:nth-child(3), .table td:nth-child(3) { /* Phone No column */
+        max-width: 120px;
+    }
+    .table th:nth-child(4), .table td:nth-child(4) { /* Action column */
+        max-width: 100px;
+    }
+    .table-success {
+        background-color: #28a745;
+        color: white;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+    .btn-danger, .btn-success {
+        font-size: 0.9rem;
+        padding: 0.25rem 1rem;
+        border-radius: 5px;
+        min-width: 70px; 
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .pagination .page-link {
+        color: #28a745;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    /* Ensure SweetAlert2 popup is not affected by other styles */
+    .swal2-popup {
+        z-index: 9999 !important; /* Increase z-index to ensure popup is above other elements */
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90% !important;
+        max-width: 400px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
+        .content-wrapper { margin-left: 200px; }
+        .content-title { font-size: 1.5rem; }
+        .input-group { max-width: 400px; }
+    }
+    @media (max-width: 768px) {
+        .content-wrapper { margin-left: 0; padding: 15px 10px; }
+        .input-group { max-width: 100%; }
+        .content-title { font-size: 1.25rem; }
+        .table-responsive { max-height: 400px; }
+        .table { min-width: 600px; } 
+        .table th, .table td { padding: 0.5rem; font-size: 0.85rem; }
+        .btn-danger, .btn-success { font-size: 0.8rem; padding: 0.2rem 0.8rem; }
+    }
+    @media (max-width: 576px) {
+        .content-title { font-size: 1.1rem; }
+        .form-control, .btn { font-size: 0.8rem; }
+        .table th, .table td { font-size: 0.75rem; padding: 0.4rem; }
+        .table th:nth-child(1), .table td:nth-child(1) { max-width: 120px; }
+        .table th:nth-child(2), .table td:nth-child(2) { max-width: 150px; }
+        .table th:nth-child(3), .table td:nth-child(3) { max-width: 100px; }
+        .table th:nth-child(4), .table td:nth-child(4) { max-width: 80px; }
+        .pagination { font-size: 0.85rem; }
+        .card-title { font-size: 1rem; }
+        .card-text { font-size: 0.9rem; }
+        .btn-info { padding: 0.25rem 0.75rem; }
+        .swal2-popup {
+            width: 80% !important;
+            max-width: 300px !important;
+        }
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="content-header row">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="content-title card-title">Customers</h2>
+        </div>
+    </div>
+
+    <header class="card-header text-center mb-4">
+        <form action="/admin/users/" method="get" class="d-flex justify-content-center">
+            <div class="input-group border border-1 border-secondary rounded-pill shadow-sm" style="max-width: 500px; background: #f8f9fa;">
+                <span class="input-group-text bg-transparent border-0 px-3">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-0 bg-transparent rounded-pill px-2"
+                       placeholder="Search customers..." name="search"
+                       value="<%= searchQuery %>"
+                       style="outline: none; box-shadow: none;">
+                <button class="btn btn-success rounded-pill px-4" type="submit">Search</button>
+            </div>
+        </form>
+    </header>
+
+    <div class="container mt-4">
+        <% if (data.length > 0) { %>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered shadow-sm">
+                    <thead class="table-success text-center">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone No</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <% for (let i = 0; i < data.length; i++) { %>
+                            <tr data-user-id="<%= data[i].id %>">
+                                <td><%= data[i].name %></td>
+                                <td><%= data[i].email %></td>
+                                <td><%= data[i].phone %></td>
+                                <td> 
+                                    <% if (!data[i].isBlocked) { %>
+                                        <button class="btn btn-danger btn-sm px-3 block-btn" data-id="<%= data[i].id %>">Block</button>
+                                    <% } else { %>
+                                        <button class="btn btn-success btn-sm px-3 unblock-btn" data-id="<%= data[i].id %>">Unblock</button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="card text-center bg-light shadow-lg mx-auto mt-3" style="max-width: 40rem;">
+                <div class="card-body">
+                    <h5 class="card-title text-danger"><i class="bi bi-exclamation-circle"></i> No Results Found</h5>
+                    <p class="card-text">Oops! We couldn't find anything matching your search.</p>
+                    <a href="/admin/users" class="btn btn-info">Back to Full Details</a>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="container mt-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
     </div>
 </div>
 
-<header class="card-header text-center mb-4">
-    <form action="/admin/users/" method="get" class="d-flex justify-content-center">
-        <div class="input-group input-group-lg border border-1 border-secondary rounded-pill" style="max-width: 500px;">
-            <input type="text" class="form-control border-0 rounded-pill px-3" placeholder="Search customers..." name="search" value="<%= searchQuery %>">
-            <button class="btn btn-success rounded-pill px-4" type="submit"> Search</button>
-        </div>
-    </form>
-</header>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    // Toggle sidebar functionality
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const contentWrapper = document.querySelector(".content-wrapper");
+        
+        sidebar.classList.toggle("active");
+        
+        if (window.innerWidth <= 768) {
+            if (sidebar.classList.contains("active")) {
+                contentWrapper.style.marginLeft = "0";
+                document.addEventListener("click", closeSidebarOutside);
+            } else {
+                contentWrapper.style.marginLeft = "0";
+                document.removeEventListener("click", closeSidebarOutside);
+            }
+        } else {
+            contentWrapper.style.marginLeft = sidebar.classList.contains("active") ? "0" : "220px";
+        }
+    }
 
-<div class="container mt-4">
-    <% if (data.length > 0) { %>
-        <table class="table table-hover table-bordered shadow-sm">
-            <thead class="table-success text-center">
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone No</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                <% for (let i = 0; i < data.length; i++) { %>
-                    <tr>
-                        <td><%= data[i].name %></td>
-                        <td><%= data[i].email %></td>
-                        <td><%= data[i].phone %></td>
-                        <td> 
-                            <% if (!data[i].isBlocked) { %>
-                                <a href="/admin/blockCustomer?id=<%= data[i].id %>" class="btn btn-danger btn-sm px-3">Block</a>
-                            <% } else { %>
-                                <a href="/admin/unblockCustomer?id=<%= data[i].id %>" class="btn btn-success btn-sm px-3">Unblock</a>
-                            <% } %>
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <div class="card text-center bg-light shadow-lg mx-auto mt-3" style="max-width: 40rem;">
-            <div class="card-body">
-                <h5 class="card-title text-danger"><i class="bi bi-exclamation-circle"></i> No Results Found</h5>
-                <p class="card-text">Oops! We couldn't find anything matching your search.</p>
-                <a href="/admin/users" class="btn-info">back to full details </a>
-            </div>
-        </div>
-    <% } %>
-</div>
+    function closeSidebarOutside(event) {
+        const sidebar = document.getElementById("sidebar");
+        const menuToggle = document.querySelector(".menu-toggle");
+        if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+            sidebar.classList.remove("active");
+            document.querySelector('.content-wrapper').style.marginLeft = window.innerWidth <= 768 ? '0' : '220px';
+            document.removeEventListener("click", closeSidebarOutside);
+        }
+    }
 
-<div class="container mt-3">
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>
-</div>
+    // Initialize sidebar behavior on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const contentWrapper = document.querySelector('.content-wrapper');
+        const menuToggle = document.querySelector('.menu-toggle');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', toggleSidebar);
+        }
+
+        if (window.innerWidth <= 768) {
+            contentWrapper.style.marginLeft = '0';
+        }
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                contentWrapper.style.marginLeft = '0';
+                sidebar.classList.remove('active');
+                document.removeEventListener("click", closeSidebarOutside);
+            } else {
+                contentWrapper.style.marginLeft = sidebar.classList.contains('active') ? '0' : '220px';
+            }
+        });
+    });
+
+    // Handle block/unblock actions with AJAX
+    $(document).ready(function() {
+        // Block customer
+        $(document).on('click', '.block-btn', function() {
+            const userId = $(this).data('id');
+            $.ajax({
+                url: `/admin/blockCustomer?id=${userId}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Update the UI dynamically
+                            const button = $(`button[data-id="${userId}"]`);
+                            button.removeClass('btn-danger block-btn').addClass('btn-success unblock-btn');
+                            button.text('Unblock');
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    let errorMessage = 'An error occurred while blocking the customer.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+
+        // Unblock customer
+        $(document).on('click', '.unblock-btn', function() {
+            const userId = $(this).data('id');
+            $.ajax({
+                url: `/admin/unblockCustomer?id=${userId}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Update the UI dynamically
+                            const button = $(`button[data-id="${userId}"]`);
+                            button.removeClass('btn-success unblock-btn').addClass('btn-danger block-btn');
+                            button.text('Block');
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    let errorMessage = 'An error occurred while unblocking the customer.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    });
+</script>
 
 <%- include("../../views/partials/admin/footer") %>

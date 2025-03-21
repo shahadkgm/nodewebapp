@@ -282,7 +282,7 @@
                                     <div class="d-flex align-items-center">
                                       <a href="/view-order/<%= order._id %>" class="btn btn-primary btn-sm me-2">View</a>
                                       <% if (['Pending', 'Processing', 'Payment Pending', 'Placed'].includes(order.status)) { %>
-                                        <form action="/cancel-order/<%= order._id %>" method="POST" class="d-inline" onsubmit="return handleCancelOrder(event, '<%= order._id %>', '<%= order.paymentMethod %>')">
+                                        <form action="/cancel-order/<%= order._id %>" method="POST" class="d-inline" onsubmit="return handleCancelOrder(event, '<%= order._id %>', '<%= order.paymentMethod %>','<%=amount%>')">
                                           <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
                                         </form>
                                       <% } else if (order.status === 'Delivered') { %>
@@ -292,6 +292,8 @@
                                       <% } else { %>
                                         <button type="button" class="btn btn-secondary btn-sm" disabled>Cannot Cancel</button>
                                       <% } %>
+                                      <%if(order.status=='Payment Pending'){%>
+                                        <button type="button" class="btn btn-success btn-sm" onclick="retryPayment('<%= order._id %>')">Retry Payment</button>                                      <%}%>
                                     </div>
                                   </td>
                                 </tr>
@@ -331,7 +333,7 @@
 </div>
 
                
-<div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="wallet-history-tab">
+<div class="tab-pane fade <%= activeTab === 'wallet-history' ? 'show active' : '' %>" id="wallet-history" role="tabpanel" aria-labelledby="wallet-history-tab">
   <div class="card">
     <div class="card-header">
       <h5 class="mb-0">Wallet History</h5>
@@ -348,15 +350,14 @@
             </tr>
           </thead>
           <tbody>
-            <% if (user && user.walletHistory && user.walletHistory.length > 0) { %>
-              <% user.walletHistory.sort((a, b) => b.date - a.date).forEach(history => { %>
+            <% if (walletHistory && walletHistory.length > 0) { %>
+              <% walletHistory.forEach(history => { %>
                 <tr>
                   <td><%= history.date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></td>
                   <td>
                     <span class="<%= history.type === 'credit' ? 'badge bg-success' : 'badge bg-danger' %>">
                       <%= history.type.charAt(0).toUpperCase() + history.type.slice(1) %>
                     </span>
-                    
                   </td>
                   <td>₹<%= history.amount.toLocaleString('en-IN') %></td>
                   <td><%= history.description %></td>
@@ -370,18 +371,28 @@
           </tbody>
         </table>
       </div>
-      <!--  Pagination 
+      
+      <!-- Pagination matching your orders pagination -->
       <% if (user && user.walletHistory && user.walletHistory.length > 10) { %>
-        <nav aria-label="Wallet History Pagination">
-          <ul class="pagination justify-content-center mt-3">
-
-          </ul>
-        </nav>
-      <% } %> -->
+        <div class="pagination">
+          <% if (walletPage > 1) { %>
+            <a class="btn" href="/userProfile?tab=wallet-history&walletPage=<%= walletPage - 1 %>">Prev</a>
+          <% } %>
+          
+          <% for (let i = 1; i <= walletHistoryPages; i++) { %>
+            <a class="btn <%= walletPage === i ? 'active' : '' %>" href="/userProfile?tab=wallet-history&walletPage=<%= i %>">
+              <%= i %>
+            </a>
+          <% } %>
+          
+          <% if (walletPage < walletHistoryPages) { %>
+            <a class="btn" href="/userProfile?tab=wallet-history&walletPage=<%= walletPage + 1 %>">Next</a>
+          <% } %>
+        </div>
+      <% } %>
     </div>
   </div>
 </div>
-
                 <!-- Referrals Tab -->
                 <div class="tab-pane fade" id="referrals" role="tabpanel" aria-labelledby="referrals-tab">
                   <div class="card">
@@ -405,6 +416,7 @@
       </div>
     </div>
   </section>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     function handleCancelOrder(event, orderId, paymentMethod, amount) {
   event.preventDefault();
@@ -430,7 +442,7 @@
         if (data.success) {
           let message = 'Order canceled successfully!';
           if (paymentMethod === 'WALLET') {
-            message += ` ₹${amount} has been refunded to your wallet.`;
+            message += ` amount refunded to your wallet.`;
           }
           Swal.fire({
             title: 'Success!',
@@ -438,8 +450,13 @@
             icon: 'success',
             confirmButtonText: 'OK'
           }).then(() => {
-            window.location.href = "/userProfile?tab=orders&cancelStatus=success";
-          });
+          // Remove 'cancelStatus' before redirecting
+          const url = new URL(window.location.href);
+          url.searchParams.delete("cancelStatus");
+          window.history.replaceState({}, document.title, url.pathname + url.search);
+
+          window.location.href = "/userProfile?tab=orders"; 
+        });
         } else {
           Swal.fire({
             title: 'Error!',
@@ -526,21 +543,21 @@ function handleReturnOrder(event, orderId) {
   
     const cancelStatus = getQueryParam("cancelStatus");
   
-    if (cancelStatus === "success") {
-      Swal.fire({
-        title: "Success!",
-        text: "The order has been cancelled successfully.",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-    } else if (cancelStatus === "error") {
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to cancel the order. Please try again.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
+    // if (cancelStatus === "success") {
+    //   Swal.fire({
+    //     title: "Success!",
+    //     text: "The order has been cancelled successfully.",
+    //     icon: "success",
+    //     confirmButtonText: "OK",
+    //   });
+    // } else if (cancelStatus === "error") {
+    //   Swal.fire({
+    //     title: "Error!",
+    //     text: "Failed to cancel the order. Please try again.",
+    //     icon: "error",
+    //     confirmButtonText: "OK",
+    //   });
+    // }
   
     if (cancelStatus) {
       const url = new URL(window.location.href);
@@ -579,6 +596,123 @@ function handleReturnOrder(event, orderId) {
         }
       });
     }
+   
+
+
+  </script>
+  <script>
+    function retryPayment(orderId) {
+
+      Swal.fire({
+    title: 'Initiating Payment...',
+    text: 'Please wait while we prepare your payment.',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
+
+  // Initiate payment retry
+  fetch(`/retry-payment/${orderId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  })
+    .then(response => response.json())
+    .then(data => {
+      Swal.close(); 
+      if (!data.success) {
+        Swal.fire({
+          title: 'Error!',
+          text: data.message || 'Failed to initiate payment retry.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+        return;
+      }
+
+      // Open Razorpay checkout
+      const options = {
+        key: "rzp_test_kdg4e54eNggtN3",
+        amount: Math.round(data.orderDetails.finalAmount * 100), 
+        currency: 'INR',
+        name: 'WODDIE',
+        description: `Order Payment - ${data.orderDetails.orderId}`,
+        order_id: data.razorpayOrderId, //  R order ID from response
+        handler: function (response) {
+
+          fetch('/payment-success', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id, 
+              razorpay_signature: response.razorpay_signature,
+              orderId: orderId,
+            }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  title: 'Success!',
+                  text: 'Payment successful. Order updated.',
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                }).then(() => {
+                  window.location.href = '/userProfile?tab=orders&paymentStatus=success';
+                });
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: data.message || 'Failed to update order after payment.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                });
+              }
+            })
+            .catch(error => {
+              console.error('Error handling payment success:', error);
+              Swal.fire({
+                title: 'Error!',
+                text: 'An unexpected error occurred.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+              });
+            });
+        },
+        prefill: {
+          name: '<%= user.name %>',
+          email: '<%= user.email %>',
+          contact: '<%= user.phone %>',
+        },
+        theme: {
+          color: '#3399cc',
+        },
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+
+      rzp.on('payment.failed', function (response) {
+        Swal.fire({
+          title: 'Payment Failed!',
+          text: response.error.description || 'Payment failed. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      });
+    })
+    .catch(error => {
+      console.error('Error initiating payment retry:', error);
+      Swal.close(); 
+      Swal.fire({
+        title: 'Error!',
+        text: 'An unexpected error occurred.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    });
+}
   </script>
   
 </main>

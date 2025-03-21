@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const orderSchema = new mongoose.Schema({
   orderId: {
     type: String,
-    default: () => uuidv4(),
+     default: () => `ordr${uuidv4()}`,
     unique: true,
   },
   userId: {
@@ -89,9 +89,9 @@ const orderSchema = new mongoose.Schema({
       'Delivered',
       'Cancelled',
       'Payment Failed',
-      'Return Requested', // Added for return process
-      'Return Approved',  // Added for approved returns
-      'Return Rejected',  // Added for rejected returns
+      'Return Requested', 
+      'Return Approved',  
+      'Return Rejected',  
     ],
     default: 'Pending',
   },
@@ -99,19 +99,19 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  deliveryDate: { // Added to track when the order was delivered
+  deliveryDate: { 
     type: Date,
     default: null,
   },
-  returnReason: { // Reason provided by the user for return
+  returnReason: { 
     type: String,
     default: null,
   },
-  returnRequestedAt: { // Timestamp of return request
+  returnRequestedAt: { 
     type: Date,
     default: null,
   },
-  returnProcessedAt: { // Timestamp when return was approved/rejected
+  returnProcessedAt: { 
     type: Date,
     default: null,
   },

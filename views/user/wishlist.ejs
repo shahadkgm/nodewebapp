@@ -69,7 +69,7 @@
                         </thead>
                         <tbody>
                             <% wishlist.forEach(product => { %>
-                              <tr id="wishlist-item-<%= product._id %>"> <!-- Add the row id here -->
+                              <tr id="wishlist-item-<%= product._id %>"> 
                                 <td>
                                         <img src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>" style="max-width: 80px; max-height: 80px;" />
                                     </td>
@@ -173,7 +173,7 @@
         }
       } catch (error) {
         console.error("Error adding to cart:", error);
-        this.disabled = true; // Disable the button on error
+        this.disabled = true; 
         Swal.fire({
           icon: "error",
           title: "Error",

@@ -1,12 +1,123 @@
 <%- include("../../views/partials/admin/header") %>
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+</head>
 
+<style>
+    /* Content Styling */
+    .content-main {
+        margin-left: 220px;
+        padding: 20px;
+        transition: margin-left 0.3s ease-in-out;
+        min-height: calc(100vh - 60px);
+    }
+    .content-header {
+        margin-bottom: 20px;
+    }
+    .content-title {
+        font-size: 1.75rem;
+        color: #333;
+    }
 
+    /* Card Styling */
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background-color: #28a745; /* Match the bg-success color */
+        color: #ffffff;
+        padding: 1rem;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
 
-<div class="container my-5">
-    <h2 class="text-center mb-4">Order Details</h2>
-    <div class="card shadow-lg">
+    /* Table Styling */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .table thead {
+        background-color: #343a40; /* Dark header to match other pages */
+        color: #ffffff;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+    .table td, .table th {
+        vertical-align: middle;
+        text-align: center;
+    }
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    /* Badge Styling for Order Status */
+    .order-status-pending { background-color: #ffc107; color: #212529; }
+    .order-status-shipped { background-color: #17a2b8; color: #fff; }
+    .order-status-delivered { background-color: #28a745; color: #fff; }
+    .order-status-cancelled { background-color: #dc3545; color: #fff; }
+
+    /* Button Styling (for Back button) */
+    .btn-outline-success {
+        border-color: #28a745;
+        color: #28a745;
+        border-radius: 8px;
+        padding: 8px 20px;
+        transition: all 0.3s ease-in-out;
+    }
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    /* SweetAlert2 Popup Styling (for future use) */
+    .swal2-popup {
+        z-index: 9999 !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90% !important;
+        max-width: 400px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+        .content-main { margin-left: 200px; }
+        .content-title { font-size: 1.5rem; }
+        .table td, .table th { font-size: 0.9rem; }
+    }
+    @media (max-width: 768px) {
+        .content-main { margin-left: 0; padding: 15px; }
+        .content-title { font-size: 1.25rem; }
+        .table-responsive { max-height: 300px; }
+        .table td, .table th { font-size: 0.85rem; padding: 0.5rem; }
+        .card-body { padding: 1rem; }
+    }
+    @media (max-width: 576px) {
+        .content-title { font-size: 1.1rem; }
+        .table td, .table th { font-size: 0.75rem; }
+        .card-header { font-size: 0.9rem; }
+        .btn-outline-success { padding: 6px 15px; font-size: 0.85rem; }
+        .swal2-popup {
+            width: 80% !important;
+            max-width: 300px !important;
+        }
+    }
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title card-title">Order Details</h2>
+    </div>
+    <div class="card">
         <div class="card-header bg-success text-white">
             <div class="d-flex justify-content-between align-items-center">
                 <span><strong>Order ID:</strong> <%= order.orderId %></span>
@@ -17,33 +128,32 @@
             <h5 class="mb-4">Ordered Items</h5>
             <!-- Table for Ordered Items -->
             <div class="table-responsive">
-              <table class="table table-bordered">
-                <thead class="table-light">
-                  <tr>
-                    <th>Image</th>
-                    <th>Product Name</th>
-                    <th>Description</th>
-                    <th>Price (₹)</th>
-                    <th>Quantity</th>
-                    <th>Total (₹)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% order.orderedItems.forEach(item => { %>
-                    <tr>
-                      <td>
-                        <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="max-width: 80px; max-height: 80px;" />
-                      </td>
-                      <td><strong><%= item.product.productName %></strong></td>
-                      <td><%= item.product.description %></td>
-                      <td>₹<%= item.price %></td>
-                      <td><%= item.quantity %></td>
-                      <td>₹<%= item.price * item.quantity %></td>
-
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Description</th>
+                            <th>Price (₹)</th>
+                            <th>Quantity</th>
+                            <th>Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.orderedItems.forEach(item => { %>
+                            <tr>
+                                <td>
+                                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="max-width: 80px; max-height: 80px;" />
+                                </td>
+                                <td><strong><%= item.product.productName %></strong></td>
+                                <td><%= item.product.description %></td>
+                                <td>₹<%= item.price %></td>
+                                <td><%= item.quantity %></td>
+                                <td>₹<%= item.price * item.quantity %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
             </div>
             <!-- Total Price Section -->
             <div class="mt-4">
@@ -51,8 +161,42 @@
             </div>
         </div>
     </div>
-    <!-- <div class="text-center mt-4">
-        <a href="/userProfile?tab=orders" class="btn btn-outline-success">Back</a>
-    </div> -->
-  </div>
-  
+    <div class="text-center mt-4">
+        <a href="/admin/orders" class="btn btn-outline-success">Back to Orders</a>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Toggle sidebar functionality
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("active");
+        if (sidebar.classList.contains("active")) {
+            document.addEventListener("click", closeSidebarOutside);
+        } else {
+            document.removeEventListener("click", closeSidebarOutside);
+        }
+    }
+
+    function closeSidebarOutside(event) {
+        const sidebar = document.getElementById("sidebar");
+        const menuToggle = document.querySelector(".menu-toggle");
+        if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+            sidebar.classList.remove("active");
+            document.removeEventListener("click", closeSidebarOutside);
+        }
+    }
+
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 768) {
+            document.getElementById("sidebar").classList.remove("active");
+            document.removeEventListener("click", closeSidebarOutside);
+        }
+    });
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

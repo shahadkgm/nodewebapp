@@ -1,82 +1,180 @@
 <%- include("../../views/partials/admin/header") %>
 
-<div class="container my-5">
-  <h2 class="text-center mb-4">Order Management</h2>
+<div class="content-wrapper" style="margin-left: 200px; padding: 20px; transition: margin-left 0.3s ease-in-out;">
+  <section class="content-main">
+    <div class="container my-5">
+      <h2 class="text-center mb-4">Order Management</h2>
 
-  <div class="row">
-    <% orders.forEach(order => { %>
-      <div class="col-md-12 mb-3">
-        <div class="card border-success shadow-sm">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <strong>Order ID:</strong> <%= order.orderId %>
-            <span class="badge bg-info text-dark"><strong>Status:</strong> <%= order.status %></span>
-          </div>
-
-          <div class="card-body">
-            <h5 class="mb-3">Ordered Items:</h5>
-            <% order.orderedItems.forEach(item => { %>
-              <div class="d-flex align-items-center mb-3 p-2 border rounded">
-                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
-                     alt="Product Image" 
-                     class="me-3 rounded" 
-                     style="max-width: 80px; max-height: 80px; object-fit: cover;">
-
-                <div>
-                  <strong>Product:</strong> <%= item.product.productName %> <br>
-                  <strong>Price:</strong> ₹<%= item.price %> <br>
-                  <strong>Quantity:</strong> <%= item.quantity %> <br>
-                  <strong>Payment Method:</strong> <%= order.paymentMethod %>
-                </div>
+      <div class="row">
+        <% orders.forEach(order => { %>
+          <div class="col-md-12 mb-3">
+            <div class="card border-success shadow-sm">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Order ID:</strong> <%= order.orderId %>
+                <span class="badge bg-info text-dark"><strong>Status:</strong> <%= order.status %></span>
               </div>
-            <% }) %>
 
-            <hr>
+              <div class="card-body">
+                <h5 class="mb-3">Ordered Items:</h5>
+                <% order.orderedItems.forEach(item => { %>
+                  <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
+                         alt="Product Image" 
+                         class="me-3 rounded" 
+                         style="max-width: 80px; max-height: 80px; object-fit: cover;">
 
-            <div class="d-flex justify-content-between align-items-center">
-              <strong>Total Price:</strong> ₹<%= order.totalPrice %>
+                    <div>
+                      <strong>Product:</strong> <%= item.product.productName %> <br>
+                      <strong>Price:</strong> ₹<%= item.price %> <br>
+                      <strong>Quantity:</strong> <%= item.quantity %> <br>
+                      <strong>Payment Method:</strong> <%= order.paymentMethod %>
+                    </div>
+                  </div>
+                <% }) %>
 
-              <div class="d-flex">
-                <!-- Status Update Form -->
-                <form action="/admin/update-order-status/<%= order._id %>" method="POST" class="d-flex align-items-center">
-                  <select name="status" class="form-select form-select-sm me-2 border-success">
-                    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                    <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                    <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                    <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                    <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                  </select>
-                  <button type="submit" class="btn btn-success btn-sm me-2">Update</button>
-                </form>
+                <hr>
 
-                <!-- View Order Button -->
-                <a href="/admin/view-order/<%= order._id %>" class="btn btn-primary btn-sm me-2">View</a>
-                <% if (order.status === 'Return Requested') { %>
-                  <form action="/admin/approve-return/<%= order._id %>" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-success btn-sm me-2">Approve</button>
-                  </form>
-                  <form action="/admin/reject-return/<%= order._id %>" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                  </form>
-                <% } %>
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>Total Price:</strong> ₹<%= order.finalAmount||order.totalPrice %>
+
+                  <div class="d-flex">
+                    <!-- Status Update Form -->
+                    <% if (order.status !== 'Delivered' && order.status !== 'Cancelled') { %>
+                      <form action="/admin/update-order-status/<%= order._id %>" method="POST" class="d-flex align-items-center">
+                        <select name="status" class="form-select form-select-sm me-2 border-success">
+                          <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                          <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                          <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                          <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                          <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        </select>
+                        <button type="submit" class="btn btn-success btn-sm me-2">Update</button>
+                      </form>
+                    <% } else { %>
+                      <span class="text-muted me-2">Status cannot be changed (Finalized)</span>
+                    <% } %>
+
+                    <!-- View Order Button -->
+                    <a href="/admin/view-order/<%= order._id %>" class="btn btn-primary btn-sm me-2">View</a>
+                    <% if (order.status === 'Return Requested') { %>
+                      <form action="/admin/approve-return/<%= order._id %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-success btn-sm me-2">Approve</button>
+                      </form>
+                      <form action="/admin/reject-return/<%= order._id %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                      </form>
+                    <% } %>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        <% }) %>
       </div>
-    <% }) %>
-  </div>
 
-  <!-- Pagination Section -->
-  <div class="container mt-3">
-    <nav aria-label="Page navigation">
-      <ul class="pagination justify-content-center">
-        <% for (let i = 1; i <= totalPages; i++) { %>
-          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-          </li>
-        <% } %>
-      </ul>
-    </nav>
-  </div>
+      <!-- Pagination Section -->
+      <div class="container mt-3">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= currentPage > 1 ? '' : 'disabled' %>">
+              <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+            </li>
 
+            <% if (currentPage > 3) { %>
+              <li class="page-item">
+                <a class="page-link" href="?page=1">1</a>
+              </li>
+              <li class="page-item disabled">
+                <a class="page-link">...</a>
+              </li>
+            <% } %>
+
+            <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+              <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+              </li>
+            <% } %>
+
+            <% if (currentPage < totalPages - 2) { %>
+              <li class="page-item disabled">
+                <a class="page-link">...</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page=<%= totalPages %>"><%= totalPages %></a>
+              </li>
+            <% } %>
+
+            <li class="page-item <%= currentPage < totalPages ? '' : 'disabled' %>">
+              <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </section>
 </div>
+
+<!-- Add responsive toggle functionality -->
+<style>
+  .content-wrapper {
+    margin-left: 200px;
+    padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
+  }
+  
+  @media (max-width: 991px) {
+    .content-wrapper {
+      margin-left: 180px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .content-wrapper {
+      margin-left: 0;
+    }
+  }
+</style>
+
+<script>
+  // Toggle sidebar function
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const contentWrapper = document.querySelector('.content-wrapper');
+    
+    sidebar.classList.toggle('active');
+    
+    if (sidebar.classList.contains('active')) {
+      contentWrapper.style.marginLeft = window.innerWidth <= 768 ? '0' : '0';
+    } else {
+      contentWrapper.style.marginLeft = window.innerWidth <= 768 ? '0' : '200px';
+    }
+  }
+  
+  // Initialize responsiveness
+  window.addEventListener('load', function() {
+    const sidebar = document.getElementById('sidebar');
+    const contentWrapper = document.querySelector('.content-wrapper');
+    const menuToggle = document.querySelector('.menu-toggle');
+    
+    if (menuToggle) {
+      menuToggle.addEventListener('click', toggleSidebar);
+    }
+    
+    if (window.innerWidth <= 768) {
+      contentWrapper.style.marginLeft = '0';
+    }
+  });
+  
+  window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('sidebar');
+    const contentWrapper = document.querySelector('.content-wrapper');
+    
+    if (window.innerWidth <= 768) {
+      contentWrapper.style.marginLeft = '0';
+    } else {
+      contentWrapper.style.marginLeft = sidebar.classList.contains('active') ? '0' : '200px';
+    }
+  });
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

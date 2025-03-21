@@ -1,0 +1,303 @@
+<%- include('../partials/admin/header') %>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+</head>
+
+<style>
+    /* Content Styling */
+    .content-main {
+        margin-left: 220px;
+        padding: 20px;
+        transition: margin-left 0.3s ease-in-out;
+        min-height: calc(100vh - 60px);
+    }
+    .content-header {
+        margin-bottom: 20px;
+    }
+    .content-title {
+        font-size: 1.75rem;
+        color: #333;
+    }
+
+    /* Card Styling */
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Form Styling */
+    .form-label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        transition: all 0.3s ease-in-out;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.3);
+    }
+
+    /* Button Styling */
+    .btn-primary {
+        background-color: #007bff;
+        border-radius: 8px;
+        padding: 10px;
+        transition: all 0.3s ease-in-out;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.875rem;
+    }
+
+    /* Table Styling */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .table thead {
+        background-color: #343a40;
+        color: #ffffff;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+    .table td, .table th {
+        vertical-align: middle;
+        text-align: center;
+    }
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 20px;
+    }
+
+    /* Pagination Styling */
+    .pagination .page-link {
+        border-radius: 5px;
+        margin: 0 2px;
+        color: #007bff;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    /* SweetAlert2 Popup Styling */
+    .swal2-popup {
+        z-index: 9999 !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90% !important;
+        max-width: 400px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+        .content-main { margin-left: 200px; }
+        .content-title { font-size: 1.5rem; }
+        .form-control, .btn-primary { font-size: 0.9rem; }
+        .table td, .table th { font-size: 0.9rem; }
+    }
+    @media (max-width: 768px) {
+        .content-main { margin-left: 0; padding: 15px; }
+        .content-title { font-size: 1.25rem; }
+        .table-responsive { max-height: 300px; }
+        .table td, .table th { font-size: 0.85rem; padding: 0.5rem; }
+        .card-body { padding: 1rem; }
+        .form-control { padding: 8px; }
+        .btn-primary { padding: 8px; }
+    }
+    @media (max-width: 576px) {
+        .content-title { font-size: 1.1rem; }
+        .form-control, .btn-primary { font-size: 0.85rem; padding: 6px; }
+        .table td, .table th { font-size: 0.75rem; }
+        .swal2-popup {
+            width: 80% !important;
+            max-width: 300px !important;
+        }
+    }
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title card-title">Wallet Management</h2>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Search and Filter Wallets</h5>
+        </div>
+        <div class="card-body">
+            <form id="filterForm" action="/admin/wallets" method="get">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">Search by Name or Email</label>
+                        <input type="text" name="search" class="form-control" placeholder="Search..." value="<%= search || '' %>">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Min Balance (₹)</label>
+                        <input type="number" name="minBalance" class="form-control" value="<%= minBalance || '' %>">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Balance (₹)</label>
+                        <input type="number" name="maxBalance" class="form-control" value="<%= maxBalance || '' %>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Wallet List -->
+    <div class="card">
+        <div class="card-header">
+            <h5>All Wallets</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Balance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                            <tr>
+                                <td><%= user._id %></td>
+                                <td><%= user.name %></td>
+                                <td><%= user.email %></td>
+                                <td>₹<%= user.wallet.toLocaleString('en-IN') %></td>
+                                <td>
+                                    <a href="/admin/wallets/<%= user._id %>" class="btn btn-sm btn-primary">View Details</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <!-- Pagination -->
+                <nav>
+                    <ul class="pagination justify-content-center mt-3">
+                        <% for (let i = 1; i <= Math.ceil(total / limit); i++) { %>
+                            <li class="page-item <%= i === page ? 'active' : '' %>">
+                                <a href="?page=<%= i %>&limit=<%= limit %>&search=<%= search || '' %>&minBalance=<%= minBalance || '' %>&maxBalance=<%= maxBalance || '' %>" class="page-link"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Toggle sidebar functionality
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const contentMain = document.querySelector('.content-main');
+
+        sidebar.classList.toggle('active');
+
+        if (sidebar.classList.contains('active')) {
+            contentMain.style.marginLeft = window.innerWidth <= 768 ? '0' : '0';
+        } else {
+            contentMain.style.marginLeft = window.innerWidth <= 768 ? '0' : '220px';
+        }
+
+        if (sidebar.classList.contains('active')) {
+            document.addEventListener('click', closeSidebarOutside);
+        } else {
+            document.removeEventListener('click', closeSidebarOutside);
+        }
+    }
+
+    function closeSidebarOutside(event) {
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+            sidebar.classList.remove('active');
+            document.querySelector('.content-main').style.marginLeft = window.innerWidth <= 768 ? '0' : '220px';
+            document.removeEventListener('click', closeSidebarOutside);
+        }
+    }
+
+    window.addEventListener('load', function() {
+        const sidebar = document.getElementById('sidebar');
+        const contentMain = document.querySelector('.content-main');
+        const menuToggle = document.querySelector('.menu-toggle');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', toggleSidebar);
+        }
+
+        if (window.innerWidth <= 768) {
+            contentMain.style.marginLeft = '0';
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        const sidebar = document.getElementById('sidebar');
+        const contentMain = document.querySelector('.content-main');
+
+        if (window.innerWidth <= 768) {
+            contentMain.style.marginLeft = '0';
+        } else {
+            contentMain.style.marginLeft = sidebar.classList.contains('active') ? '0' : '220px';
+        }
+    });
+
+    // Filter form validation
+    document.getElementById('filterForm').addEventListener('submit', function(event) {
+        const search = document.querySelector('input[name="search"]').value.trim();
+        const minBalance = document.querySelector('input[name="minBalance"]').value.trim();
+        const maxBalance = document.querySelector('input[name="maxBalance"]').value.trim();
+
+        if (!search && !minBalance && !maxBalance) {
+            event.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops',
+                text: 'Please provide at least one filter criteria.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+</script>
+
+<%- include('../partials/admin/footer') %>

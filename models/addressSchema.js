@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const addressSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
-    ref: "User", // Reference the User model
+    ref: "User", // Reference the U
     required: true
   },
   address: [

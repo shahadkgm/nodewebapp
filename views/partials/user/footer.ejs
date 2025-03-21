@@ -1,104 +1,170 @@
-<!-- Start Footer Section -->
-<footer class="footer-section">
-    <div class="container relative">
+<style> /* Footer Styling (Lighter Theme) */
+    footer.bg-light {
+      background-color: #f8f9fa; /* Light gray background */
+      color: #343a40; /* Dark gray text */
+      padding: 2rem 0;
+      border-top: 1px solid #dee2e6; /* Subtle top border */
+    }
+    
+    footer h5 {
+      font-weight: 600;
+      color: #212529; /* Darker headings */
+    }
+    
+    footer .text-muted {
+      color: #6c757d !important; /* Muted text for secondary info */
+    }
+    
+    footer a.text-dark:hover {
+      color: #0d6efd !important; /* Primary blue on hover */
+      text-decoration: underline;
+    }
+    
+    footer .list-unstyled li {
+      margin-bottom: 0.5rem;
+    }
+    
+    footer .bi {
+      vertical-align: middle;
+      color: #495057; /* Slightly darker icons */
+    }
+    
+    footer .form-control {
+      border-radius: 4px;
+      background-color: #ffffff; /* White input background */
+      border: 1px solid #ced4da;
+      color: #495057;
+    }
+    
+    footer .form-control:focus {
+      background-color: #ffffff;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    footer .form-control::placeholder {
+      color: #6c757d;
+    }
+    
+    footer .btn-primary {
+      border-radius: 4px;
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+    }
+    
+    footer .btn-primary:hover {
+      background-color: #0b5ed7;
+      border-color: #0a58ca;
+    }
+    
+    footer hr.border-secondary {
+      border-color: rgba(108, 117, 125, 0.2); /* Light gray divider */
+    }
+    
+    @media (max-width: 767px) {
+      footer .row {
+        text-align: center;
+      }
+    
+      footer .col-md-4 {
+        margin-bottom: 2rem;
+      }
+    
+      footer .list-unstyled {
+        padding-left: 0;
+      }
+    
+      footer .form-control,
+      footer .btn {
+        width: 100%;
+      }
+    
+      footer .d-flex.flex-column.flex-md-row {
+        flex-direction: column;
+      }
+    
+      footer .mb-3 a {
+        display: inline-block;
+        margin: 0.5rem;
+      }
+    }
+    
+    @media (max-width: 575px) {
+      footer h5 {
+        font-size: 1.1rem;
+      }
+    
+      footer .text-muted {
+        font-size: 0.9rem;
+      }
+    
+      footer .bi.fs-4 {
+        font-size: 1.25rem;
+      }
+    
+      footer .form-control {
+        font-size: 0.9rem;
+      }
+    
+      footer .btn {
+        font-size: 0.9rem;
+      }
+    }</style>
+<footer class="bg-light text-dark py-4">
 
-        <div class="sofa-img">
-            <img src="images/sofa.png" alt="Image" class="img-fluid">
+    <div class="container">
+      <div class="row g-4">
+        <!-- Company Info -->
+        <div class="col-12 col-md-4">
+          <h5 class="mb-3">Your Company Name</h5>
+          <p class="text-muted mb-2">
+            Providing quality products and excellent customer service since 2023.
+          </p>
+          <p class="text-muted mb-0">
+            <i class="bi bi-geo-alt me-2"></i>123 Main Street, City, Country
+          </p>
+          <p class="text-muted mb-0">
+            <i class="bi bi-telephone me-2"></i><a href="tel:+1234567890" class="text-dark text-decoration-none">+1 (234) 567-890</a>
+          </p>
+          <p class="text-muted mb-0">
+            <i class="bi bi-envelope me-2"></i><a href="mailto:support@company.com" class="text-dark text-decoration-none">support@company.com</a>
+          </p>
         </div>
-
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="subscription-form">
-                    <h3 class="d-flex align-items-center"><span class="me-1"><img src="images/envelope-outline.svg" alt="Image" class="img-fluid"></span><span>Subscribe to Newsletter</span></h3>
-
-                    <form action="#" class="row g-3">
-                        <div class="col-auto">
-                            <input type="text" class="form-control" placeholder="Enter your name">
-                        </div>
-                        <div class="col-auto">
-                            <input type="email" class="form-control" placeholder="Enter your email">
-                        </div>
-                        <div class="col-auto">
-                            <button class="btn btn-primary">
-                                <span class="fa fa-paper-plane"></span>
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
+  
+        <!-- Quick Links -->
+        <div class="col-12 col-md-4">
+          <h5 class="mb-3">Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="/shop" class="text-dark text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Shop</a></li>
+            <li><a href="/about" class="text-dark text-decoration-none"><i class="bi bi-chevron-right me-2"></i>About Us</a></li>
+            <li><a href="/contact" class="text-dark text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Contact Us</a></li>
+            <li><a href="/faq" class="text-dark text-decoration-none"><i class="bi bi-chevron-right me-2"></i>FAQ</a></li>
+            <li><a href="/privacy" class="text-dark text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Privacy Policy</a></li>
+          </ul>
         </div>
-
-        <div class="row g-5 mb-5">
-            <div class="col-lg-4">
-                <div class="mb-4 footer-logo-wrap"><a href="#" class="footer-logo">Furni<span>.</span></a></div>
-                <p class="mb-4">Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant</p>
-
-                <ul class="list-unstyled custom-social">
-                    <li><a href="#"><span class="fa fa-brands fa-facebook-f"></span></a></li>
-                    <li><a href="#"><span class="fa fa-brands fa-twitter"></span></a></li>
-                    <li><a href="#"><span class="fa fa-brands fa-instagram"></span></a></li>
-                    <li><a href="#"><span class="fa fa-brands fa-linkedin"></span></a></li>
-                </ul>
-            </div>
-
-            <div class="col-lg-8">
-                <div class="row links-wrap">
-                    <div class="col-6 col-sm-6 col-md-3">
-                        <ul class="list-unstyled">
-                            <li><a href="#">About us</a></li>
-                            <li><a href="#">Services</a></li>
-                            <li><a href="#">Blog</a></li>
-                            <li><a href="#">Contact us</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="col-6 col-sm-6 col-md-3">
-                        <ul class="list-unstyled">
-                            <li><a href="#">Support</a></li>
-                            <li><a href="#">Knowledge base</a></li>
-                            <li><a href="#">Live chat</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="col-6 col-sm-6 col-md-3">
-                        <ul class="list-unstyled">
-                            <li><a href="#">Jobs</a></li>
-                            <li><a href="#">Our team</a></li>
-                            <li><a href="#">Leadership</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="col-6 col-sm-6 col-md-3">
-                        <ul class="list-unstyled">
-                            <li><a href="#">Nordic Chair</a></li>
-                            <li><a href="#">Kruzo Aero</a></li>
-                            <li><a href="#">Ergonomic Chair</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
+  
+        <!-- Social Media & Newsletter -->
+        <div class="col-12 col-md-4">
+          <h5 class="mb-3">Connect With Us</h5>
+          <div class="mb-3">
+            <a href="https://facebook.com" class="text-dark me-3" aria-label="Facebook"><i class="bi bi-facebook fs-4"></i></a>
+            <a href="https://twitter.com" class="text-dark me-3" aria-label="Twitter"><i class="bi bi-twitter fs-4"></i></a>
+            <a href="https://instagram.com" class="text-dark me-3" aria-label="Instagram"><i class="bi bi-instagram fs-4"></i></a>
+            <a href="https://linkedin.com" class="text-dark" aria-label="LinkedIn"><i class="bi bi-linkedin fs-4"></i></a>
+          </div>
+          <h6 class="mb-2">Subscribe to Our Newsletter</h6>
+          <form action="/subscribe" method="POST" class="d-flex flex-column flex-md-row gap-2">
+            <input type="email" name="email" class="form-control" placeholder="Enter your email" aria-label="Email address" required>
+            <button type="submit" class="btn btn-primary w-100 w-md-auto">Subscribe</button>
+          </form>
         </div>
-
-        <div class="border-top copyright">
-            <div class="row pt-4">
-                <div class="col-lg-6">
-                    <p class="mb-2 text-center text-lg-start">Copyright &copy;<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash; Designed with love by <a href="https://untree.co">Untree.co</a> Distributed By <a hreff="https://themewagon.com">ThemeWagon</a>  <!-- License information: https://untree.co/license/ -->
-    </p>
-                </div>
-
-                <div class="col-lg-6 text-center text-lg-end">
-                    <ul class="list-unstyled d-inline-flex ms-auto">
-                        <li class="me-4"><a href="#">Terms &amp; Conditions</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-
+      </div>
+  
+      <hr class="border-secondary my-4">
+  
+      <!-- Copyright -->
+      <div class="text-center">
+        <p class="mb-0 text-muted">© <%= new Date().getFullYear() %> Your Company Name. All rights reserved.</p>
+      </div>
     </div>
-</footer>
-<!-- End Footer Section -->	
+  </footer>

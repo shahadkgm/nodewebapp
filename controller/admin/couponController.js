@@ -18,33 +18,47 @@ const getCoupon=async (req,res)=>{
     }
 };
 
-const createCoupon=async(req,res)=>{
+const createCoupon = async (req, res) => {
     try {
-        const data={
-            couponName:req.body.couponName,
-            startDate:new Date(req.body.startDate + "T00:00:00"),
-            endDate:new Date(req.body.endDate + "T00:00:00"),
-            offerPrice:parseInt(req.body.offerPrice),
-            minimumPrice:parseInt(req.body.minimumPrice),
+        const data = {
+            couponName: req.body.couponName,
+            startDate: new Date(req.body.startDate + "T00:00:00"),
+            endDate: new Date(req.body.endDate + "T00:00:00"),
+            offerPrice: parseInt(req.body.offerPrice),
+            minimumPrice: parseInt(req.body.minimumPrice),
+        };
 
+        const existingCoupon = await Coupon.findOne({ name: data.couponName });
+        if (existingCoupon) {
+            return res.status(400).json({
+                success: false,
+                message: "Coupon with this name already exists.",
+            });
         }
-        const newCoupon=new Coupon({
-            name:data.couponName,
-            createdOn:data.startDate,
-            expireOn:data.endDate,
-            offerPrice:data.offerPrice,
-            minimumPrice:data.minimumPrice,
 
+        const newCoupon = new Coupon({
+            name: data.couponName,
+            createdOn: data.startDate,
+            expireOn: data.endDate,
+            offerPrice: data.offerPrice,
+            minimumPrice: data.minimumPrice,
+        });
 
-        })
         await newCoupon.save();
-        return res.redirect("/admin/coupon")
-    } catch (error) {
-        console.error("error in createCoupon",error)
-        res.redirect("/admin/pageerror")
-        
-    }
 
+        return res.status(200).json({
+            success: true,
+            message: "Coupon created successfully",
+            redirect: "/admin/coupon",
+        });
+    } catch (error) {
+        console.error("Error in createCoupon", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while creating the coupon.",
+            redirect: "/admin/pageerror",
+        });
+    }
 };
 const editCoupon=async(req,res)=>{
     try {
@@ -61,39 +75,66 @@ const editCoupon=async(req,res)=>{
         
     }
 };
-const updateCoupon=async(req,res)=>{
-
+const updateCoupon = async (req, res) => {
     try {
-        const couponId=req.body.couponId;
-        const oid=new mongoose.Types.ObjectId(couponId);
-        const selectedCoupon=await Coupon.findOne({_id:oid})
-        if(selectedCoupon){
-            const startDate=new Date(req.body.startDate);
-            const endDate=new Date(req.body.endDate);
-            const updateCoupon=await Coupon.updateOne(
-                {_id:oid},
-            {$set:{
-                name:req.body.couponName,
-                CraetedOn:startDate,
-                expireOn:endDate,
-                offerPrice:parseInt(req.body.offerPrice),
-                minimumPrice:parseInt(req.body.minimumPrice),
+        const couponId = req.body.couponId;
+        const oid = new mongoose.Types.ObjectId(couponId);
+        const selectedCoupon = await Coupon.findOne({ _id: oid });
+
+        if (!selectedCoupon) {
+            return res.status(404).json({
+                success: false,
+                message: "Coupon not found.",
+            });
+        }
+
+        const existingCoupon = await Coupon.findOne({
+            name: req.body.couponName,
+            _id: { $ne: oid },
+        });
+        if (existingCoupon) {
+            return res.status(400).json({
+                success: false,
+                message: "A coupon with this name already exists.",
+            });
+        }
+
+        const startDate = new Date(req.body.startDate);
+        const endDate = new Date(req.body.endDate);
+
+        const updatedCoupon = await Coupon.updateOne(
+            { _id: oid },
+            {
+                $set: {
+                    name: req.body.couponName,
+                    createdOn: startDate, // Fixed typo: CraetedOn -> createdOn
+                    expireOn: endDate,
+                    offerPrice: parseInt(req.body.offerPrice),
+                    minimumPrice: parseInt(req.body.minimumPrice),
+                },
             },
-        },{new:true}
+            { new: true }
         );
-        if(updateCoupon!==null){
-            res.send("Coupon updated successfully")
-        }else{
-            res.status(500).send("Coupon update failed")
-        }
-        }
 
-
-        
+        if (updatedCoupon.modifiedCount > 0) {
+            return res.status(200).json({
+                success: true,
+                message: "Coupon updated successfully",
+                redirect: "/admin/coupon",
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to update the coupon. No changes were made.",
+            });
+        }
     } catch (error) {
-        res.redirect("/admin/pageerror")
-        console.error("error in update copon",error)
-        
+        console.error("Error in updateCoupon:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while updating the coupon.",
+            redirect: "/admin/pageerror",
+        });
     }
 };
 

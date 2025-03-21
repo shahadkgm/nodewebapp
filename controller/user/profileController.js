@@ -6,6 +6,7 @@ const session=require("express-session");
 const Address =require("../../models/addressSchema.js")
 const Order=require('../../models/orderSchema')
 const Product = require('../../models/productSchema');
+const http =require("../../enem/enum.js")
 
 // const { changeEmail } = require("./userController");
 
@@ -104,7 +105,7 @@ const verifyForgotPassOtp=async(req,res)=>{
         res.json({success:false,message:"otp didnt match"})
        }
     } catch (error) {
-        res.status(500).json({success:false,message:'An error Occured,try again man'});
+        res.status(http.INTERNAL_SERVER_ERROR).json({success:false,message:'An error Occured,try again man'});
     }
 };
 const getResetPassPage=async (req,res)=>{
@@ -126,11 +127,11 @@ console.log("Resending otp to email",email);
 const emailSend=await sendVerificationEmail(email,otp)
 if(emailSend){
     console.log("resend otp:otp")
-    res.status(200).json({success:true,message:"resend otp successfull"})
+    res.status(http.ok).json({success:true,message:"resend otp successfull"})
 }
     } catch (error) {
         console.error("error in resend otp",error);
-        res.status(500).json({success:false,message:"Internal server error"})
+        res.status(http.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
         
     }
 };
@@ -166,6 +167,10 @@ const userProfile = async (req, res) => {
         const limit = 10; 
         const activeTab=req.query.tab||"dashboard";
 
+        const walletPage = parseInt(req.query.walletPage) || 1;
+        const walletLimit = 7;
+
+
         const searchFilter = query
             ? { userId, "orderedItems.productName": { $regex: query, $options: "i" } }
             : { userId };
@@ -178,6 +183,7 @@ const userProfile = async (req, res) => {
             .skip((page - 1) * limit) 
             .limit(limit); 
  console.log("orders from the userprofilepage",orders)
+
         const userAddress = await User.findById(userId);
         const address = await Address.findOne({ userId: userAddress._id });
         const wallet=userAddress.wallet
@@ -186,18 +192,41 @@ const userProfile = async (req, res) => {
         const finalAmount=req.session.finalAmount;
         const nameredeem=await User.find({_id:userAddress.redeemedUsers});
         console.log("name redeem",nameredeem)
+        const amount=orders.totalPrice;
+
+
+        let paginatedWalletHistory = [];
+        let walletHistoryPages = 1;
+        
+        if (userAddress.walletHistory && userAddress.walletHistory.length > 0) {
+          
+          walletHistoryPages = Math.ceil(userAddress.walletHistory.length / walletLimit);
+          
+          
+          const sortedWalletHistory = [...userAddress.walletHistory].sort((a, b) => b.date - a.date);
+          
+          // Get the current page of transactions
+          const startIndex = (walletPage - 1) * walletLimit;
+          const endIndex = Math.min(startIndex + walletLimit, sortedWalletHistory.length);
+          paginatedWalletHistory = sortedWalletHistory.slice(startIndex, endIndex);
+        }
+        
 
         res.render("profile", {
             userAddress: address,
             user: userAddress,
             orders,
+            
             totalPages,
             query,
             currentPage: page,
             activeTab,
-            
+            amount:finalAmount||amount,
             wallet,
-            nameredeem
+            nameredeem,
+            walletHistory: paginatedWalletHistory,
+            walletPage: walletPage,
+            walletHistoryPages: walletHistoryPages
         });
     } catch (error) {
         console.error("Error retrieving profile data:", error);
@@ -294,13 +323,13 @@ const changePasswordValid = async (req, res) => {
         const { newPass1, newPass2 } = req.body;
 
         if (!userId) {
-            return res.status(401).render("u-reset-password", {
+            return res.status(http.UNAUTHORIZED).render("u-reset-password", {
                 message: "User session expired. Please log in again.",
             });
         }
 
         if (!newPass1 || !newPass2) {
-            return res.status(400).render("u-reset-password", {
+            return res.status(http.BAD_REQUEST).render("u-reset-password", {
                 message: "Both password fields are required.",
             });
         }
@@ -343,7 +372,7 @@ const verifyChangePassOtp=async(req,res)=>{
         }
     } catch (error) {
         console.error("error in verify otp",error)
-        res.status(500).json({succuss:false,message:"an error occured please try again later"})
+        res.status(http.INTERNAL_SERVER_ERROR).json({succuss:false,message:"an error occured please try again later"})
         
     }
 };

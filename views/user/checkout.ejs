@@ -246,7 +246,7 @@
             </div>
           </div>
           <%}else{%>
-            <input type="radio">
+            <!-- <input type="radio"> -->
             <label for="cod"><i class="fas fa-money-bill-wave payment-icon"></i></label>
             <div class="payment-details">
               <p class="name">Cash on Delivery</p>
@@ -491,12 +491,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const rzp = new Razorpay(options);
     rzp.on('payment.failed', () => {
-      Swal.fire({
-        title: 'Payment Failed',
-        text: 'Payment was not completed',
-        icon: 'error',
-      });
-    });
+  Swal.fire({
+    title: 'Payment Failed',
+    text: 'Payment was not completed',
+    icon: 'error',
+    confirmButtonText: 'OK'
+  }).then(() => {
+    // Redirect after the user clicks OK
+    window.location.href = "/thankyou?paymentStatus=failed";
+  });
+});
+
     rzp.open();
   }
 
@@ -526,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function applyCouponCode(couponName) {
     console.log('Coupon selected:', couponName);
     document.getElementById('coupon-code').value = couponName;
-    applyCoupon(); // Automatically apply the coupon when selected
+    applyCoupon(); 
   }
 
   async function applyCoupon() {
@@ -579,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById("totalAmountField").value = originalTotal;
         document.getElementById("applyCouponBtn").style.display = "inline-block";
         document.getElementById("removeCouponBtn").style.display = "none";
-        document.getElementById("coupon-code").value = ""; // Clear input
+        document.getElementById("coupon-code").value = "";  
       } else {
         Swal.fire({ title: 'Error', text: data.message || 'Error removing coupon', icon: 'error' });
       }
@@ -613,6 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
           text: 'Address added successfully!',
           icon: 'success'
         }).then(() => {
+
           location.reload();
         });
       } else {

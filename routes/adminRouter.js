@@ -7,6 +7,7 @@ const productController=require("../controller/admin/productController")
 const orderController=require("../controller/admin/orderConroller")
 const couponController=require("../controller/admin/couponController")
 const salesController=require("../controller/admin/salesController")
+const walletController=require("../controller/admin/walletController")
 
 const {adminAuth,userAuth}=require("../middlewares/auth");
 const uploads=require("../util/Multer")
@@ -19,11 +20,12 @@ router.post("/login",adminController.login)
 router.get("/",adminAuth,adminController.loadDashboard)
 router.get("/logout",adminController.logout)
 
-
+// Customer managment
 router.get('/users',adminAuth,customerController.customerInfo);
 router.get('/blockCustomer',adminAuth,customerController.customerBlocked)
 router.get('/unblockCustomer',adminAuth,customerController.customerunBlocked)
 
+//category  management
 
 router.get("/category",adminAuth,categoryController.categoryInfo)
 router.post("/addCategory",adminAuth,categoryController.addCategory);
@@ -70,4 +72,13 @@ router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon)
 //sales
 // router.get("/salesReport",adminAuth,salesController.getSalesReport)
 router.get('/sales-report', adminAuth, salesController.getSalesReport);
+
+
+router.get('/wallets', walletController.getAllWallets);
+// specefic user
+router.get('/wallets/:userId', walletController.getUserWallet);
+
+router.post('/wallets/:userId/credit', walletController.creditWallet);
+
+router.post('/wallets/:userId/debit', walletController.debitWallet);
 module.exports=router;

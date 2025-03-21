@@ -99,5 +99,11 @@ router.post('/addwishlist',userAuth,wishlistController.Cartfrmwish)
 
 
 router.post('/verify-payment',userAuth,orderController.verifyPayment);
+  
+// router.get('/returnpayment',userAuth,orderController.paymentreturn)
 
+
+router.post('/retry-payment/:orderId',userAuth,orderController.paymentreturn)
+router.post('/payment-success',userAuth,orderController.successpayment)
+// router.get('/download-invoice/:orderId',userAuth,userController.download)
 module.exports=router;

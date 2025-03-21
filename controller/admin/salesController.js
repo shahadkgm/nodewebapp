@@ -1,6 +1,6 @@
 const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
-const PDFDocument = require('pdfkit');
+const PDFDocument = require('pdfkit-table');
 const fs = require('fs');
 const path = require('path');
 
@@ -11,7 +11,7 @@ const getSalesReport = async (req, res) => {
     if (startDate && endDate) {
       dateFilter.orderDate = {
         $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $lte: new Date(endDate),
       };
     }
 
@@ -21,11 +21,11 @@ const getSalesReport = async (req, res) => {
       {
         $group: {
           _id: null,
-          totalRevenue: { $sum: '$finalAmount' },
-          totalOrders: { $sum: 1 }
-        }
-      }
-    ]);
+          totalRevenue: { $sum: { $ifNull: ['$finalAmount', 0] } },
+          totalOrders: { $sum: 1 },
+        },
+      },
+    ]).then(result => result[0] || { totalRevenue: 0, totalOrders: 0 });
 
     // Sales by Date
     const salesByDate = await Order.aggregate([
@@ -33,11 +33,11 @@ const getSalesReport = async (req, res) => {
       {
         $group: {
           _id: { $dateToString: { format: '%Y-%m-%d', date: '$orderDate' } },
-          dailyRevenue: { $sum: '$finalAmount' },
-          orderCount: { $sum: 1 }
-        }
+          dailyRevenue: { $sum: { $ifNull: ['$finalAmount', 0] } },
+          orderCount: { $sum: 1 },
+        },
       },
-      { $sort: { '_id': 1 } }
+      { $sort: { '_id': 1 } },
     ]);
 
     // Top Products with Category Filter
@@ -48,8 +48,8 @@ const getSalesReport = async (req, res) => {
         $group: {
           _id: '$orderedItems.product',
           totalQuantity: { $sum: '$orderedItems.quantity' },
-          totalRevenue: { $sum: { $multiply: ['$orderedItems.quantity', '$orderedItems.price'] } }
-        }
+          totalRevenue: { $sum: { $multiply: ['$orderedItems.quantity', '$orderedItems.price'] } },
+        },
       },
       { $sort: { totalRevenue: -1 } },
       { $limit: 10 },
@@ -58,105 +58,123 @@ const getSalesReport = async (req, res) => {
           from: 'products',
           localField: '_id',
           foreignField: '_id',
-          as: 'productDetails'
-        }
+          as: 'productDetails',
+        },
       },
-      { $unwind: '$productDetails' },
-      // Lookup to join with Category collection
+      { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
-          from: 'categories', // Assuming your Category collection is named 'categories'
+          from: 'categories',
           localField: 'productDetails.category',
           foreignField: '_id',
-          as: 'categoryDetails'
-        }
+          as: 'categoryDetails',
+        },
       },
-      { $unwind: '$categoryDetails' },
-
+      { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
       ...(category ? [{ $match: { 'categoryDetails.name': category } }] : []),
       {
         $project: {
-          productName: '$productDetails.productName',
+          productName: { $ifNull: ['$productDetails.productName', 'Unknown Product'] },
           totalQuantity: 1,
           totalRevenue: 1,
-          category: '$categoryDetails.name' // Use category name in output
-        }
-      }
+          category: { $ifNull: ['$categoryDetails.name', 'N/A'] },
+        },
+      },
     ]);
 
-    // Fetch distinct category names for the frontend dropdown
+    // Fetch Categories
     const categories = await Product.aggregate([
       { $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'cat' } },
       { $unwind: '$cat' },
       { $group: { _id: '$cat.name' } },
       { $sort: { _id: 1 } },
-      { $project: { name: '$_id', _id: 0 } }
+      { $project: { name: '$_id', _id: 0 } },
     ]).then(results => results.map(r => r.name));
 
     if (format === 'pdf') {
       const doc = new PDFDocument({ margin: 50 });
-      
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename="sales-report.pdf"');
-      
+
       doc.pipe(res);
-    
+
+      // Header
       doc.fontSize(20).text('Sales Report', { align: 'center' });
       doc.moveDown();
-    
-      if (startDate && endDate) {
-        doc.fontSize(12).text(`Date Range: ${startDate} to ${endDate}`, { align: 'center' });
-      } else {
-        doc.fontSize(12).text('Date Range: All Time', { align: 'center' });
-      }
-      if (category) {
-        doc.fontSize(12).text(`Category: ${category}`, { align: 'center' });
-      }
+      doc.fontSize(12).text(
+        startDate && endDate ? `Date Range: ${startDate} to ${endDate}` : 'Date Range: All Time',
+        { align: 'center' }
+      );
+      if (category) doc.fontSize(12).text(`Category: ${category}`, { align: 'center' });
       doc.moveDown();
-    
+
+      // Total Sales
       doc.fontSize(14).text('Total Sales', { underline: true });
-      doc.fontSize(12).text(`Total Revenue: ₹${(totalSales[0]?.totalRevenue || 0).toLocaleString('en-IN')}`);
-      doc.fontSize(12).text(`Total Orders: ${totalSales[0]?.totalOrders || 0}`);
-      doc.moveDown();
-    
+      doc.fontSize(12).text(`Total Revenue: ₹${totalSales.totalRevenue.toLocaleString('en-IN')}`);
+      doc.fontSize(12).text(`Total Orders: ${totalSales.totalOrders}`);
+      doc.moveDown(2);
+
+      // Sales by Date Table
       doc.fontSize(14).text('Sales by Date', { underline: true });
       doc.moveDown(0.5);
-      salesByDate.forEach(day => {
-        doc.fontSize(10).text(`Date: ${day._id}`);
-        doc.fontSize(10).text(`Revenue: ₹${day.dailyRevenue.toLocaleString('en-IN')}`);
-        doc.fontSize(10).text(`Orders: ${day.orderCount}`);
-        doc.moveDown(0.5);
+      const salesByDateTable = {
+        headers: ['Date', 'Revenue (₹)', 'Orders'],
+        rows: salesByDate.map(day => [
+          day._id || 'N/A',
+          day.dailyRevenue.toLocaleString('en-IN'),
+          day.orderCount.toString(),
+        ]),
+      };
+      await doc.table(salesByDateTable, {
+        columnsSize: [150, 150, 100],
+        header: { fontSize: 12, fillColor: '#D3D3D3', align: 'center' },
+        cell: { fontSize: 10, align: 'center', padding: 5 },
+        width: 500,
       });
-      doc.moveDown();
-    
+
+      doc.moveDown(2);
+
+      // Top Products Table
       doc.fontSize(14).text('Top Products', { underline: true });
       doc.moveDown(0.5);
-      topProducts.forEach(product => {
-        doc.fontSize(10).text(`Product: ${product.productName}`);
-        doc.fontSize(10).text(`Quantity Sold: ${product.totalQuantity}`);
-        doc.fontSize(10).text(`Revenue: ₹${product.totalRevenue.toLocaleString('en-IN')}`);
-        if (category) {
-          doc.fontSize(10).text(`Category: ${product.category}`);
-        }
-        doc.moveDown(0.5);
+      const topProductsTable = {
+        headers: category ? ['Product Name', 'Qty Sold', 'Revenue (₹)', 'Category'] : ['Product Name', 'Qty Sold', 'Revenue (₹)'],
+        rows: topProducts.map(product => [
+          product.productName,
+          product.totalQuantity.toString(),
+          product.totalRevenue.toLocaleString('en-IN'),
+          ...(category ? [product.category] : []),
+        ]),
+      };
+      await doc.table(topProductsTable, {
+        columnsSize: category ? [150, 100, 100, 100] : [200, 100, 100],
+        header: { fontSize: 12, fillColor: '#D3D3D3', align: 'center' },
+        cell: { fontSize: 10, align: 'center', padding: 5 },
+        width: 500,
       });
-    
+
+      doc.moveDown(2);
+      doc.fontSize(10).text('WODDIE', { align: 'center' });
       doc.end();
     } else {
       res.render('salesReport', {
-        totalSales: totalSales[0] || { totalRevenue: 0, totalOrders: 0 },
+        totalSales,
         salesByDate,
         topProducts,
         startDate,
         endDate,
         category,
-        categories, // Pass categories for dropdown
-        activeTab: 'sales-report'
+        categories,
+        activeTab: 'sales-report',
       });
     }
   } catch (error) {
     console.error('Error generating sales report:', error);
-    res.redirect('/admin/pageerror');
+    if (req.query.format === 'pdf') {
+      res.status(500).json({ success: false, message: 'Failed to generate PDF', error: error.message });
+    } else {
+      res.redirect('/admin/pageerror');
+    }
   }
 };
 
