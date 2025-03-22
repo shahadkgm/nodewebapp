@@ -61,7 +61,7 @@ app.use('/admin', adminRouter);
 
 // Catch-all handler for 404 errors (Route Not Found)
 app.use((req, res, next) => {
-  res.status(404).json({ message: 'Route not found' });
+  res.render('error');
 });
 
 app.use((err, req, res, next) => {
