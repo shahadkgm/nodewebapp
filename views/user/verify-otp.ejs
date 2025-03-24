@@ -120,17 +120,17 @@
             <div class="heading_s1">
                 <h3>Email Verification Page</h3>
             </div>
-            <form id="otpForm" onsubmit="return validateOtpForm(event)">
+            <form id="otpForm">
                 <div class="form-group">
                     <label for="otp">Enter OTP:</label>
                     <input type="text" id="otp" name="otp" class="form-control" pattern="\d*" required />
                 </div>
-                <button type="submit" class="btn btn-primary">Verify Email</button>
+                <button type="submit" id="verifyBtn" class="btn btn-primary">Verify Email</button>
                 <div class="form-group text-center">
                     <div id="otpTimer" class="otp-timer">
                         <span id="timerValue">60</span>
                     </div>
-                    <button type="button" onclick="resendOtp()" class="btn btn-secondary">Resend OTP</button>
+                    <button type="button" id="resendBtn" class="btn btn-secondary" disabled>Resend OTP</button>
                 </div>
                 <% if (locals.message && message.length > 0) { %>
                 <div class="alert alert-danger"><%= message %></div>
@@ -146,108 +146,115 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 <script>
-    // Focus on OTP input
-    document.getElementById("otp").focus();
+    document.addEventListener('DOMContentLoaded', function () {
+        const otpInput = document.getElementById('otp');
+        const timerValue = document.getElementById('timerValue');
+        const resendBtn = document.getElementById('resendBtn');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let timer = 60;
+        let timerInterval;
 
-    let timer = 60;
-    let timerInterval;
-
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            timer--;
-            document.getElementById("timerValue").textContent = timer;
-            if (timer <= 0) {
-                clearInterval(timerInterval);
-                document.getElementById("timerValue").classList.add("expired");
-                document.getElementById("timerValue").textContent = "Expired";
-                document.getElementById("otp").disabled = true;
-            }
-        }, 1000);
-    }
-    startTimer();
-
-    async function validateOtpForm(event) {
-        event.preventDefault();
-        console.log("Validate OTP function called");
-
-        const otpInput = document.getElementById("otp").value;
-
-        try {
-            const response = await fetch('/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ otp: otpInput })
-            });
-
-            const data = await response.json();
-            console.log("Server response:", data);
-
-            if (data.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "OTP Verified Successfully",
-                    showConfirmButton: false,
-                    timer: 1500,
-                }).then(() => {
-                    window.location.href = data.redirectUrl;
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: data.message || "Invalid OTP, please try again",
-                });
-            }
-        } catch (error) {
-            console.error("Error verifying OTP:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "An error occurred while verifying OTP",
-            });
+        // Start the timer and disable resend button
+        function startTimer() {
+            resendBtn.disabled = true; // Disable resend button during countdown
+            timerInterval = setInterval(() => {
+                timer--;
+                timerValue.textContent = timer;
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    timerValue.classList.add('expired');
+                    timerValue.textContent = 'Expired';
+                    otpInput.disabled = true;
+                    verifyBtn.disabled = true;
+                    resendBtn.disabled = false; // Enable resend button when timer expires
+                }
+            }, 1000);
         }
-
-        return false; 
-    }
-
-    async function resendOtp() {
-        clearInterval(timerInterval);
-        console.log("Resend OTP called");
-        timer = 60;
-        document.getElementById("otp").disabled = false;
-        document.getElementById("timerValue").classList.remove("expired");
         startTimer();
 
-        try {
-            const response = await fetch('/resend-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
+        // Focus on OTP input when page loads
+        otpInput.focus();
 
-            const data = await response.json();
-            if (data.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "OTP Resent Successfully",
-                    showConfirmButton: false,
-                    timer: 1500,
+        // Handle form submission
+        document.getElementById('otpForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const otp = otpInput.value;
+
+            try {
+                const response = await fetch('/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otp })
                 });
-            } else {
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Verified Successfully',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = data.redirectUrl;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Invalid OTP, please try again'
+                    });
+                }
+            } catch (error) {
+                console.error('Error verifying OTP:', error);
                 Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: data.message || "An error occurred while resending OTP",
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while verifying OTP'
                 });
             }
-        } catch (error) {
-            console.error("Error resending OTP:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "An error occurred while resending OTP",
-            });
-        }
-    }
+        });
+
+        // Handle OTP resend
+        resendBtn.addEventListener('click', async function () {
+            clearInterval(timerInterval);
+            timer = 60;
+            otpInput.disabled = false;
+            verifyBtn.disabled = false;
+            timerValue.classList.remove('expired');
+            timerValue.textContent = timer;
+            startTimer(); // Restart the timer and disable resend button again
+
+            try {
+                const response = await fetch('/resend-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Resent Successfully',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'An error occurred while resending OTP'
+                    });
+                }
+            } catch (error) {
+                console.error('Error resending OTP:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while resending OTP'
+                });
+            }
+        });
+    });
 </script>
 
 <%- include('../partials/user/footer') %>

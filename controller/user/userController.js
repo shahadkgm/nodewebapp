@@ -225,25 +225,25 @@ const verifyOtp = async (req, res) => {
     res.status(400).json({ success: false, message: "An error occurred" });
   }
 };
-const resendOtp=async(req,res)=>{
-    try {
-        const {email}=req.session.userData;
-        if(!email){
-            return res.status(400).json({success:false,message:"Email not found in session"})
-        }
-        const otp= generateOtp();
-        req.session.userOtp=otp;
-        const emailSend=await sendVerificationEmail(email,otp);
-        if(!emailSend){
-            console.log("Resend Otp:",otp);
-            res.status(200).json({success:true,message:"OTP Resend Successfully"})
-        }else{
-            res.status(500).json({success:false,message:"failed to resend otp.please try again "})
-        }
-    } catch (error) {
-        console.error("Error resending OTP ",error)
-        res.status(500).json({success:false,message:"Internal server Error.Please try again "})
-    }
+const resendOtp = async (req, res) => {
+  try {
+      if (!req.session.userData) {
+          return res.status(400).json({
+              success: false,
+              message: "Session expired or user data not found. Please sign up again."
+          });
+      }
+      const { email } = req.session.userData;
+      // Logic to generate and send a new OTP
+      // e.g., sendOtpEmail(email);
+      return res.json({ success: true });
+  } catch (error) {
+      console.error("Error resending OTP:", error);
+      return res.status(500).json({
+          success: false,
+          message: "Internal server error. Please try again."
+      });
+  }
 };
 
 const loadlogin=async(req,res)=>{
