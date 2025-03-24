@@ -56,7 +56,8 @@ const userSchema = new Schema({
     },
     referralCode: {
         type: String,
-        unique:true
+        unique:true,
+        sparse: true
 
     },
     redeemed: {
@@ -83,7 +84,7 @@ const userSchema = new Schema({
         description: { type: String, required: true },
         date: { type: Date, default: Date.now }
       }],
-      referralToken: { type: String, unique: true }
+      referralToken: { type: String, unique: true ,sparse: true}
 
 });
 
