@@ -36,7 +36,7 @@ const addProducts = async (req, res) => {
 
     // Check if the product already exists
     const productExists = await Product.findOne({
-      productName: products.productName,
+      productName: {$regex:new RegExp(`${products.productName}$`,'i')},
     });
 
     if (productExists) {
@@ -306,9 +306,11 @@ const blockProduct = async (req, res) => {
         }
 
         const data = req.body;
+
+        // Check if another product with the same name exists (case-insensitive), excluding the current product
         const existingProduct = await Product.findOne({
-            productName: data.productName,
-            _id: { $ne: id }
+            productName: { $regex: new RegExp(`^${data.productName}$`, 'i') },
+            _id: { $ne: id } // Exclude the current product from the check
         });
 
         if (existingProduct) {
@@ -369,6 +371,8 @@ const blockProduct = async (req, res) => {
         });
     }
 };
+
+
 
 const deleteSingleImage = async (req, res) => {
     console.log("deletsngle")
