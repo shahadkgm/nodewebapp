@@ -31,36 +31,55 @@ const categoryInfo=async(req,res)=>{
 const addCategory = async (req, res) => {
   const { name, description } = req.body;
   console.log("add category");
-  
+
   try {
-      const existingCategory = await Category.findOne({ name });
-      if (existingCategory) {
-          return res.status(400).json({ 
-              success: false, 
-              message: "Category already exists " 
-          });
-      }
-
-      const newCategory = new Category({
-          name,
-          description,
+    // Check if name is provided and starts with a capital letter
+    if (!name || typeof name !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: "Category name is required and must be a string",
       });
-      
-      console.log(newCategory);
-      await newCategory.save();
-      console.log(newCategory);
+    }
 
-      return res.status(200).json({ 
-          success: true, 
-          message: "Category added successfully" 
+    // Check if the first letter is capitalized
+    const firstLetter = name.trim().charAt(0);
+    if (firstLetter !== firstLetter.toUpperCase()) {
+      return res.status(400).json({
+        success: false,
+        message: "Category name must start with a capital letter",
       });
+    }
+
+    // Check for existing category (case-insensitive comparison)
+    
+    const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, "i") } });
+    if (existingCategory) {
+      return res.status(400).json({
+        success: false,
+        message: "Category already exists",
+      });
+    }
+
+    const newCategory = new Category({
+      name: name.trim(), 
+      description,
+    });
+
+    console.log("New category to be saved:", newCategory);
+    await newCategory.save();
+    console.log("Saved category:", newCategory);
+
+    return res.status(200).json({
+      success: true,
+      message: "Category added successfully",
+    });
   } catch (error) {
-      console.error(error);
-      return res.status(500).json({ 
-          success: false, 
-          message: "Internal Server Error",
-          error: error.message 
-      });
+    console.error("Error adding category:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 const addCategoryOffer = async (req, res) => {

@@ -89,7 +89,6 @@
   position: relative; /* Add this for proper positioning context */
 }
 
-/* Sidebar fixes - KEY CHANGES HERE */
 .sidebar {
   padding: 24px;
   background-color: white;
@@ -251,10 +250,16 @@
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+  font-size: 20px;
 }
 
 .wishlist-btn:hover {
   transform: scale(1.1);
+}
+
+.wishlist-btn.wishlisted {
+  color: green;
+  background-color: rgba(209, 203, 203, 0.916);
 }
 
 .price-info {
@@ -484,9 +489,13 @@
       <% if (products.length > 0) { %>
         <% for(let i = 0; i < products.length; i++) { %>
           <div class="product-card">
-            <span class="wishlist-btn" onclick="toggleWishlist('<%=products[i]._id %>')">
-              ❤️
-            </span>            <a href="/product-details/<%= products[i]._id %>">
+            <span 
+  class="wishlist-btn" 
+  data-product-id="<%=products[i]._id %>" 
+  onclick="toggleWishlist('<%=products[i]._id %>', this)"
+>
+  ❤️
+</span>           <a href="/product-details/<%= products[i]._id %>">
               <img src="/uploads/product-images/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
               <h4><%= products[i].productName %></h4>
               <p>
@@ -632,41 +641,61 @@
     }
 });
 
-  async function toggleWishlist(productId) {
-    try {
-      const response = await fetch("/toggle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId }),
-      });
+async function toggleWishlist(productId, element) {
+  try {
+    const response = await fetch("/toggle", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (data.success) {
+    if (data.success) {
+      if (element.classList.contains('wishlisted')) {
+        element.classList.remove('wishlisted');
+        element.innerHTML = '❤️'; 
+        
         Swal.fire({
-          icon: "success",
-          title: data.message,
+          icon: "info",
+          title: "Removed from Wishlist",
           showConfirmButton: false,
           timer: 1500
         });
-
-        // Optionally, change the button appearance
       } else {
+        // Not wishlisted, so add styling
+        element.classList.add('wishlisted');
+        element.innerHTML = '❤'; // Filled heart
+        
         Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: data.message,
+          icon: "success",
+          title: "Added to Wishlist",
+          showConfirmButton: false,
+          timer: 1500
         });
       }
-    } catch (error) {
-      console.error("Error:", error);
+    } else {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Something went wrong. Please try again.",
+        title: "Oops...",
+        text: data.message,
       });
     }
+  } catch (error) {
+    console.error("Error:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Something went wrong. Please try again.",
+    });
   }
+}
+
+// Update the wishlist button HTML
+const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+wishlistButtons.forEach(button => {
+  button.setAttribute('onclick', `toggleWishlist('${button.getAttribute('data-product-id')}', this)`);
+});
 </script>
 
 

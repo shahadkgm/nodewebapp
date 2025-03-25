@@ -298,35 +298,37 @@ const logout=async(req,res)=>{
         
     }
 };
-
 const loadShoppingPage = async (req, res) => {
   try {
-    delete req.session.query
     const userId = req.session.user;
-    // Store query in session but don't delete existing query
-    const query = req.query.query || req.session.query || ""; 
-    req.session.query = query;
-    
-    // Store category in session and retrieve from query or session
+
+    // If no query or category in URL, reset session filters
+    if (!req.query.query && !req.query.category) {
+      delete req.session.query;
+      delete req.session.categoryId;
+    }
+
+    // Use query params or session, defaulting to empty strings
+    const query = req.query.query || req.session.query || "";
     const categoryId = req.query.category || req.session.categoryId || "";
-    req.session.categoryId = categoryId;
-    
+
+     if (req.query.query) req.session.query = req.query.query;
+    if (req.query.category) req.session.categoryId = req.query.category;
+
     console.log("Query from loadShoppingPage:", query);
     console.log("Category from loadShoppingPage:", categoryId);
 
-    const sort = req.query.sort || "priceHighLow"; 
+    const sort = req.query.sort || "priceHighLow";
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
 
     const category = await Category.find({ isListed: true }).lean();
 
-    // Build search filter with both search query and category
+    // Build search filter
     const searchFilter = { isBlocked: false };
-    
     if (query) {
       searchFilter.productName = { $regex: query, $options: "i" };
     }
-    
     if (categoryId) {
       searchFilter.category = categoryId;
     }
@@ -390,17 +392,13 @@ const loadShoppingPage = async (req, res) => {
 
 
 
- // Fix in the filterProduct function
-// Fix in the filterProduct function
+
 const filterProduct = async (req, res) => {
   try {
       const user = req.session.user;
-      // Get categoryId from query params
       const categoryId = req.query.category;
-      // Store it in session
       req.session.categoryId = categoryId;
       
-      // Fix: Get query from session or query params
       const query = req.query.query || req.session.query || "";
       req.session.query = query;
       console.log("haihallo filterProduct query", query);
@@ -415,7 +413,6 @@ const filterProduct = async (req, res) => {
           quantity: { $gt: 0 }
       };
 
-      // Add search query filter if a query exists
       if (query) {
           productQuery.productName = { $regex: query, $options: "i" };
       }
