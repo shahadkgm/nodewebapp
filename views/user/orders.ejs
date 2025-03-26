@@ -1,19 +1,177 @@
 <%- include("../../views/partials/user/header") %>
 
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+  /* General Styling */
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+  }
+
+  .container.my-5 {
+    padding: 0 15px;
+  }
+
+  h2.text-center {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+
+  .card.shadow-sm {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .card-header.bg-success {
+    padding: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .card-header span {
+    font-size: 1rem;
+  }
+
+  .btn-group .btn-sm {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .table {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .table th, .table td {
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  .table img {
+    max-width: 80px;
+    max-height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  .mt-4 h5 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    h2.text-center {
+      font-size: 1.5rem;
+    }
+
+    .card-header.bg-success {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-group {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-group .btn-sm {
+      width: 50%;
+      font-size: 0.8rem;
+    }
+
+    .table {
+      font-size: 0.8rem;
+    }
+
+    .table img {
+      max-width: 60px;
+      max-height: 60px;
+    }
+
+    .table thead {
+      display: none; /* Hide table headers on small screens */
+    }
+
+    .table tbody tr {
+      display: block;
+      margin-bottom: 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 0.5rem;
+    }
+
+    .table tbody td {
+      display: block;
+      text-align: left;
+      padding: 0.5rem;
+      border: none;
+    }
+
+    .table tbody td:before {
+      content: attr(data-label);
+      font-weight: bold;
+      display: inline-block;
+      width: 40%;
+      margin-right: 10px;
+    }
+
+    .mt-4 h5 {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    h2.text-center {
+      font-size: 1.25rem;
+    }
+
+    .card-header span {
+      font-size: 0.9rem;
+    }
+
+    .btn-group .btn-sm {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.8rem;
+    }
+
+    .table img {
+      max-width: 50px;
+      max-height: 50px;
+    }
+
+    .table tbody td {
+      font-size: 0.75rem;
+    }
+
+    .mt-4 h5 {
+      font-size: 0.85rem;
+    }
+  }
+</style>
 
 <div class="container my-5">
   <h2 class="text-center mb-4">Your Last Order</h2>
   <div class="row">
     <% orders.forEach(order => { %>
-      <div class="col-md-12 mb-4">
+      <div class="col-12 mb-4">
         <div class="card shadow-sm rounded-3" data-order-id="<%= order.orderId %>">
           <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
             <span><i class="fas fa-receipt"></i> <strong>Order ID:</strong> <%= order.orderId %></span>
             <div class="btn-group">
-              <button onclick="downloadOrderJSON('<%= order.orderId %>')" class="btn btn-sm btn-light me-2">
+              <!-- <button onclick="downloadOrderJSON('<%= order.orderId %>')" class="btn btn-sm btn-light me-2">
                 <i class="fas fa-file-code"></i> JSON
-              </button>
+              </button> -->
               <button onclick="downloadOrderPDF('<%= order.orderId %>')" class="btn btn-sm btn-light">
                 <i class="fas fa-file-pdf"></i> PDF
               </button>
@@ -37,14 +195,14 @@
               <tbody>
                 <% order.orderedItems.forEach(item => { %>
                   <tr>
-                    <td>
-                      <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="max-width: 80px; max-height: 80px;" />
+                    <td data-label="Image">
+                      <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" />
                     </td>
-                    <td><strong><%= item.product.productName %></strong></td>
-                    <td><%= item.product.description %></td>
-                    <td>₹<%= item.price %></td>
-                    <td><%= item.quantity %></td>
-                    <td>₹<%= item.price * item.quantity %></td>
+                    <td data-label="Product Name"><strong><%= item.product.productName %></strong></td>
+                    <td data-label="Description"><%= item.product.description %></td>
+                    <td data-label="Price">₹<%= item.price %></td>
+                    <td data-label="Quantity"><%= item.quantity %></td>
+                    <td data-label="Total">₹<%= item.price * item.quantity %></td>
                   </tr>
                 <% }) %>
               </tbody>
@@ -53,11 +211,11 @@
             <div class="mt-4">
               <h5 data-payment-method><strong>Payment Method:</strong> <%= order.paymentMethod %></h5>
               <h5 data-discount><strong>Discount:</strong> ₹<%= order.discount %></h5>
-              <%if(order.finalAmount){%>
+              <% if(order.finalAmount) { %>
                 <h5 data-total-price><strong>Total Price:</strong> ₹<%= order.finalAmount %></h5>
-              <%}else{%>
+              <% } else { %>
                 <h5 data-total-price><strong>Total Price:</strong> ₹<%= order.totalPrice %></h5>
-              <% }%>
+              <% } %>
             </div>
           </div>
         </div>
@@ -68,9 +226,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/js/all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- jsPDF libraries -->
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
@@ -92,79 +247,9 @@
     });
   }
 
-  function downloadOrderJSON(orderId) {
-    // Find the specific order section
-    const orderSection = document.querySelector(`div[data-order-id="${orderId}"]`);
-    
-    if (!orderSection) {
-      console.error("Order section not found:", orderId);
-      Swal.fire({
-        title: "Error",
-        text: "Could not find order details to download.",
-        icon: "error"
-      });
-      return;
-    }
-    
-    // Get payment info text content
-    const paymentMethodText = orderSection.querySelector('[data-payment-method]').textContent.split(':')[1].trim();
-    const discountText = orderSection.querySelector('[data-discount]').textContent.split(':')[1].trim();
-    const totalPriceText = orderSection.querySelector('[data-total-price]').textContent.split(':')[1].trim();
-    
-    // Create a new object with formatted order data
-    const orderData = {
-      orderId: orderId,
-      date: new Date().toLocaleDateString(),
-      items: [],
-      paymentMethod: paymentMethodText,
-      discount: discountText.replace('₹', ''),
-      totalPrice: totalPriceText.replace('₹', '')
-    };
-    
-    // Get all item rows
-    const itemRows = orderSection.querySelectorAll('tbody tr');
-    itemRows.forEach(row => {
-      const columns = row.querySelectorAll('td');
-      orderData.items.push({
-        productName: columns[1].textContent,
-        description: columns[2].textContent,
-        price: columns[3].textContent.replace('₹', ''),
-        quantity: columns[4].textContent,
-        total: columns[5].textContent.replace('₹', '')
-      });
-    });
-    
-    // Convert to JSON
-    const jsonData = JSON.stringify(orderData, null, 2);
-    
-    // Create file and trigger download
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Order-${orderId}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    // Show success message
-    Swal.fire({
-      title: "Download Started",
-      text: "Your order details have been downloaded as JSON.",
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false
-    });
-  }
-  
   function downloadOrderPDF(orderId) {
-    // Find the specific order section
     const orderSection = document.querySelector(`div[data-order-id="${orderId}"]`);
-    
     if (!orderSection) {
-      console.error("Order section not found:", orderId);
       Swal.fire({
         title: "Error",
         text: "Could not find order details to download.",
@@ -172,51 +257,44 @@
       });
       return;
     }
-    
-    // Get payment info text content
+
     const paymentMethodText = orderSection.querySelector('[data-payment-method]').textContent.split(':')[1].trim();
     const discountText = orderSection.querySelector('[data-discount]').textContent.split(':')[1].trim();
     const totalPriceText = orderSection.querySelector('[data-total-price]').textContent.split(':')[1].trim();
-    
-    // Create PDF using jsPDF
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
-    // Add title and header
+
     doc.setFontSize(18);
-    doc.setTextColor(0, 128, 0); // Green title
+    doc.setTextColor(0, 128, 0);
     doc.text(`Order Details - #${orderId}`, 14, 22);
-    
-    // Add date and order info
+
     doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0); // Black text
+    doc.setTextColor(0, 0, 0);
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 32);
     doc.text(`Status: ${orderSection.querySelector('.card-header').textContent.split('Status:')[1].trim()}`, 14, 38);
-    
-    // Get items data for table
+
     const itemsData = [];
     const itemRows = orderSection.querySelectorAll('tbody tr');
-    
     itemRows.forEach(row => {
       const columns = row.querySelectorAll('td');
       itemsData.push([
-        columns[1].textContent, // Product Name
-        columns[2].textContent.substring(0, 30) + (columns[2].textContent.length > 30 ? '...' : ''), // Description (truncated)
-        columns[3].textContent, // Price
-        columns[4].textContent, // Quantity
-        columns[5].textContent  // Total
+        columns[1].textContent,
+        columns[2].textContent.substring(0, 30) + (columns[2].textContent.length > 30 ? '...' : ''),
+        columns[3].textContent,
+        columns[4].textContent,
+        columns[5].textContent
       ]);
     });
-    
-    // Add items table
+
     doc.autoTable({
       startY: 45,
       head: [['Product', 'Description', 'Price', 'Quantity', 'Total']],
       body: itemsData,
       theme: 'grid',
       headStyles: {
-        fillColor: [0, 128, 0], // Green headers (RGB)
-        textColor: [255, 255, 255], // White text
+        fillColor: [0, 128, 0],
+        textColor: [255, 255, 255],
         fontStyle: 'bold'
       },
       styles: {
@@ -224,32 +302,28 @@
         cellWidth: 'wrap'
       },
       columnStyles: {
-        0: { cellWidth: 50 }, // Product Name
-        1: { cellWidth: 60 }, // Description
-        2: { cellWidth: 25 }, // Price
-        3: { cellWidth: 25 }, // Quantity
-        4: { cellWidth: 30 }  // Total
+        0: { cellWidth: 50 },
+        1: { cellWidth: 60 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 30 }
       }
     });
-    
-    // Add summary information
+
     const finalY = doc.lastAutoTable.finalY + 10;
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     doc.text('Order Summary:', 14, finalY);
     doc.setFont(undefined, 'normal');
-    
     doc.text(`Payment Method: ${paymentMethodText}`, 14, finalY + 8);
     doc.text(`Discount: ${discountText}`, 14, finalY + 16);
     doc.setFont(undefined, 'bold');
     doc.text(`Total Price: ${totalPriceText}`, 14, finalY + 24);
-    
-    // Add footer
+
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
       doc.text(
         `Page ${i} of ${pageCount} - Generated on ${new Date().toLocaleString()}`,
         doc.internal.pageSize.width / 2,
@@ -257,11 +331,8 @@
         { align: 'center' }
       );
     }
-    
-    // Save the PDF
+
     doc.save(`Order-${orderId}.pdf`);
-    
-    // Show success message
     Swal.fire({
       title: "PDF Generated",
       text: "Your order details have been downloaded as PDF.",
@@ -270,4 +341,6 @@
       showConfirmButton: false
     });
   }
-</script> 
+</script>
+
+<%- include("../../views/partials/user/footer") %>
