@@ -1,7 +1,6 @@
 const passport=require("passport");
 const GoogleStrategy=require("passport-google-oauth20").Strategy;
 const User=require("../models/userschema");
-const { callbackPromise } = require("nodemailer/lib/shared");
 const env=require("dotenv").config();
 
 

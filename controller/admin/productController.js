@@ -6,11 +6,7 @@ const path = require("path");
 const sharp = require("sharp");
 const product = require("../../models/productSchema");
 const mongoose=require("mongoose")
-// const { render } = require("ejs");
-// const { createHash } = require("crypto");
-// const { log } = require("console");
-const { status } = require("init");
-const { json } = require("stream/consumers");
+
 
 
 

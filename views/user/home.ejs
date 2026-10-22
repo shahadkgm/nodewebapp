@@ -7,25 +7,171 @@
 */ -->
 <%- include('../../views/partials/user/header') %>
 
-
+<style>
+    :root {
+      --primary-color: #2b2d42;
+      --secondary-color: #f9a826;
+      --dark-color: #2f2f2f;
+      --light-color: #f8f9fa;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--dark-color);
+    }
+    
+    .hero {
+      padding: 100px 0;
+      background-color: var(--primary-color);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.05);
+      top: -100px;
+      right: -100px;
+    }
+    
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.05);
+      bottom: -50px;
+      left: -50px;
+    }
+    
+    .intro-excerpt h1 {
+      font-weight: 700;
+      font-size: 3.5rem;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    
+    .intro-excerpt h1 span {
+      display: block;
+      color: var(--secondary-color);
+    }
+    
+    .intro-excerpt p {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      opacity: 0.9;
+    }
+    
+    .btn {
+      padding: 12px 30px;
+      border-radius: 30px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--dark-color);
+    }
+    
+    .btn-secondary:hover {
+      background-color: #e5941f;
+      border-color: #e5941f;
+      color: var(--dark-color);
+    }
+    
+    .btn-white-outline {
+      background-color: transparent;
+      border: 2px solid white;
+      color: white;
+    }
+    
+    .btn-white-outline:hover {
+      background-color: white;
+      color: var(--primary-color);
+    }
+    
+    .hero-img-wrap {
+      position: relative;
+    }
+    
+    .hero-img-wrap img {
+      position: relative;
+      z-index: 2;
+      max-width: 100%;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+    }
+    
+    .hero-img-wrap::before {
+      content: "";
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      background-color: var(--secondary-color);
+      opacity: 0.2;
+      border-radius: 50%;
+      bottom: 0;
+      right: 10%;
+      z-index: 1;
+    }
+    
+    .hero-img-wrap::after {
+      content: "";
+      position: absolute;
+      width: 40%;
+      height: 40%;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      top: 20%;
+      left: 10%;
+      z-index: 1;
+    }
+    
+    @media (max-width: 991px) {
+      .hero {
+        padding: 60px 0;
+      }
+      
+      .intro-excerpt h1 {
+        font-size: 2.5rem;
+      }
+      
+      .hero-img-wrap {
+        margin-top: 40px;
+      }
+    }
+  </style>
 		<!-- Start Hero Section -->
+		<body>
 			<div class="hero">
-				<div class="container">
-					<div class="row justify-content-between">
-						<div class="col-lg-5">
-							<div class="intro-excerpt">
-								<h1>Modern Interior <span clsas="d-block">Design Studio</span></h1>
-								<p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
-								<p><a href="/shop" class="btn btn-secondary me-2">Shop Now</a><a href="#" class="btn btn-white-outline">Explore</a></p>
-							</div>
-						</div>
-						<div class="col-lg-7">
-							<div class="hero-img-wrap">
-								<img src="images/couch.png" class="img-fluid">
-							</div>
-						</div>
+			  <div class="container">
+				<div class="row justify-content-between align-items-center">
+				  <div class="col-lg-5">
+					<div class="intro-excerpt" data-aos="fade-up">
+					  <h1>Modern Interior <span>Design Studio</span></h1>
+					  <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
+					  <p>
+						<a href="/shop" class="btn btn-secondary me-2">Shop Now</a>
+						<a href="#" class="btn btn-white-outline">Explore</a>
+					  </p>
 					</div>
+				  </div>
+				  <div class="col-lg-7">
+					<div class="hero-img-wrap">
+					  <img src="/images/3cce1048684924a50a4c88d359f06eec.jpg" alt="Modern Couch" class="img-fluid">
+					</div>
+				  </div>
 				</div>
+			  </div>
 			</div>
 		<!-- End Hero Section -->
 

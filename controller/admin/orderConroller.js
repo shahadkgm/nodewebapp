@@ -1,4 +1,3 @@
-const { query } = require("express");
 const User=require("../../models/userschema");
 const Order=require("../../models/orderSchema");
 
