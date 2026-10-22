@@ -121,8 +121,8 @@ const otp=generateOtp();
 const emailsent=await sendVerificationEmail(email,otp);
 
 if(!emailsent){
-    console.log("failed to send email")
-    return res.json("email-error")
+    console.log("failed to send email");
+    return res.render("signup", { message: "Failed to send verification email. Please try again." });
 }else{
     console.log("email send ")
 }
