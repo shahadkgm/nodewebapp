@@ -1,6 +1,6 @@
  const User=require("../../models/userschema.js");
 const nodemailer=require("nodemailer")
-const bcrypt=require("bcrypt");
+const bcrypt=require("bcryptjs");
 const env=require("dotenv").config();
 const session=require("express-session");
 const Address =require("../../models/addressSchema.js")
