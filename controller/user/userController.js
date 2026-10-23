@@ -64,30 +64,47 @@ function generateOtp(){
 
 async function sendVerificationEmail(email,otp){
     try {
+        if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_PUBLIC_KEY) {
+            const emailjs = require('@emailjs/nodejs');
+            const response = await emailjs.send(
+                process.env.EMAILJS_SERVICE_ID,
+                process.env.EMAILJS_TEMPLATE_ID,
+                {
+                    email: email,
+                    to_email: email,
+                    recipient: email,
+                    otp: otp,
+                    passcode: otp,
+                    time: new Date().toLocaleTimeString(),
+                    expiry_time: "15 minutes"
+                },
+                {
+                    publicKey: process.env.EMAILJS_PUBLIC_KEY,
+                    privateKey: process.env.EMAILJS_PRIVATE_KEY
+                }
+            );
+            console.log("EmailJS response:", response.status, response.text);
+            return response.status === 200;
+        }
+
         const transporter=nodemailer.createTransport({
            service:'gmail',
-           port :587,
-           secure:false,
-           requireTLS:true,
            auth:{
-       user:process.env.NODEMAILER_EMAIL,
-        pass:process.env.NODEMAILER_PASSWORD
+             user:process.env.NODEMAILER_EMAIL,
+             pass:process.env.NODEMAILER_PASSWORD
            }
-        })
-      const info =await transporter.sendMail({
-        from:process.env.NODEMAILER_EMAIL,
-        to:email,
-        subject:"verify your account",
-        text:`your OTP is ${otp}`,
-        html:`<b> your OTP:${otp}</b>`,
-      })
-      return info.accepted.length>0
-
-
+        });
+        const info =await transporter.sendMail({
+          from:process.env.NODEMAILER_EMAIL,
+          to:email,
+          subject:"verify your account",
+          text:`your OTP is ${otp}`,
+          html:`<b> your OTP:${otp}</b>`,
+        });
+        return info.accepted.length>0;
     } catch (error) {
-     console.error("sending email",error) ;
+     console.error("sending email error:", error);
      return false; 
-        
     }
 }
 
