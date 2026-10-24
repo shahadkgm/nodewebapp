@@ -50,6 +50,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Lightweight health-check endpoint to keep Render awake
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 // Define routes
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
