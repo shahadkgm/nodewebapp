@@ -126,38 +126,30 @@ const getAllProducts = async (req, res) => {
         const page = parseInt(req.query.page, 10) || 1; // Capture the page query or default to 1
         const limit = 5; // Limit number of results per page
 
+        const searchQuery = search
+            ? { productName: { $regex: new RegExp(".*" + search + ".*", "i") } }
+            : {};
+
         // Find products with the search query and apply pagination
-        const productData = await Product.find({
-            $or: [
-                { productName: { $regex: new RegExp(".*" + search + ".*", "i") } }
-            ]
-        })
+        const productData = await Product.find(searchQuery)
             .limit(limit)
             .skip((page - 1) * limit)
             .populate('category')
             .exec();
 
         // Count total number of products that match the search query
-        const count = await Product.find({
-            $or: [
-                { productName: { $regex: new RegExp(".*" + search + ".*", "i") } }
-            ]
-        }).countDocuments();
+        const count = await Product.countDocuments(searchQuery);
 
         const category = await Category.find({ isListed: true });
 
-        // If categories exist, render the products page with pagination and search query
-        if (category && category.length > 0) {
-            res.render("products", {
-                data: productData,
-                currentPage: page,
-                totalPages: Math.ceil(count / limit),
-                cat: category,
-                search: search // Pass the search query to the view
-            });
-        } else {
-            res.render("page-404");
-        }
+        // Always render the products page
+        res.render("products", {
+            data: productData || [],
+            currentPage: page,
+            totalPages: Math.ceil(count / limit) || 1,
+            cat: category || [],
+            search: search // Pass the search query to the view
+        });
     } catch (error) {
         console.error("Error from getAll product", error);  
         res.redirect("/admin/pageerror");
