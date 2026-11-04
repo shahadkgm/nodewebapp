@@ -33,11 +33,18 @@
 }
 
 .container {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 420px;
+    box-sizing: border-box;
+}
+@media (max-width: 480px) {
+    .container { padding: 18px 16px; border-radius: 8px; }
+    h2 { font-size: 20px; }
+    .btn { width: 100%; }
 }
 
 .login-form {
@@ -149,7 +156,7 @@ text-decoration: underline;}
                     <button type="submit" class="btn">Login</button>
                 </div>
                 <p style="text-align: center;">or login with google</p>
-                <div class="social-btns" style="padding-left: 100px;">
+                <div class="social-btns" style="display:flex;justify-content:center;margin-top:8px;">
                     <a href="/auth/google">
                         <img src="/images/Google_Icons-09-512.webp" alt="Google Logo" style="width: 46px; height: 46px" />
                     </a>

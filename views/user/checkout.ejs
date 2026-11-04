@@ -151,6 +151,21 @@
     .coupon-message.error {
         color: #d8948e;
     }
+
+    /* ── Responsive Checkout ── */
+    @media (max-width: 768px) {
+      .container.my-5 { padding: 0 10px; }
+      .checkout-card { padding: 16px !important; }
+      .payment-methods { flex-direction: column; }
+      .coupon-form { flex-direction: column; }
+      .coupon-btn { width: 100%; }
+      .place-order-btn { font-size: 0.95rem; }
+    }
+    @media (max-width: 480px) {
+      h1.display-5 { font-size: 1.6rem; }
+      h3 { font-size: 1.1rem; }
+      .order-item h5 { font-size: 0.95rem; }
+    }
 </style>
 
 <div class="container my-5">
