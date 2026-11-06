@@ -1,109 +1,271 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
 // Controllers
-const adminController = require("../controller/admin/adminController");
-const customerController = require("../controller/admin/customerController");
-const categoryController = require("../controller/admin/categoryController");
-const productController = require("../controller/admin/productController");
-const orderController = require("../controller/admin/orderConroller");
-const couponController = require("../controller/admin/couponController");
-const salesController = require("../controller/admin/salesController");
-const walletController = require("../controller/admin/walletController");
+const adminController = require('../controller/admin/adminController');
+const customerController = require('../controller/admin/customerController');
+const categoryController = require('../controller/admin/categoryController');
+const productController = require('../controller/admin/productController');
+const orderController = require('../controller/admin/orderConroller');
+const couponController = require('../controller/admin/couponController');
+const salesController = require('../controller/admin/salesController');
+const walletController = require('../controller/admin/walletController');
 
 // Middlewares
-const { adminAuth, userAuth } = require("../middlewares/auth");
-const uploads = require("../util/Multer");
+const { adminAuth } = require('../middlewares/auth');
+const uploads = require('../util/Multer');
 
 /* ==========================================================================
-   STATIC ROUTES (Defined first to prevent parameter shadowing)
+   Authentication & Dashboard
    ========================================================================== */
+router.route('/login')
+  .get(adminController.loadLogin)
+  .post(adminController.login);
 
-// --- Authentication & Dashboard ---
-router.get("/pageerror", adminController.pageerror);
-router.get("/login", adminController.loadLogin);
-router.post("/login", adminController.login);
-router.get("/logout", adminController.logout);
-router.get("/", adminAuth, adminController.loadDashboard);
+router.route('/logout')
+  .get(adminController.logout)
+  .post(adminController.logout);
 
-// --- Customer Management (Static) ---
-router.get("/users", adminAuth, customerController.customerInfo);
-router.get("/customers", adminAuth, customerController.customerInfo); // RESTful alias
-router.get("/blockCustomer", adminAuth, customerController.customerBlocked);
-router.get("/unblockCustomer", adminAuth, customerController.customerunBlocked);
+router.route('/pageerror')
+  .get(adminController.pageerror);
 
-// --- Category Management (Static) ---
-router.get("/category", adminAuth, categoryController.categoryInfo);
-router.get("/categories", adminAuth, categoryController.categoryInfo); // RESTful alias
-router.post("/addCategory", adminAuth, categoryController.addCategory);
-router.post("/categories", adminAuth, categoryController.addCategory); // RESTful alias
-router.post("/addCategoryOffer", adminAuth, categoryController.addCategoryOffer);
-router.post("/removeCategoryOffer", adminAuth, categoryController.removeCategoryOffer);
-router.get("/listCategory", adminAuth, categoryController.getListCategory);
-router.get("/unlistCategory", adminAuth, categoryController.getUnListCategory);
-router.get("/editCategory", adminAuth, categoryController.getEditCategory);
-
-// --- Product Management (Static) ---
-router.get("/products", adminAuth, productController.getAllProducts); // RESTful
-router.get("/addProducts", adminAuth, productController.getProductAddpage);
-router.get("/products/add", adminAuth, productController.getProductAddpage); // RESTful alias
-router.post("/addProducts", adminAuth, uploads.array("images", 4), productController.addProducts);
-router.post("/products", adminAuth, uploads.array("images", 4), productController.addProducts); // RESTful alias
-router.post("/addProductOffer", adminAuth, productController.addProductOffer);
-router.post("/removeProductOffer", adminAuth, productController.removeProductOffer);
-router.get("/blockProduct", adminAuth, productController.blockProduct);
-router.get("/unblockProduct", adminAuth, productController.unblockProduct);
-router.get("/editProduct", adminAuth, productController.getEditProduct);
-router.post("/deleteImage", adminAuth, productController.deleteSingleImage);
-
-// --- Order Management (Static) ---
-router.get("/orders", adminAuth, orderController.getOrderpage); // RESTful
-
-// --- Coupon Management (Static) ---
-router.get("/Coupon", adminAuth, couponController.getCoupon);
-router.get("/coupons", adminAuth, couponController.getCoupon); // RESTful alias
-router.post("/createCoupon", adminAuth, couponController.createCoupon);
-router.post("/coupons", adminAuth, couponController.createCoupon); // RESTful alias
-router.get("/editCoupon", adminAuth, couponController.editCoupon);
-router.post("/updateCoupon", adminAuth, couponController.updateCoupon);
-router.get("/deleteCoupon", adminAuth, couponController.deleteCoupon);
-
-// --- Sales Management (Static) ---
-router.get("/sales-report", adminAuth, salesController.getSalesReport); // RESTful
-router.get("/salesReport", adminAuth, salesController.getSalesReport); // Legacy alias
-
-// --- Wallet Management (Static) ---
-router.get("/wallets", walletController.getAllWallets); // RESTful
+router.route('/')
+  .get(adminAuth, adminController.loadDashboard);
 
 /* ==========================================================================
-   DYNAMIC / PARAMETERIZED ROUTES (Defined after static routes)
+   Customer Management
    ========================================================================== */
+router.route('/customers')
+  .get(adminAuth, customerController.customerInfo);
 
-// --- Category Dynamic Routes ---
-router.post("/editCategory/:id", adminAuth, categoryController.editCategory);
-router.put("/categories/:id", adminAuth, categoryController.editCategory); // RESTful alias
-router.post("/categories/:id", adminAuth, categoryController.editCategory); // RESTful alias
+// Legacy alias
+router.route('/users')
+  .get(adminAuth, customerController.customerInfo);
 
-// --- Product Dynamic Routes ---
-router.post("/editProduct/:id", adminAuth, uploads.array("images", 4), productController.editProduct);
-router.put("/products/:id", adminAuth, uploads.array("images", 4), productController.editProduct); // RESTful alias
-router.post("/products/:id", adminAuth, uploads.array("images", 4), productController.editProduct); // RESTful alias
+router.route('/customers/:id/block')
+  .patch(adminAuth, customerController.customerBlocked)
+  .post(adminAuth, customerController.customerBlocked);
 
-// --- Order Dynamic Routes ---
-router.get("/view-order/:id", adminAuth, orderController.viewOrder);
-router.get("/orders/:id", adminAuth, orderController.viewOrder); // RESTful alias
-router.post("/update-order-status/:id", adminAuth, orderController.getUpdateOrder);
-router.patch("/orders/:id/status", adminAuth, orderController.getUpdateOrder); // RESTful alias
-router.post("/delete-order/:id", adminAuth, orderController.deleteOrder);
-router.delete("/orders/:id", adminAuth, orderController.deleteOrder); // RESTful alias
-router.post("/approve-return/:orderId", adminAuth, orderController.approveReturn);
-router.post("/orders/:orderId/approve-return", adminAuth, orderController.approveReturn); // RESTful alias
-router.post("/reject-return/:orderId", adminAuth, orderController.rejectReturn);
-router.post("/orders/:orderId/reject-return", adminAuth, orderController.rejectReturn); // RESTful alias
+router.route('/customers/:id/unblock')
+  .patch(adminAuth, customerController.customerunBlocked)
+  .post(adminAuth, customerController.customerunBlocked);
 
-// --- Wallet Dynamic Routes ---
-router.get("/wallets/:userId", walletController.getUserWallet); // RESTful
-router.post("/wallets/:userId/credit", walletController.creditWallet); // RESTful
-router.post("/wallets/:userId/debit", walletController.debitWallet); // RESTful
+// Legacy query-param aliases for EJS templates
+router.route('/blockCustomer')
+  .get(adminAuth, customerController.customerBlocked)
+  .patch(adminAuth, customerController.customerBlocked);
+
+router.route('/unblockCustomer')
+  .get(adminAuth, customerController.customerunBlocked)
+  .patch(adminAuth, customerController.customerunBlocked);
+
+/* ==========================================================================
+   Category Management
+   ========================================================================== */
+router.route('/categories')
+  .get(adminAuth, categoryController.categoryInfo)
+  .post(adminAuth, categoryController.addCategory);
+
+// Legacy aliases
+router.route('/category')
+  .get(adminAuth, categoryController.categoryInfo);
+
+router.route('/addCategory')
+  .post(adminAuth, categoryController.addCategory);
+
+router.route('/categories/:id')
+  .get(adminAuth, categoryController.getEditCategory)
+  .put(adminAuth, categoryController.editCategory)
+  .post(adminAuth, categoryController.editCategory); // Form fallback
+
+router.route('/categories/:id/offer')
+  .post(adminAuth, categoryController.addCategoryOffer)
+  .delete(adminAuth, categoryController.removeCategoryOffer);
+
+router.route('/categories/:id/list')
+  .patch(adminAuth, categoryController.getListCategory)
+  .get(adminAuth, categoryController.getListCategory);
+
+router.route('/categories/:id/unlist')
+  .patch(adminAuth, categoryController.getUnListCategory)
+  .get(adminAuth, categoryController.getUnListCategory);
+
+// Legacy category routes
+router.route('/addCategoryOffer')
+  .post(adminAuth, categoryController.addCategoryOffer);
+
+router.route('/removeCategoryOffer')
+  .post(adminAuth, categoryController.removeCategoryOffer);
+
+router.route('/listCategory')
+  .get(adminAuth, categoryController.getListCategory);
+
+router.route('/unlistCategory')
+  .get(adminAuth, categoryController.getUnListCategory);
+
+router.route('/editCategory')
+  .get(adminAuth, categoryController.getEditCategory);
+
+router.route('/editCategory/:id')
+  .post(adminAuth, categoryController.editCategory)
+  .put(adminAuth, categoryController.editCategory);
+
+/* ==========================================================================
+   Product Management
+   ========================================================================== */
+router.route('/products')
+  .get(adminAuth, productController.getAllProducts)
+  .post(adminAuth, uploads.array('images', 4), productController.addProducts);
+
+router.route('/products/add')
+  .get(adminAuth, productController.getProductAddpage);
+
+// Legacy add product aliases
+router.route('/addProducts')
+  .get(adminAuth, productController.getProductAddpage)
+  .post(adminAuth, uploads.array('images', 4), productController.addProducts);
+
+router.route('/products/:id')
+  .get(adminAuth, productController.getEditProduct)
+  .put(adminAuth, uploads.array('images', 4), productController.editProduct)
+  .post(adminAuth, uploads.array('images', 4), productController.editProduct);
+
+router.route('/products/:id/offer')
+  .post(adminAuth, productController.addProductOffer)
+  .delete(adminAuth, productController.removeProductOffer);
+
+router.route('/products/:id/block')
+  .patch(adminAuth, productController.blockProduct)
+  .get(adminAuth, productController.blockProduct);
+
+router.route('/products/:id/unblock')
+  .patch(adminAuth, productController.unblockProduct)
+  .get(adminAuth, productController.unblockProduct);
+
+router.route('/products/:id/images')
+  .delete(adminAuth, productController.deleteSingleImage)
+  .post(adminAuth, productController.deleteSingleImage);
+
+// Legacy product routes
+router.route('/addProductOffer')
+  .post(adminAuth, productController.addProductOffer);
+
+router.route('/removeProductOffer')
+  .post(adminAuth, productController.removeProductOffer);
+
+router.route('/blockProduct')
+  .get(adminAuth, productController.blockProduct)
+  .patch(adminAuth, productController.blockProduct);
+
+router.route('/unblockProduct')
+  .get(adminAuth, productController.unblockProduct)
+  .patch(adminAuth, productController.unblockProduct);
+
+router.route('/editProduct')
+  .get(adminAuth, productController.getEditProduct);
+
+router.route('/editProduct/:id')
+  .post(adminAuth, uploads.array('images', 4), productController.editProduct)
+  .put(adminAuth, uploads.array('images', 4), productController.editProduct);
+
+router.route('/deleteImage')
+  .post(adminAuth, productController.deleteSingleImage)
+  .delete(adminAuth, productController.deleteSingleImage);
+
+/* ==========================================================================
+   Order Management
+   ========================================================================== */
+router.route('/orders')
+  .get(adminAuth, orderController.getOrderpage);
+
+router.route('/orders/:id')
+  .get(adminAuth, orderController.viewOrder)
+  .patch(adminAuth, orderController.getUpdateOrder)
+  .put(adminAuth, orderController.getUpdateOrder)
+  .delete(adminAuth, orderController.deleteOrder);
+
+router.route('/orders/:id/status')
+  .patch(adminAuth, orderController.getUpdateOrder)
+  .post(adminAuth, orderController.getUpdateOrder);
+
+router.route('/orders/:orderId/approve-return')
+  .patch(adminAuth, orderController.approveReturn)
+  .post(adminAuth, orderController.approveReturn);
+
+router.route('/orders/:orderId/reject-return')
+  .patch(adminAuth, orderController.rejectReturn)
+  .post(adminAuth, orderController.rejectReturn);
+
+// Legacy order routes
+router.route('/view-order/:id')
+  .get(adminAuth, orderController.viewOrder);
+
+router.route('/update-order-status/:id')
+  .post(adminAuth, orderController.getUpdateOrder);
+
+router.route('/delete-order/:id')
+  .post(adminAuth, orderController.deleteOrder)
+  .delete(adminAuth, orderController.deleteOrder);
+
+router.route('/approve-return/:orderId')
+  .post(adminAuth, orderController.approveReturn);
+
+router.route('/reject-return/:orderId')
+  .post(adminAuth, orderController.rejectReturn);
+
+/* ==========================================================================
+   Coupon Management
+   ========================================================================== */
+router.route('/coupons')
+  .get(adminAuth, couponController.getCoupon)
+  .post(adminAuth, couponController.createCoupon);
+
+router.route('/coupons/:id')
+  .get(adminAuth, couponController.editCoupon)
+  .put(adminAuth, couponController.updateCoupon)
+  .delete(adminAuth, couponController.deleteCoupon);
+
+// Legacy coupon routes
+router.route('/Coupon')
+  .get(adminAuth, couponController.getCoupon);
+
+router.route('/createCoupon')
+  .post(adminAuth, couponController.createCoupon);
+
+router.route('/editCoupon')
+  .get(adminAuth, couponController.editCoupon);
+
+router.route('/updateCoupon')
+  .post(adminAuth, couponController.updateCoupon);
+
+router.route('/deleteCoupon')
+  .get(adminAuth, couponController.deleteCoupon)
+  .delete(adminAuth, couponController.deleteCoupon);
+
+/* ==========================================================================
+   Sales Management
+   ========================================================================== */
+router.route('/sales-report')
+  .get(adminAuth, salesController.getSalesReport);
+
+router.route('/salesReport')
+  .get(adminAuth, salesController.getSalesReport);
+
+/* ==========================================================================
+   Wallet Management
+   ========================================================================== */
+router.route('/wallets')
+  .get(adminAuth, walletController.getAllWallets);
+
+router.route('/wallets/:userId')
+  .get(adminAuth, walletController.getUserWallet);
+
+router.route('/wallets/:userId/credit')
+  .post(adminAuth, walletController.creditWallet)
+  .patch(adminAuth, walletController.creditWallet);
+
+router.route('/wallets/:userId/debit')
+  .post(adminAuth, walletController.debitWallet)
+  .patch(adminAuth, walletController.debitWallet);
 
 module.exports = router;
