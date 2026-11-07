@@ -41,7 +41,7 @@
               <% for(let i = data.length - 1; i >= 0; i--) { %>
               <tr>
                 <td class="text-start"><%= data[i].productName %></td>
-                <td><img src="/uploads/product-images/<%= (data[i].productImage && data[i].productImage.length > 0) ? data[i].productImage[0] : '' %>" class="img-fluid" style="max-width: 80px; max-height: 80px;"></td>
+                <td><img src="<%= getImageUrl((data[i].productImage && data[i].productImage.length > 0) ? data[i].productImage[0] : '') %>" class="img-fluid" style="max-width: 80px; max-height: 80px;"></td>
                 <td><%= data[i].category ? data[i].category.name : 'No Category' %></td>
                 <td>₹<%= data[i].regularPrice %></td>
                 <td>₹<%= data[i].salePrice %></td>

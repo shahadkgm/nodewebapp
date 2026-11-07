@@ -18,7 +18,7 @@
                 <h5 class="mb-3">Ordered Items:</h5>
                 <% order.orderedItems.forEach(item => { %>
                   <div class="d-flex align-items-center mb-3 p-2 border rounded">
-                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
+                    <img src="<%= getImageUrl(item.product && item.product.productImage && item.product.productImage[0]) %>" 
                          alt="Product Image" 
                          class="me-3 rounded" 
                          style="max-width: 80px; max-height: 80px; object-fit: cover;">

@@ -251,7 +251,7 @@
                                     <% for(let i = 0; i < product.productImage.length; i++) { %>
                                         <div class="thumbnail">
                                             <input type="hidden" value="<%= product.productImage[i] %>" id="imageDatas">
-                                            <img class="rounded" src="/uploads/product-images/<%= product.productImage[i] %>" alt="">
+                                            <img class="rounded" src="<%= getImageUrl(product.productImage[i]) %>" alt="">
                                             <i onclick="deleteSingleImage('<%= product.productImage[i] %>', '<%= product._id %>')" class="fas fa-times"></i>
                                         </div>
                                     <% } %>

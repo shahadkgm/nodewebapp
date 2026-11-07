@@ -297,7 +297,7 @@
                                                       <figure class="border-radius-10 zoom-container">
                                                           
                                                         <img
-                                                              src="/uploads/product-images/<%= image %>"
+                                                              src="<%= getImageUrl(image) %>"
                                                               alt="<%= product.name %>"
                                                               style="width: 100%; object-fit: cover;"
                                                               class="zoom-image"
@@ -315,7 +315,7 @@
                                       <div class="thumbnail-gallery mt-3">
                                           <% product.productImages.forEach((image, index) => { %>
                                               <img 
-                                                  src="/uploads/product-images/<%= image %>" 
+                                                  src="<%= getImageUrl(image) %>" 
                                                   alt="<%= product.name %>" 
                                                   class="thumbnail-image" 
                                                   data-index="<%= index %>"
@@ -391,7 +391,7 @@
                               <% relatedProducts.forEach((related) => { %>
                                   <div class="related-product-card">
                                       <img
-                                          src="/uploads/product-images/<%= related.productImage[0] %>"
+                                          src="<%= getImageUrl(related.productImage && related.productImage[0]) %>"
                                           alt="<%= related.productName %>"
                                           class="related-product-image"
                                       />

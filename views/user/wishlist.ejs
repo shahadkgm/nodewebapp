@@ -71,7 +71,7 @@
                             <% wishlist.forEach(product => { %>
                               <tr id="wishlist-item-<%= product._id %>"> 
                                 <td>
-                                        <img src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>" style="max-width: 80px; max-height: 80px;" />
+                                        <img src="<%= getImageUrl(product && product.productImage && product.productImage[0]) %>" alt="<%= product ? product.productName : '' %>" style="max-width: 80px; max-height: 80px;" />
                                     </td>
                                     <td><strong><%= product.productName %></strong></td>
                                     <td><%= product.description %></td>

@@ -536,7 +536,7 @@
 >
   ❤️
 </span>           <a href="/product-details/<%= products[i]._id %>">
-              <img src="/uploads/product-images/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
+              <img src="<%= getImageUrl(products[i].productImage && products[i].productImage[0]) %>" alt="<%=products[i].productName%>" />
               <h4><%= products[i].productName %></h4>
               <p>
                 Price: ₹

@@ -45,6 +45,30 @@ app.use((req, res, next) => {
 
 app.set('view engine', 'ejs');
 app.set('views', [path.join(__dirname, 'views/user'), path.join(__dirname, 'views/admin')]);
+
+// Global helper for template views to resolve images (Cloudinary vs Local)
+app.use((req, res, next) => {
+  res.locals.getImageUrl = (img) => {
+    if (!img) return '/images/default.png';
+    if (typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://'))) {
+      return img;
+    }
+    return `/uploads/product-images/${img}`;
+  };
+  next();
+});
+
+// Redirect handler if an image path was requested with a Cloudinary URL
+app.get('/uploads/product-images/:image(*)', (req, res, next) => {
+  const img = req.params.image;
+  if (img && (img.startsWith('http://') || img.startsWith('https://'))) {
+    return res.redirect(img);
+  }
+  if (img && (img.startsWith('http:/') || img.startsWith('https:/'))) {
+    return res.redirect(img.replace(/^https?:\//, (m) => m + '/'));
+  }
+  next();
+});
 app.use(express.static("public"));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

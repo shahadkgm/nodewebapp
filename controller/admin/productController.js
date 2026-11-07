@@ -1,11 +1,11 @@
 const Product = require("../../models/productSchema");
-const Category = require("../../models/categorySchema")
+const Category = require("../../models/categorySchema");
 const User = require("../../models/userschema");
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
-const product = require("../../models/productSchema");
-const mongoose=require("mongoose")
+const mongoose = require("mongoose");
+const { uploadToCloudinary, deleteFromCloudinary } = require("../../config/cloudinary");
 
 
 
@@ -61,7 +61,20 @@ const addProducts = async (req, res) => {
         await sharp(originalImagePath)
           .resize({ width: 440, height: 440, fit: 'cover' })
           .toFile(resizedImagePath);
-        images.push(uniqueFilename);
+
+        let finalImage = uniqueFilename;
+        if (process.env.CLOUDINARY_CLOUD_NAME) {
+          try {
+            const cloudUrl = await uploadToCloudinary(resizedImagePath);
+            finalImage = cloudUrl;
+            // Clean up temporary local files
+            if (fs.existsSync(originalImagePath)) fs.unlinkSync(originalImagePath);
+            if (fs.existsSync(resizedImagePath)) fs.unlinkSync(resizedImagePath);
+          } catch (cloudErr) {
+            console.error('Cloudinary upload failed, keeping local file:', cloudErr);
+          }
+        }
+        images.push(finalImage);
       } catch (error) {
         console.error(`Error resizing image ${req.files[i].filename}:`, error);
         return res.status(500).json({
@@ -311,7 +324,18 @@ const blockProduct = async (req, res) => {
         const images = [];
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
-                images.push(req.files[i].filename);
+                const originalImagePath = req.files[i].path;
+                let finalImage = req.files[i].filename;
+                if (process.env.CLOUDINARY_CLOUD_NAME) {
+                    try {
+                        const cloudUrl = await uploadToCloudinary(originalImagePath);
+                        finalImage = cloudUrl;
+                        if (fs.existsSync(originalImagePath)) fs.unlinkSync(originalImagePath);
+                    } catch (cloudErr) {
+                        console.error('Cloudinary upload error in editProduct:', cloudErr);
+                    }
+                }
+                images.push(finalImage);
             }
         }
 
@@ -363,25 +387,29 @@ const blockProduct = async (req, res) => {
 
 
 const deleteSingleImage = async (req, res) => {
-    console.log("deletsngle")
+    console.log("deleteSingleImage called");
     try {
         const { imageNameToServer, productIdToServer } = req.body;
-        const product = await Product.findByIdAndUpdate(productIdToServer, { $pull: { productImage: imageNameToServer } });
-        const imagePath = path.join("public", "uploads", "product-images", imageNameToServer);
-        if (fs.existsSync(imagePath)) {
-            await fs.unlinkSync(imagePath);
-            console.log(`imaage${imageNameToServer} deleted successfully`);
+        await Product.findByIdAndUpdate(productIdToServer, { $pull: { productImage: imageNameToServer } });
+
+        if (imageNameToServer && imageNameToServer.startsWith('http')) {
+            await deleteFromCloudinary(imageNameToServer);
+            console.log(`Cloudinary image deleted successfully`);
         } else {
-            console.log(`Image${imageNameToServer}not found`);
-            res.send({ status: true });
+            const imagePath = path.join("public", "uploads", "product-images", imageNameToServer);
+            if (fs.existsSync(imagePath)) {
+                await fs.unlinkSync(imagePath);
+                console.log(`Image ${imageNameToServer} deleted successfully`);
+            } else {
+                console.log(`Image ${imageNameToServer} not found locally`);
+            }
         }
+        res.send({ status: true });
     } catch (error) {
-        console.error("dlt sigle ", error)
-        res.redirect("/admin/pageerror")
-
-
+        console.error("delete single error:", error);
+        res.redirect("/admin/pageerror");
     }
-}
+};
 
 
 

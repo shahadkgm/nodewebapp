@@ -119,12 +119,12 @@
               <td class="d-none d-md-table-cell"><%= item.productId.productName %></td>
               <td>
                 <% if (Array.isArray(item.productId.productImage) && item.productId.productImage.length > 0) { %>
-                  <img src="/uploads/product-images/<%= item.productId.productImage[0] %>" 
+                  <img src="<%= getImageUrl(item.productId.productImage[0]) %>" 
                        alt="<%= item.productId.productName %>" 
                        class="img-fluid rounded" 
                        style="max-width: 50px; height: auto;">
                 <% } else { %>
-                  <img src="/uploads/product-images/default.jpg" 
+                  <img src="/images/default.png" 
                        alt="No Image Available" 
                        class="img-fluid rounded" 
                        style="max-width: 50px; height: auto;">
